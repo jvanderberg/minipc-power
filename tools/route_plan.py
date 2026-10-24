@@ -221,10 +221,66 @@ def boost12(r):
     r.track('B.Cu', 0.2, (r13[0], 114.75), (123.3, 114.75), (123.3, 111.4), net=p12)
 
 
+def boost5(r):
+    """TPS61088-Q1 (U5), per datasheet s11 / fig. 21: SW pour from L3 to the left-column SW pins, FSW and BOOT parts
+    on it; VIN cap at VIN pin 9; C_IN and C_OUT grounds on a PGND pour tied to the thermal pad's bottom tab; ILIM / COMP
+    / FB network top-right in pin order, its grounds via straight into the plane (fig. 21 vias AGND to the plane).
+    Load switch Q5 (P-FET, gate pulled down by Q6 from EN) between VOUT5A and the +5V pad."""
+    sw, vout, en, vsys = r.net('U5', '4'), r.net('U5', '14'), r.net('U5', '2'), r.net('U5', '9')
+    r.zone(sw, 'F.Cu', [(133.1, 107.9), (135.7, 107.9), (135.7, 106.95), (137.55, 106.95), (137.55, 107.95), (136.45, 107.95),
+                        (136.45, 109.6), (138.7, 109.6), (138.7, 111.55), (137.4, 111.55), (137.4, 112.15), (136.7, 112.15),
+                        (136.7, 111.55), (133.1, 111.55)], prio=10, name='SW5')
+    r.zone(vsys, 'F.Cu', [(126.95, 107.8), (130.5, 107.8), (130.5, 112.6), (135.5, 112.6), (135.5, 115.8), (126.95, 115.8)],
+           prio=10, name='VSYS_5V')
+    r.via_field(vsys, 127.6, 112.0, 130.0, 112.8, pitch=0.8)
+    r.zone(vout, 'F.Cu', [(141.6, 110.1), (148.0, 110.1), (148.0, 108.95), (150.7, 108.95), (150.7, 110.1), (151.4, 110.1),
+                          (151.4, 112.7), (141.6, 112.7)], prio=10, name='VOUT5A')
+    r.zone('GND', 'F.Cu', [(140.3, 112.3), (140.85, 112.3), (140.85, 113.3), (151.4, 113.3), (151.4, 115.75), (135.9, 115.75),
+                           (135.9, 113.75), (137.6, 113.75), (137.6, 114.4), (140.3, 114.4)], prio=10, name='PGND5')
+    p5 = r.net('Q5', '1')
+    r.zone(p5, 'F.Cu', [(147.0, 101.4), (149.9, 101.4), (149.9, 104.3), (151.4, 104.3), (151.4, 106.5), (148.8, 106.5),
+                        (148.8, 104.3), (147.0, 104.3)], prio=10, name='P5V')
+    # left column: EN, FSW, (SW x4), BOOT, VIN
+    r.track('F.Cu', 0.2, ('U5', '2'), (137.9, 108.85), (137.9, 107.75))
+    r.via((137.9, 107.75), en, 0.45, 0.2)
+    r.track('F.Cu', 0.2, ('R17', '1'), (137.1, 109.0), (137.45, 109.35), ('U5', '3'))
+    r.track('F.Cu', 0.2, ('U5', '8'), (137.95, 111.85), (137.75, 112.05), (137.75, r.P('C24', '1')[1]), ('C24', '1'))
+    c231 = r.P('C23', '1')
+    r.track('F.Cu', 0.3, ('U5', '9'), (c231[0], 112.7), ('C23', '1'))
+    r.track('F.Cu', 0.3, (c231[0], 113.5), (r.P('C22', '1')[0], 113.5), ('C22', '1'), net=vsys)
+    # top: VCC caps, AGND pin
+    r.track('F.Cu', 0.25, ('U5', '1'), (139.55, 107.6), (138.9, 107.0), ('C25', '1'), ('C26', '1'))
+    r.track('F.Cu', 0.25, ('U5', '20'), (141.05, 107.3), ('C25', '2'))
+    r.track('F.Cu', 0.2, ('U5', '10'), (139.55, 113.2), ('C27', '1'))                       # SS
+    # right column: ILIM, COMP, FB fan out to the column in the same order
+    r.track('F.Cu', 0.2, ('U5', '19'), (142.45, 108.85), (142.45, r.P('R18', '1')[1]), ('R18', '1'))
+    r.track('F.Cu', 0.2, ('U5', '18'), (142.85, 109.35), (142.85, r.P('C29', '1')[1]), ('C29', '1'))
+    r.track('F.Cu', 0.2, (142.85, r.P('R21', '1')[1]), ('R21', '1'), net=r.net('U5', '18'))
+    r.track('F.Cu', 0.2, ('R21', '2'), ('C28', '1'))
+    r19 = r.P('R19', '2')
+    r.track('F.Cu', 0.2, ('U5', '17'), (r19[0], r.P('U5', '17')[1]), ('R19', '2'), (r19[0], 109.2), ('R20', '1'))
+    # load switch: gate network, Q6 pull-down from EN
+    q5g = r.P('Q5', '4')
+    r.track('F.Cu', 0.2, ('Q5', '4'), (147.6, q5g[1]), (147.3, r.P('R22', '2')[1]), ('R22', '2'), ('C32', '2'))
+    r.track('F.Cu', 0.25, (148.3, 106.95), (147.6, 106.95), (147.2, 106.55), ('R22', '1'), ('C32', '1'), net=vout)
+    gate5 = r.net('Q5', '4')
+    r.track('F.Cu', 0.2, ('C32', '2'), (145.2, 104.55))
+    r.via((145.2, 104.55), gate5, 0.45, 0.2)
+    r231 = r.P('R23', '1')
+    r.via((r231[0] + 0.75, r231[1]), gate5, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (145.2, 104.55), (148.25, 107.6), (r231[0] + 0.75, 107.6 + 1.0), (r231[0] + 0.75, r231[1]), net=gate5)
+    r.track('F.Cu', 0.2, ('R23', '1'), (r231[0] + 0.75, r231[1]))
+    r.track('F.Cu', 0.2, ('Q6', '3'), ('R23', '2'))
+    q61 = r.P('Q6', '1')
+    r.track('F.Cu', 0.2, ('Q6', '1'), (q61[0], 115.75))
+    r.via((q61[0], 115.75), en, 0.45, 0.2)
+
+
 def build(r):
     planes(r)
     usb_pd(r)
     charger(r)
     protection(r)
     boost12(r)
+    boost5(r)
     stitch_pads(r)          # last, so the stitching vias avoid the routed copper

@@ -50,7 +50,19 @@ Placement redone against fig. 36 before routing (C_OUT1 had been rotated GND-up,
 
 ## TPS61088-Q1 5 V boost (datasheet s11, fig. 21)
 
-pending
+Placement redone against fig. 21 before routing. Before that, the COMP parts sat between the VOUT pins and C_OUT,
+C_OUT was GND-up, and the VIN cap was 4 mm from the pin.
+
+| Rule | Status |
+|---|---|
+| SW traces short and small, ground plane under the regulator | ok: one F.Cu pour from L3 to SW pins 4-7, with R17 (FSW) and C24 (BOOT) standing on it as in the figure; In1 GND underneath |
+| Input cap close to VIN and GND pins | ok: C23 directly under VIN pin 9 with its GND on PGND; C20-C22 at L3's input, C22's GND on the same PGND pour |
+| Thermal pad soldered to a large ground plate with thermal vias | ok: EP to the PGND pour by its bottom tab, plus the footprint's thermal vias to In1 |
+| (fig. 21) C_OUT right at the VOUT pins, GND on PGND | ok: C30/C31 VOUT pads on the VOUT pour beside pins 14-16, GND pads on PGND5 |
+| (fig. 21) AGND parts top-right, grounds via to the bottom plane | ok: ILIM/COMP/FB column in pin order (no crossings), ground pads stitched to In1. This part's datasheet vias AGND to the plane, so no single-point bus here (unlike the TPS61178) |
+| (fig. 21) VCC cap at VCC/AGND | ok: C25/C26 above the VCC and AGND pins |
+| MODE floating = PFM (internal 800 k pull-up, datasheet pin table) | ok: left unconnected on purpose |
+| Load switch (not in the datasheet) | Q5 source on the VOUT pour, drains straight up to the +5V pad (J7/J16 swapped so +5V is above Q5); gate network beside it, Q6 pull-down via B.Cu |
 
 ## TPS63802 3.3 V buck-boost (datasheet s12, fig. 12-1)
 
