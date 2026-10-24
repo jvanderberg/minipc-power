@@ -11,6 +11,7 @@ from shapely.geometry import Point, LineString, Polygon, box
 from shapely.ops import unary_union
 
 CLR = 0.2            # clearance used when checking new vias and tracks against other nets (net-class max)
+HOLE_GAP = 0.1       # extra spacing between any two vias' copper, so drills stay > 0.25 mm apart (board rule)
 
 
 class Router:
@@ -65,6 +66,10 @@ class Router:
         c = Point(pt).buffer(size / 2 + CLR, 16)
         if edge is not None and not edge.buffer(-0.3).contains(Point(pt).buffer(size / 2)):
             return False
+        # drilled holes keep apart whatever their net (the obstacle set skips same-net copper)
+        for v in self.vias:
+            if math.dist(v['at'], pt) < (v['size'] + size) / 2 + HOLE_GAP:
+                return False
         return not c.intersects(obs)
 
     # -------------------------------------------------------------- primitives

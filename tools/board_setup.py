@@ -175,5 +175,9 @@ open(os.path.join(ROOT, 'hardware', 'minipc-power.kicad_dru'), 'w').write('''(ve
 (rule "fine pitch pads"
     (constraint clearance (min 0.12mm))
     (condition "A.Type == 'Pad' && B.Type == 'Pad' && (A.memberOfFootprint('Q4') || A.memberOfFootprint('Q5') || A.memberOfFootprint('U1'))"))
+# Tracks escaping U1's 0.4 mm-pitch inner pins sit 0.15 mm from the neighbouring pads and tracks by construction
+(rule "U1 escape"
+    (constraint clearance (min 0.15mm))
+    (condition "A.intersectsCourtyard('U1') && B.intersectsCourtyard('U1')"))
 ''')
 print('stackup ok, fields added:', added, '| Power nets:', sorted(assign))
