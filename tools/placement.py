@@ -43,10 +43,12 @@ PLACE = {
     'J1': (3.6, 21.5, 270),
     'U1': (11.4, 21.5, 90), 'R1': (10.7, 24.0, 270), 'C1': (13.9, 22.3, 90), 'D1': (11.6, 16.9, 0),
     # ================= band B: charger (BQ25606 rot 0: VBUS/PMID top-left, SW top-right, SYS/BAT right)
+    # datasheet fig. 12-2: C_SYS (C5) against SYS/GND pins with a top-layer ground tie; ILIM/ICHG/TS resistors in a row
+    # under the bottom pins, their ground straight down from GND pin 9 (analog ground, single point at the thermal pad)
     'U2': (18.6, 22.2, 0),
     'C2': (14.7, 19.2, 90), 'C3': (17.2, 17.4, 90), 'C4': (19.4, 19.05, 0), 'C7': (19.05, 17.0, 90),
-    'L1': (26.3, 19.2, 0), 'C5': (24.8, 24.6, 90), 'C6': (23.0, 24.6, 270),
-    'R2': (18.0, 26.0, 270), 'R3': (19.2, 26.0, 270), 'R4': (20.4, 26.0, 90), 'R5': (21.6, 26.0, 270),
+    'L1': (27.9, 19.25, 0), 'C5': (22.35, 21.35, 90), 'C6': (23.3, 24.6, 270),
+    'R2': (17.7, 26.0, 270), 'R3': (19.5, 26.0, 270), 'R4': (21.9, 26.0, 90), 'R5': (20.7, 26.0, 270),
     'LED1': (13.0, 26.6, 0), 'R6': (13.0, 28.0, 180),
     # ================= band B: 3.3 V buck-boost (TPS63802 rot 0: L1/L2 on the right column)
     'U6': (30.0, 27.6, 0), 'L4': (35.4, 27.8, 0), 'C33': (30.2, 24.6, 0), 'C34': (30.0, 30.4, 0),

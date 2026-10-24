@@ -18,12 +18,15 @@ def planes(r):
     r.rect('GND', 'B.Cu', X0 + m, Y0 + m, X1 - m, Y1 - m, prio=0, name='GND_BOTTOM')
 
 
+AGND = {('R2', '2'), ('R3', '2'), ('R5', '2')}   # charger analog ground: single point at U2's pad, no plane vias
+
+
 def stitch_pads(r):
     """A via beside every SMD GND and VSYS pad, so every one reaches its plane directly."""
     vsys = r.net('U2', '15')
     for (ref, num), lst in sorted(r.pads.items()):
         p = lst[0]
-        if p['th'] or p['net'] not in ('GND', vsys) or ref.startswith(('U', 'J', 'H')):
+        if p['th'] or p['net'] not in ('GND', vsys) or ref.startswith(('U', 'J', 'H')) or (ref, num) in AGND:
             continue
         r.via_near(ref, num)
 
@@ -66,19 +69,21 @@ def usb_pd(r):
 
 
 def charger(r):
-    """BQ25606 (U2): caps at their pins (datasheet s12), SW node to L1, VSYS / BAT out of the right side."""
+    """BQ25606 (U2), per datasheet s12 / fig. 12-2: PMID, REGN, BTST caps at their pins; SW node small, straight to L1;
+    C_SYS (C5) against SYS pins 15/16 with its ground tied to GND pins 17/18 on top copper; C_BAT under the BAT bar;
+    ILIM / ICHG / TS resistors on an analog-ground track that joins power ground only at GND pin 9 -> thermal pad."""
     r.track('F.Cu', 0.3, ('U2', '23'), (117.85, 118.35), net=r.net('U2', '23'))           # PMID -> C3
     r.track('F.Cu', 0.2, ('U2', '22'), (118.35, 118.5), (118.725, 118.125), ('C7', '1'))   # REGN -> C7
     r.track('F.Cu', 0.25, ('U2', '21'), (118.85, 119.05), net=r.net('U2', '21'))          # BTST -> C4
     sw = r.net('U2', '19')
     r.track('F.Cu', 0.25, ('U2', '20'), ('U2', '19'))
     r.track('F.Cu', 0.25, ('U2', '19'), (119.85, 119.05))
-    r.zone(sw, 'F.Cu', [(119.55, 118.6), (122.4, 118.6), (122.4, 120.6), (119.75, 120.6), (119.75, 119.5), (119.55, 119.5)],
-           prio=10, name='SW_CHG')
-    # GND pins into the exposed pad (which has its own thermal vias)
-    ep = r.P('U2', '25')
+    r.zone(sw, 'F.Cu', [(119.55, 118.3), (124.0, 118.3), (124.0, 119.4), (120.4, 119.4), (120.4, 120.6), (119.75, 120.6),
+                        (119.75, 119.5), (119.55, 119.5)], prio=10, name='SW_CHG')
+    # GND pins into the exposed pad (which has its own thermal vias); 17/18 also out to C_SYS's ground pad
     r.track('F.Cu', 0.25, ('U2', '17'), (119.6, 121.455))
     r.track('F.Cu', 0.2, ('U2', '18'), (119.85, 120.955))       # 0.2 wide: clears SW pin 19 above by 0.2
+    r.track('F.Cu', 0.25, ('U2', '18'), (r.P('C5', '2')[0], r.P('U2', '18')[1]))   # into C_SYS's ground pad
     r.track('F.Cu', 0.25, ('U2', '9'), (118.345, 122.8))
     # pin 6 is boxed in by STAT (left), PG (right) and the EP corner: its own via straight down
     x6 = r.P('U2', '6')[0]
@@ -86,28 +91,34 @@ def charger(r):
     r.via((x6, 124.15), 'GND', 0.45, 0.2)
     vsys = r.net('U2', '15')
     r.track('F.Cu', 0.25, ('U2', '16'), ('U2', '15'))
-    r.zone(vsys, 'F.Cu', [(120.4, 121.78), (121.6, 121.78), (121.6, 121.0), (124.7, 121.0), (124.7, 116.8), (131.2, 116.8),
-                          (131.2, 126.3), (123.9, 126.3), (123.9, 122.63), (120.4, 122.63)], prio=10, name='VSYS_CHG')
+    r.zone(vsys, 'F.Cu', [(120.4, 121.78), (121.5, 121.78), (121.5, 121.15), (126.4, 121.15), (126.4, 115.9), (132.4, 115.9),
+                          (132.4, 126.3), (124.3, 126.3), (124.3, 122.63), (120.4, 122.63)], prio=10, name='VSYS_CHG')
     bat = r.net('U2', '13')
     r.track('F.Cu', 0.25, ('U2', '14'), ('U2', '13'))
-    r.zone(bat, 'F.Cu', [(120.3, 122.83), (123.7, 122.83), (123.7, 124.45), (120.3, 124.45)], prio=10, name='BAT_CHG')
+    r.zone(bat, 'F.Cu', [(120.3, 122.83), (121.1, 122.83), (121.1, 123.05), (124.0, 123.05), (124.0, 124.3), (120.3, 124.3)],
+           prio=10, name='BAT_CHG')
     r.via_field(bat, 121.5, 123.6, 122.3, 124.1, pitch=0.7)
-    # signals off the bottom row
-    r.track('F.Cu', 0.2, ('U2', '8'), (117.845, 125.49), net=r.net('U2', '8'))           # ILIM -> R2
-    r.track('F.Cu', 0.2, ('U2', '10'), (118.845, 125.0), (119.2, 125.35), ('R3', '1'))    # ICHG -> R3
+    # bottom row: ILIM / ICHG / TS out to their resistors, analog ground down the middle from pin 9
+    r.track('F.Cu', 0.2, ('U2', '8'), (117.845, 125.3), ('R2', '1'))                      # ILIM
+    r.track('F.Cu', 0.2, ('U2', '10'), (118.845, 125.1), (119.235, 125.49), ('R3', '1'))  # ICHG
+    agnd_y = r.P('R2', '2')[1]
+    r.track('F.Cu', 0.2, ('U2', '9'), (118.345, agnd_y), ('R2', '2'))
+    r.track('F.Cu', 0.2, (118.345, agnd_y), ('R3', '2'), ('R5', '2'), net='GND')
+    r.keepout('F.Cu', [(117.1, 124.7), (121.45, 124.7), (121.45, 127.0), (117.1, 127.0)], name='AGND_CHG')
     ts = r.net('U2', '11')
-    r.track('F.Cu', 0.2, ('U2', '11'), (119.345, 124.85), (120.4, 124.85), ('R4', '2'))  # TS -> RT1 / RT2
-    r.track('F.Cu', 0.2, ('R4', '2'), ('R5', '1'))
-    r.via((121.6, 124.85), ts, 0.45, 0.2)
-    r.track('F.Cu', 0.2, ('R5', '1'), (121.6, 124.85))
-    r.track('B.Cu', 0.2, (121.6, 124.85), (121.6, 127.5), (133.6, 127.5), (134.4, 128.3), ('J4', '1'))  # TS -> NTC pad
+    r.track('F.Cu', 0.2, ('U2', '11'), (119.345, 124.85), (121.3, 124.85))
+    r.track('F.Cu', 0.2, (r.P('R5', '1')[0], 124.85), ('R5', '1'), ('R4', '2'), net=ts)
+    r.via((121.3, 124.85), ts, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (121.3, 124.85), (121.3, 126.0), (122.8, 126.0), (122.8, 127.5), (133.6, 127.5), (134.4, 128.3),
+            ('J4', '1'))                                                                   # TS -> NTC pad
     # REGN -> RT1 top (R4 pin 1) on B.Cu
     regn = r.net('U2', '22')
     r.via((120.1, 117.75), regn, 0.45, 0.2)
     r.track('F.Cu', 0.2, ('C7', '1'), (120.1, 117.75))
-    r.via((120.4, 127.45), regn, 0.45, 0.2)
-    r.track('B.Cu', 0.2, (120.1, 117.75), (120.35, 118.0), (120.35, 127.4), (120.4, 127.45), net=regn)  # clear of the EP's B.Cu pad
-    r.track('F.Cu', 0.2, (120.4, 127.45), ('R4', '1'))
+    r41 = r.P('R4', '1')
+    r.via((r41[0], 127.45), regn, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (120.1, 117.75), (120.35, 118.0), (120.35, 127.0), (120.8, 127.45), (r41[0], 127.45), net=regn)
+    r.track('F.Cu', 0.2, (r41[0], 127.45), ('R4', '1'))
     # STAT -> LED (to VSYS via R6) and the CHG pad
     st = r.net('U2', '5')
     r.track('F.Cu', 0.2, ('U2', '5'), (115.9, 122.955), (115.9, 125.6), (112.2, 125.6), ('LED1', '1'))
@@ -115,9 +126,9 @@ def charger(r):
     r.track('F.Cu', 0.2, ('LED1', '2'), ('R6', '1'))
     # PG -> J12 on B.Cu
     pg = r.net('U2', '7')
-    r.track('F.Cu', 0.2, ('U2', '7'), (117.345, 125.1), (117.1, 125.35))
-    r.via((117.1, 125.35), pg, 0.45, 0.2)
-    r.track('B.Cu', 0.2, (117.1, 125.35), (117.1, 131.3), ('J12', '1'))
+    r.track('F.Cu', 0.2, ('U2', '7'), (117.345, 124.6), (116.85, 125.0))
+    r.via((116.85, 125.0), pg, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (116.85, 125.0), (116.85, 131.3), ('J12', '1'))
 
 
 def protection(r):

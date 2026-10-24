@@ -23,7 +23,7 @@ class Router:
                 rings = [Polygon(r, h) if len(r) >= 3 else None for r, h in p['poly']]
                 g = unary_union([r for r in rings if r is not None and r.is_valid] or [Point(p['x'], p['y']).buffer(0.1)])
                 self.pads.setdefault((f['ref'], p['num']), []).append(dict(p, geom=g))
-        self.tracks, self.vias, self.zones = [], [], []
+        self.tracks, self.vias, self.zones, self.keepouts = [], [], [], []
         self.log = []
 
     # -------------------------------------------------------------- lookups
@@ -146,6 +146,10 @@ class Router:
         self.zones.append(dict(net=net, layer=layer, pts=[(round(x, 4), round(y, 4)) for x, y in pts], prio=prio,
                                solid=solid, name=name, clearance=clearance, min_thick=min_thick))
 
+    def keepout(self, layer, pts, name=''):
+        """Rule area that keeps copper pours out (tracks, vias and pads still allowed), e.g. an analog-ground island."""
+        self.keepouts.append(dict(layer=layer, pts=[(round(x, 4), round(y, 4)) for x, y in pts], name=name))
+
     def rect(self, net, layer, x0, y0, x1, y1, **kw):
         self.zone(net, layer, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], **kw)
 
@@ -170,4 +174,12 @@ class Router:
                        '\t\t(polygon\n\t\t\t(pts\n\t\t\t\t%s\n\t\t\t)\n\t\t)\n\t)\n' % (
                            z['net'], z['layer'], uuid.uuid4(), '\t\t(name "%s")\n' % z['name'] if z['name'] else '',
                            z['prio'], conn, z['min_thick'], pts))
+        for k in self.keepouts:
+            pts = ' '.join('(xy %s %s)' % p for p in k['pts'])
+            out.append('\t(zone\n\t\t(layers "%s")\n\t\t(uuid "%s")\n%s\t\t(hatch edge 0.5)\n'
+                       '\t\t(connect_pads\n\t\t\t(clearance 0)\n\t\t)\n\t\t(min_thickness 0.25)\n'
+                       '\t\t(keepout\n\t\t\t(tracks allowed)\n\t\t\t(vias allowed)\n\t\t\t(pads allowed)\n'
+                       '\t\t\t(copperpour not_allowed)\n\t\t\t(footprints allowed)\n\t\t)\n'
+                       '\t\t(polygon\n\t\t\t(pts\n\t\t\t\t%s\n\t\t\t)\n\t\t)\n\t)\n' % (
+                           k['layer'], uuid.uuid4(), '\t\t(name "%s")\n' % k['name'] if k['name'] else '', pts))
         return ''.join(out)

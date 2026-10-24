@@ -179,6 +179,22 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
     from the pad, clearance + hole-to-hole + edge checks regardless of net, KiCad 10 s-expr output), or at least state
     the hole-to-hole rule in routing.md. Filed as https://github.com/jvanderberg/kicad-skills/issues/1.
 
+21. **high - routing has no "follow the datasheet layout, then check against it" step.** kicad-pcb-workflow mentions
+    the datasheet "layout example" only when choosing a part (SKILL.md:42). routing.md never mentions datasheet
+    layout guidelines, the EVM or WEBENCH layouts, or a per-block compliance check. Here placement followed the
+    figures. Routing drifted to pad coordinates and generic habits (global GND pour, a stitching via beside every GND
+    pad), and those silently broke the BQ25606's own rules:
+    - analog ground (ILIM/ICHG/TS resistors) must join power ground **only at the thermal pad**, but got plane vias
+      and pour;
+    - C_SYS belongs against SYS/GND pins 17/18 with a top-layer ground tie, but ended up 4 mm away, returning through
+      the plane.
+    DRC was clean throughout, so nothing flagged it. The user had to ask. *Fix:* in routing.md, make each converter /
+    charger block a loop: (1) re-open that part's layout section and figure (plus the WEBENCH/EVM board as a secondary
+    reference) before routing it; (2) route; (3) render the block net-coloured at the same scale as the figure and
+    tick off each datasheet rule explicitly in a checklist file before moving on. Also call out the usual traps:
+    single-point AGND vs blanket stitching/pour (a pour keepout is needed), cap ground returns on top copper vs via
+    the plane, "no parallel layers on SW", and FB/COMP away from SW.
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified
