@@ -37,3 +37,35 @@ At 3.0 V / 2.5 A: eff 93.5 %, PM 56.9 deg, fc 38.5 kHz, L ripple 5.58 App, **IC 
 At 3.0 V / 2.5 A: eff 93.4 %, PM 56.0 deg, fc 31.9 kHz, duty 42.4 %, L ripple 2.14 App, IC peak 5.45 A, Iin 4.46 A,
 Cout RMS 2.2 A, Cin RMS 0.62 A, IC Pd 655 mW, L Pd 215 mW, total Pd 878 mW, IC Tj 75.4 C (theta-JA 38.8 C/W),
 Vout ripple 31 mVpp, tolerance 4.19 %. No load disconnect: add an external P-FET switch.
+
+## Update: TPS61088 (commercial) appears discontinued -> TPS61088-Q1 (design 37)
+
+ti.com/product/TPS61088 and its datasheet symlink return 404 (2026-10-24); TI site search does not find it.
+WEBENCH showed "IC Cost: N/A" for it. TPS61088-Q1 is ACTIVE (ti.com), LCSC C1850341, 442 in stock, $3.29.
+Owner chose TPS61088-Q1.
+
+**The -Q1 is not a BOM drop-in for the commercial design** (datasheets SLVSE52A vs ZHCSDP8A):
+- ILIM reference 0.6 V (Q1) vs 1.204 V: ILIM = 550000 / R_ILIM (PFM mode) on the Q1, so the commercial design's
+  154 k would give only ~3.6 A on the Q1 (below the 5.45 A peak).
+- RDS(on) HS/LS 19.5 / 18 mOhm (Q1) vs 13 / 11 mOhm: ~0.13 W more conduction loss at the 3.0 V / 2.5 A corner.
+- Same pinout (VQFN-20 RHL), GEA 190 uA/V, VREF 1.204 V, FSW equation.
+
+TPS61088QRHLRQ1, ceramic output caps ("Not Mixed"):
+
+| Ref | Value | Notes |
+|---|---|---|
+| L1 | 1.0 uH, 11 mOhm | WEBENCH TDK VLP8040T-1R0N; substitute FXL0630-1R0-M (13.5 A I_sat @30 %, 7.4 mOhm) |
+| Cin | 3 x 10 uF 16 V 0805 + 100 nF | |
+| Cout | 2 x 47 uF 16 V 1210 (63 uF derated) | |
+| Cvcc | 2 x 1 uF 0603 | |
+| Cbst | 100 nF | |
+| Css | 8.2 nF | t_ss = 1.204 V x 8.2 nF / 5 uA = 2.0 ms |
+| Rt | 267 k (FSW to SW) | 594 kHz |
+| R_ILIM | 69.8 k | 550000 / 69.8 k = 7.88 A typ; datasheet spread at 49.9 k is 10.0/11.4/13.0 A -> ~6.9 / 7.9 / 9.0 A |
+| Rfbt / Rfbb | 220 k / 69.8 k | 5.00 V |
+| Rcomp / Ccomp / Ccomp2 | 28.7 k / 680 pF / 33 pF | WEBENCH picked 0201; use 0402 |
+
+At 3.0 V / 2.5 A: eff 93.5 %, PM 55.1 deg, fc 34.4 kHz, duty 42.4 %, L ripple 2.14 App, IC peak 5.45 A (vs ILIM min
+~6.9 A), Iin 4.46 A, Cout RMS 2.2 A, IC Pd 652 mW (WEBENCH; likely ~0.13 W low given the Q1's higher RDS(on)),
+L Pd 215 mW, total 875 mW, IC Tj 73.7 C at 50 C ambient (theta-JA 36.4 C/W) - estimate ~78 C with the RDS(on)
+correction. Vout ripple 31 mVpp. External P-FET load switch needed for output disconnect.
