@@ -84,7 +84,7 @@ for f in b.GetFootprints():
             item.SetVisible(True)
 
 # solder-pad labels on both silkscreens (wires may be soldered from either side); J refs hidden instead
-for ref, (text, dx, dy) in placement.PAD_LABELS.items():
+for ref, (text, dx, dy, *rot) in placement.PAD_LABELS.items():
     f = b.FindFootprintByReference(ref)
     f.Reference().SetVisible(False)
     pos = f.GetPosition()
@@ -96,6 +96,8 @@ for ref, (text, dx, dy) in placement.PAD_LABELS.items():
         t.SetTextThickness(MM(0.15))
         t.SetPosition(pcbnew.VECTOR2I(pos.x + MM(dx), pos.y + MM(dy)))
         t.SetMirrored(mirror)
+        if rot:
+            t.SetTextAngle(pcbnew.EDA_ANGLE(rot[0], pcbnew.DEGREES_T))
         b.Add(t)
 for text, x, y in placement.SILK_NOTES:
     for layer, mirror in ((pcbnew.F_SilkS, False), (pcbnew.B_SilkS, True)):

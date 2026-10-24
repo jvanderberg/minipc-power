@@ -84,12 +84,13 @@ MODEL_OVERRIDE = {
                                             (0, 0, -180)),
 }
 
-# Solder-pad labels: ref -> (text, dx, dy) from the pad centre. Square pads = positive / signal, round = GND / negative.
+# Solder-pad labels: ref -> (text, dx, dy[, rotation deg]) from the pad centre. Square pads = positive / signal, round = GND / negative.
 _T, _B = 2.6, 2.15                    # label offset below top-edge pads / below bottom-edge pads (edge strip)
 PAD_LABELS = {
-    'J6': ('+12V', 0, _T), 'J15': ('GND', 0, _T), 'J7': ('+5V', 0, _T), 'J16': ('GND', 0, _T),
+    # the 5 V network fills the space under J16 / J7: labels beside the pads instead (+5V upright at the edge)
+    'J6': ('+12V', 0, _T), 'J15': ('GND', 0, _T), 'J7': ('+5V', 2.0, 0, 90), 'J16': ('GND', -2.85, 0),
     'J8': ('+3V3', 0, _B), 'J17': ('GND', 0, _B),
-    'J2': ('BAT+', 0, -2.9), 'J3': ('BAT-', 0, 2.9),
+    'J2': ('BAT+', 0, -2.9), 'J3': ('BAT-', 0, -2.25),          # both above their pads (R7/C8 sit below J3)
     'J4': ('NTC', 0, _B), 'J5': ('NTC', 0, _B),
     'J9': ('SW', 0, _B), 'J10': ('SW', 0, _B), 'J11': ('CHG', 0, _B), 'J12': ('PG', 0, _B),
     'J13': ('VBAT', 0, _B), 'J14': ('PG3', 0, _B),
