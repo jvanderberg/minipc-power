@@ -169,6 +169,16 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
    (`pipx install git+https://github.com/jvanderberg/kicad_jlcimport` or a venv with Python >= 3.11) and the minimum
    version that has `--region`.
 
+## Routing (kicad-pcb-workflow)
+
+20. **medium - no routing-as-data helper; the hand-written one missed same-net hole-to-hole spacing.** routing.md
+    says to route with chosen coordinates kept as data, but ships nothing to do it, so each board writes its own
+    track/via placer (`tools/routing.py` here). Its clearance check skipped same-net copper (right for copper
+    clearance), so the GND pad-stitching pass put vias on top of hand-placed GND vias: 2 x `hole_to_hole` at 0.000 mm.
+    DRC caught it. *Fix:* ship a tested router helper in kicad-pcb-workflow/scripts (pad lookup by REF/PIN, net taken
+    from the pad, clearance + hole-to-hole + edge checks regardless of net, KiCad 10 s-expr output), or at least state
+    the hole-to-hole rule in routing.md. Filed as https://github.com/jvanderberg/kicad-skills/issues/1.
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified
@@ -184,6 +194,8 @@ so far; workarounds are listed here.
   The skill's 3D-render step should check every footprint's model path exists and flag missing ones.
 - pcbnew python: `FOOTPRINT.Models()` returns copies, so setting `m_Filename` / `m_Offset` on them does nothing
   (no error). Model paths are rewritten as text in `tools/board_setup.py`. Belongs in `pcbnew-api.md`'s failure table.
+- `tools/routing.py` (this repo): `via_ok` now rejects any via within `(size_a + size_b)/2 + 0.1 mm` of an existing
+  via of any net (gap 20).
 - `jlcimport-cli import C6331050`: "No component found" (no EasyEDA data) -> substituted FXL0530-R47-M (C475515).
 
 ## Tools that would have prevented the issues found so far
