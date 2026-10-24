@@ -246,7 +246,7 @@
 				)
 			)
 			(pin power_in line
-				(at 0.0 -15.24 90)
+				(at 5.08 -15.24 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -730,7 +730,7 @@
 				)
 			)
 			(pin power_in line
-				(at 0.0 -21.59 90)
+				(at 7.62 -21.59 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -748,7 +748,7 @@
 				)
 			)
 			(pin power_in line
-				(at 0.0 -21.59 90)
+				(at 7.62 -21.59 90)
 				(length 2.54)
 				(hide yes)
 				(name "GND"
@@ -767,7 +767,7 @@
 				)
 			)
 			(pin power_in line
-				(at 0.0 -21.59 90)
+				(at 7.62 -21.59 90)
 				(length 2.54)
 				(hide yes)
 				(name "GND"
@@ -943,7 +943,7 @@
 				)
 			)
 			(pin passive line
-				(at 0.0 -7.62 90)
+				(at 2.54 -7.62 90)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -1190,7 +1190,7 @@
 				)
 			)
 			(pin power_out line
-				(at -1.27 13.97 270)
+				(at 3.81 13.97 270)
 				(length 2.54)
 				(name "VCC"
 					(effects
@@ -1208,7 +1208,7 @@
 				)
 			)
 			(pin passive line
-				(at 1.27 13.97 270)
+				(at 6.35 13.97 270)
 				(length 2.54)
 				(name "BST"
 					(effects
@@ -1226,7 +1226,7 @@
 				)
 			)
 			(pin power_in line
-				(at -1.27 -13.97 90)
+				(at 3.81 -13.97 90)
 				(length 2.54)
 				(name "PGND"
 					(effects
@@ -1244,7 +1244,7 @@
 				)
 			)
 			(pin power_in line
-				(at 1.27 -13.97 90)
+				(at 6.35 -13.97 90)
 				(length 2.54)
 				(name "AGND"
 					(effects
@@ -1658,7 +1658,7 @@
 				)
 			)
 			(pin power_out line
-				(at 0.0 15.24 270)
+				(at 6.35 15.24 270)
 				(length 2.54)
 				(name "VCC"
 					(effects
@@ -1676,7 +1676,7 @@
 				)
 			)
 			(pin power_in line
-				(at -1.27 -15.24 90)
+				(at 3.81 -15.24 90)
 				(length 2.54)
 				(name "PGND"
 					(effects
@@ -1694,7 +1694,7 @@
 				)
 			)
 			(pin power_in line
-				(at 1.27 -15.24 90)
+				(at 6.35 -15.24 90)
 				(length 2.54)
 				(name "AGND"
 					(effects
@@ -1887,7 +1887,7 @@
 				)
 			)
 			(pin passive line
-				(at -1.27 8.89 270)
+				(at 2.54 8.89 270)
 				(length 2.54)
 				(name "L1"
 					(effects
@@ -1905,7 +1905,7 @@
 				)
 			)
 			(pin passive line
-				(at 1.27 8.89 270)
+				(at 5.08 8.89 270)
 				(length 2.54)
 				(name "L2"
 					(effects
@@ -1923,7 +1923,7 @@
 				)
 			)
 			(pin power_in line
-				(at -1.27 -8.89 90)
+				(at 2.54 -8.89 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -1941,7 +1941,7 @@
 				)
 			)
 			(pin power_in line
-				(at 1.27 -8.89 90)
+				(at 5.08 -8.89 90)
 				(length 2.54)
 				(name "AGND"
 					(effects

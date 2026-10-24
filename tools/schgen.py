@@ -228,11 +228,11 @@ class Sch:
                '\t\t(in_bom %s)\n\t\t(on_board %s)\n\t\t(dnp %s)\n\t\t(uuid "%s")\n' %
                (kstr(p.lib_id), p.x, p.y, p.rot, '\t\t(mirror %s)\n' % p.mirror if p.mirror else '', 'yes' if p.in_bom else 'no', 'yes' if p.on_board else 'no',
                 'yes' if p.dnp else 'no', p.uuid)]
-        # place Reference above / Value below the part's pin extent (refined by the generator via fields)
-        ys = [p.p(q['num'])[1] for q in p.pins] or [p.y]
-        xs = [p.p(q['num'])[0] for q in p.pins] or [p.x]
-        rx, ry = p.fields.get('_ref_at', (p.x + 2.54, min(ys) - 1.27))
-        vx, vy = p.fields.get('_val_at', (p.x + 2.54, max(ys) + 1.27))
+        rx, ry, vx, vy, ang, just = self._field_spots(p)
+        if '_ref_at' in p.fields:
+            rx, ry = p.fields['_ref_at']
+        if '_val_at' in p.fields:
+            vx, vy = p.fields['_val_at']
         for k, v, hidden in props:
             if k.startswith('_'):
                 continue
@@ -241,13 +241,13 @@ class Sch:
                 hid = hide_ref
             elif k == 'Value':
                 at = (vx, vy)
-                hid = p.fields.get('_hide_value', False)
+                hid = p.fields.get('_hide_value', p.lib_id == 'power:GND')
             else:
                 at = (p.x, p.y)
                 hid = True
-            just = p.fields.get('_just', 'left')
-            out.append('\t\t(property %s %s\n\t\t\t(at %s %s 0)\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n'
-                       '\t\t\t\t)%s%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(v), snap(at[0]), snap(at[1]),
+            just = p.fields.get('_just', just)
+            out.append('\t\t(property %s %s\n\t\t\t(at %s %s %s)\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n'
+                       '\t\t\t\t)%s%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(v), snap(at[0]), snap(at[1]), ang,
                                                         '' if just == 'center' else '\n\t\t\t\t(justify %s)' % just,
                                                         '\n\t\t\t\t(hide yes)' if hid else ''))
         for q in p.pins:
@@ -272,6 +272,24 @@ class Sch:
             seq = sorted([a, b] + cuts, key=lambda q: (q[0] - a[0]) ** 2 + (q[1] - a[1]) ** 2)
             out += [(u, v) for u, v in zip(seq, seq[1:]) if u != v]
         self.wires = out
+
+    def _field_spots(self, p):
+        """Default (ref x, y, value x, y, angle, justify) for a placed part."""
+        n = len({q['num'] for q in p.pins})
+        if p.ref.startswith('#'):                       # power symbols: text beyond the symbol
+            if p.rot == 180:
+                return p.x, p.y + 5.08, p.x, p.y + 5.08, 0, 'center'
+            return p.x, p.y - 3.81, p.x, p.y - 3.81, 0, 'center'
+        if n == 2 or p.lib_id in ('Connector:TestPoint',):
+            if p.rot in (90, 270):
+                return p.x, p.y - 2.54, p.x, p.y + 2.54, 90, 'center'
+            return p.x + 2.54, p.y - 1.27, p.x + 2.54, p.y + 1.27, 0, 'left'
+        m = re.search(r'\(rectangle\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)', self.symtext(p.lib_id))
+        if m and p.rot == 0 and not p.mirror:
+            x1, y1, x2, y2 = (float(v) for v in m.groups())
+            left, top, bot = p.x + min(x1, x2), p.y - max(y1, y2), p.y - min(y1, y2)
+            return left, top - 1.27, left, bot + 2.54, 0, 'left'
+        return p.x + 3.81, p.y - 3.81, p.x + 3.81, p.y + 3.81, 0, 'left'
 
     def write(self, path):
         self._split_wires()

@@ -37,9 +37,10 @@ def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc=''):
     y0 = half_h - L
     side(left, lambda i: (-half_w - L, y0 - i * L), 0)
     side(right, lambda i: (half_w + L, y0 - i * L), 180)
-    x0 = -(len(top) - 1) * L / 2
+    # top/bottom pins right-aligned so the left half stays free for the reference and value text
+    x0 = half_w - L - (len(top) - 1) * L
     side(top, lambda i: (x0 + i * L, half_h + L), 270)
-    x0b = -(len(bottom) - 1) * L / 2
+    x0b = half_w - L - (len(bottom) - 1) * L
     side(bottom, lambda i: (x0b + i * L, -half_h - L), 90)
     body = ('\t\t(symbol %s\n\t\t\t(rectangle\n\t\t\t\t(start %s %s)\n\t\t\t\t(end %s %s)\n\t\t\t\t(stroke\n'
             '\t\t\t\t\t(width 0.254)\n\t\t\t\t\t(type default)\n\t\t\t\t)\n\t\t\t\t(fill\n\t\t\t\t\t(type background)\n'
