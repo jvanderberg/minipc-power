@@ -1,0 +1,106 @@
+                                                                                                                                TPS61088-Q1
+www.ti.com                                                                                     SLVSE52A – SEPTEMBER 2018 – REVISED NOVEMBER 2018
+
+
+10 Power Supply Recommendations
+The device is designed to operate from an input voltage supply range between 2.7 V to 12 V. This input supply
+must be well regulated. If the input supply is located more than a few inches from the converter, additional bulk
+capacitance may be required in addition to the ceramic bypass capacitors. A typical choice is an electrolytic or
+tantalum capacitor with a value of 47 μF.
+
+11 Layout
+
+11.1 Layout Guidelines
+As for all switching power supplies, especially those running at high switching frequency and high currents,
+layout is an important design step. If layout is not carefully done, the regulator could suffer from instability and
+noise problems. To maximize efficiency, switch rise and fall times are very fast. To prevent radiation of high-
+frequency noise (for example, EMI), proper layout of the high-frequency switching path is essential. Minimize the
+length and area of all traces connected to the SW pin, and always use a ground plane under the switching
+regulator to minimize interplane coupling.
+The input capacitor must be close to the VIN pin and GND pin in order to reduce the Iinput supply ripple.
+The layout should also be done with well consideration of the thermal as this is a high power density device. A
+thermal pad that improves the thermal capabilities of the package should be soldered to the large ground plate,
+using thermal vias underneath the thermal pad.
+
+11.2 Layout Example
+The bottom layer is a large ground plane connected to the PGND plane and AGND plane on top layer by vias.
+
+
+
+                                  L1                          AGND
+                                                                                   AGND
+                                                                      VCC
+
+
+
+
+VIN                                                             EN
+                                                               FSW
+                                                                                          ILIM
+                                                                                          COMP
+
+                                                                SW                        FB
+                                                                SW                        VOUT
+                                                                SW
+
+                                                                SW
+
+                                                               BOOT         PGND
+                                                                                          VOUT
+
+                                                                                          VOUT
+
+                                                                                          MODE
+                                                                                                                                  VOUT
+                                                                VIN                       NC
+
+
+
+
+                               CIN
+                                                                      SS
+
+
+
+
+                                                                                   NC
+
+
+
+
+                                                                      PGND                                   COUT
+
+                                         Figure 21. Recommended TPS61088-Q1 Layout
+
+
+
+
+Copyright © 2018, Texas Instruments Incorporated                                                           Submit Documentation Feedback     23
+                                                   Product Folder Links: TPS61088-Q1
+TPS61088-Q1
+SLVSE52A – SEPTEMBER 2018 – REVISED NOVEMBER 2018                                                                         www.ti.com
+
+
+11.3 Thermal Considerations
+The maximum IC junction temperature should be restricted to 125°C under normal operating conditions.
+Calculate the maximum allowable dissipation, PD(max), and keep the actual power dissipation less than or equal to
+PD(max). The maximum-power-dissipation limit is determined using Equation 21.
+              125 TA
+     PD(max)
+                RTJA
+     where
+           •   TA is the maximum ambient temperature for the application.
+           •   RθJA is the junction-to-ambient thermal resistance given in the Thermal Information table.                         (21)
+The TPS61088-Q1 comes in a thermally-enhanced VQFN package. This package includes a thermal pad that
+improves the thermal capabilities of the package. The real junction-to-ambient thermal resistance of the package
+greatly depends on the PCB type, layout, and thermal pad connection. Using thick PCB copper and soldering the
+thermal pad to a large ground plate enhance the thermal performance. Using more vias connects the ground
+plate on the top layer and bottom layer around the IC without solder mask also improves the thermal capability.
+
+
+
+
+24     Submit Documentation Feedback                                                   Copyright © 2018, Texas Instruments Incorporated
+
+                                               Product Folder Links: TPS61088-Q1
+

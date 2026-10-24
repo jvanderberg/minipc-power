@@ -1,0 +1,64 @@
+BQ25606
+SLUSCK6C – MAY 2017 – REVISED SEPTEMBER 2021                                                                    www.ti.com
+
+
+12 Layout
+12.1 Layout Guidelines
+The switching node rise and fall times should be minimized for minimum switching loss. Proper layout of the
+components to minimize high frequency current path loop (see Figure 12-1) is important to prevent electrical and
+magnetic field radiation and high frequency resonant problems. Follow this specific order carefully to achieve the
+proper layout.
+1. Place input capacitor as close as possible to PMID pin and GND pin connections and use shortest copper
+   trace connection or GND plane.
+2. Place inductor input pin to SW pin as close as possible. Minimize the copper area of this trace to lower
+   electrical and magnetic field radiation but make the trace wide enough to carry the charging current. Do not
+   use multiple layers in parallel for this connection. Minimize parasitic capacitance from this area to any other
+   trace or plane.
+3. Put output capacitor near to the inductor and the device. Ground connections need to be tied to the IC
+   ground with a short copper trace connection or GND plane.
+4. Route analog ground separately from power ground. Connect analog ground and connect power ground
+   separately. Connect analog ground and power ground together using thermal pad as the single ground
+   connection point. Or using a 0-Ω resistor to tie analog ground to power ground.
+5. Use single ground connection to tie charger power ground to charger analog ground. Just beneath the
+   device. Use ground copper pour but avoid power pins to reduce inductive and capacitive noise coupling.
+6. Place decoupling capacitors next to the IC pins and make trace connection as short as possible.
+7. It is critical that the exposed thermal pad on the backside of the device package be soldered to the PCB
+   ground. Ensure that there are sufficient thermal vias directly under the IC, connecting to the ground plane on
+   the other layers.
+8. Ensure that the number and sizes of vias allow enough copper for a given current path.
+Refer to the BQ25601 and BQ25601D (PWR877) Evaluation Module User's Guide for the recommended
+component placement with trace and via locations. For the VQFN information, refer to the Quad Flatpack
+No-Lead Logic Packages Application Report and QFN and SON PCB Attachment Application Report.
+12.2 Layout Example
+
+
+
+                                                                                      +
+                                 +
+                                 ±
+
+
+
+
+                                     Figure 12-1. High Frequency Current Path
+
+
+
+
+34    Submit Document Feedback                                                   Copyright © 2021 Texas Instruments Incorporated
+
+                                               Product Folder Links: BQ25606
+                                                                                                                      BQ25606
+www.ti.com                                                                          SLUSCK6C – MAY 2017 – REVISED SEPTEMBER 2021
+
+
+
+
+                                                  Figure 12-2. Layout Example
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                   Submit Document Feedback     35
+                                                    Product Folder Links: BQ25606
+

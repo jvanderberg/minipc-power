@@ -1,0 +1,92 @@
+TPS63802
+SLVSEU9D – NOVEMBER 2018 – REVISED JANUARY 2021                                                                   www.ti.com
+
+
+12 Layout
+12.1 Layout Guidelines
+The PCB layout is an important step to maintain the high performance of the TPS63802 device.
+1. Place input and output capacitors as close as possible to the IC. Traces need to be kept short. Route wide
+   and direct traces to the input and output capacitor results in low trace resistance and low parasitic
+   inductance.
+2. Use a common ground node for power ground and a different one for control ground to minimize the effects
+   of ground noise. Connect these ground nodes at any place close to one of the ground pins of the IC.
+3. Use separate traces for the supply voltage of the power stage and the supply voltage of the analog stage.
+4. The sense trace connected to FB is signal trace. Keep these traces away from L1 and L2 nodes.
+12.2 Layout Example
+
+                                                              L1
+
+
+
+
+                                                    C1                  C2
+
+
+
+
+                                                                   R2    R1
+
+
+
+
+                                            Figure 12-1. TPS63802 Layout
+
+
+
+
+28    Submit Document Feedback                                                     Copyright © 2021 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS63802
+                                                                                                                       TPS63802
+www.ti.com                                                                         SLVSEU9D – NOVEMBER 2018 – REVISED JANUARY 2021
+
+
+13 Device and Documentation Support
+13.1 Device Support
+13.1.1 Third-Party Products Disclaimer
+TI'S PUBLICATION OF INFORMATION REGARDING THIRD-PARTY PRODUCTS OR SERVICES DOES NOT
+CONSTITUTE AN ENDORSEMENT REGARDING THE SUITABILITY OF SUCH PRODUCTS OR SERVICES
+OR A WARRANTY, REPRESENTATION OR ENDORSEMENT OF SUCH PRODUCTS OR SERVICES, EITHER
+ALONE OR IN COMBINATION WITH ANY TI PRODUCT OR SERVICE.
+13.1.2 Development Support
+QFN/SON Package FAQs
+13.1.2.1 Custom Design With WEBENCH® Tools
+Click here to create a custom design using the TPS63802 device with the WEBENCH® Power Designer.
+1. Start by entering the input voltage (VIN), output voltage (VOUT), and output current (IOUT) requirements.
+2. Optimize the design for key parameters such as efficiency, footprint, and cost using the optimizer dial.
+3. Compare the generated design with other possible solutions from Texas Instruments.
+The WEBENCH Power Designer provides a customized schematic along with a list of materials with real-time
+pricing and component availability.
+In most cases, these actions are available:
+• Run electrical simulations to see important waveforms and circuit performance
+• Run thermal simulations to understand board thermal performance
+• Export customized schematic and layout into popular CAD formats
+• Print PDF reports for the design, and share the design with colleagues
+Get more information about WEBENCH tools at www.ti.com/WEBENCH.
+13.2 Documentation Support
+13.2.1 Related Documentation
+For related documentation, see the following:
+•    Texas Instruments, Selecting a DC/DC Converter for Maximum Battery Life in Pulsed-Load Applications
+     Application Report
+•    Texas Instruments, Selecting the Right DC/DC Converter for Maximum Battery Life Application Report
+•    Texas Instruments, Supercapacitor Backup Power Supply with TPS63802 Application Report
+•    Texas Instruments, Extend Battery Lifetime in Wireless Network Cameras and Video Doorbells Application
+     Note
+•    Texas Instruments, Prevent Battery Overdischarge with Precise Threshold Enable Pin Application Note
+•    Texas Instruments, Using Non-Inverting Buck-Boost Converter for Voltage Stabilization Application Report
+•    Texas Instruments, Precise Delayed Start-up with Precise Threshold Enable-pin Application Note
+•    Texas Instruments, Buck-Boost Converters Solving Power Challenges in Optical Modules Application Note
+•    Texas Instruments, Improving Load Transient Response for Controlled Loads Application Report
+•    Texas Instruments, TPS63802EVM User's Guide
+•    Texas Instruments, HotRod QFN Package PCB Attachment Application Report
+13.3 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Subscribe to updates to register and receive a weekly digest of any product information that has changed. For
+change details, review the revision history included in any revised document.
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                     Submit Document Feedback     29
+                                                  Product Folder Links: TPS63802
+

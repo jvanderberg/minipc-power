@@ -1,0 +1,157 @@
+TPS61178
+SLVSDA7E – FEBRUARY 2017 – REVISED AUGUST 2019                                                                                    www.ti.com
+
+
+11 Layout
+
+11.1 Layout Guidelines
+The basic PCB board layout requires a separation of sensitive signal and power paths. If the layout is not
+carefully done, the regulator could suffer from the instability or noise problems.
+The checklist below is suggested that be followed to get good performance for a well-designed board:
+1. Minimize the high current path including the switch FET, rectifier FET, and the output capacitor. This loop
+   contains high di/dt switching currents ( nano seconds per ampere ) and easy to transduce the high frequency
+   noise;
+2. Minimize the length and area of all traces connected to the SW pin, and always use a ground plane under
+   the switching regulator to minimize inter plane coupling;
+3. Use a combination of bulk capacitors and smaller ceramic capacitors with low series resistance for the input
+   and output capacitors. Place the smaller capacitors closer to the IC to provide a low impedance path for
+   decoupling the noise;
+4. The ground area near the IC must provide adequate heat dissipating area. Connect the wide power bus
+   (e.g., VOUT, SW, GND ) to the large area of copper, or to the bottom or internal layer ground plane, using vias
+   for enhanced thermal dissipation;
+5. Place the input capacitor being close to the VIN pin and the PGND pin in order to reduce the input supply
+   ripple;
+6. Place the noise sensitive network like the feedback and compensation being far away from the SW trace;
+7. Use a separate ground trace to connect the feedback, compensation, frequency set, and the current limit set
+   circuitry. Connect this ground trace to the main power ground at a single point to minimize circulating
+   currents.
+
+11.2 Layout Example
+
+
+                                                             RREN
+                                                                EN
+
+
+
+
+                                                                                     xxxxxxxx
+                                                                              CVCC
+                                                 CBST
+       VIN                                                                                 RGATE       CGATE
+
+
+
+
+                                                                                     xxxxxxxx
+                                                          BST VIN    EN VCC DISDRV
+                                                                                                                                 VOUT2
+
+
+
+                                                                                     xxxxxxxx
+                                                                                               VOUT
+                                                                                                               s
+
+
+
+
+                                                                                     xxxxxxxx
+                                                                                                                           G
+                                                                     VOUT
+                                                                                                               s           D
+                                                                      SW
+
+
+
+
+                                                                                     xxxxxxxx
+                                                                                               COUT1                               COUT2
+                                       L                                                                       s           D
+                                                                     PGND
+                                                                                                                   P-FET
+
+
+
+
+                                                                                     xxxxxxxx
+                                                                                                               s           D
+                                                                                                                               GND
+
+
+                                                        FREQ/
+                                                        SYNC
+                                                              AGND ILIMITCOMP FB
+
+                                                                                     xxxxxxxx
+                                                        RFREQ RLIMIT CCOMP RCOMP RDOWN
+                                                                                         RUP
+
+
+
+
+                                           Figure 36. Recommended Layout
+
+
+
+
+30     Submit Documentation Feedback                                                      Copyright © 2017–2019, Texas Instruments Incorporated
+
+                                                 Product Folder Links: TPS61178
+                                                                                                                             TPS61178
+www.ti.com                                                                                 SLVSDA7E – FEBRUARY 2017 – REVISED AUGUST 2019
+
+
+12 Device and Documentation Support
+
+12.1 Device Support
+12.1.1 Third-Party Products Disclaimer
+TI'S PUBLICATION OF INFORMATION REGARDING THIRD-PARTY PRODUCTS OR SERVICES DOES NOT
+CONSTITUTE AN ENDORSEMENT REGARDING THE SUITABILITY OF SUCH PRODUCTS OR SERVICES
+OR A WARRANTY, REPRESENTATION OR ENDORSEMENT OF SUCH PRODUCTS OR SERVICES, EITHER
+ALONE OR IN COMBINATION WITH ANY TI PRODUCT OR SERVICE.
+
+12.1.2 Development Support
+
+12.1.2.1 Custom Design With WEBENCH® Tools
+Click here to create a custom design using the TPS61178 device with the WEBENCH® Power Designer.
+1. Start by entering the input voltage (VIN), output voltage (VOUT), and output current (IOUT) requirements.
+2. Optimize the design for key parameters such as efficiency, footprint, and cost using the optimizer dial.
+3. Compare the generated design with other possible solutions from Texas Instruments.
+The WEBENCH Power Designer provides a customized schematic along with a list of materials with real-time
+pricing and component availability.
+In most cases, these actions are available:
+• Run electrical simulations to see important waveforms and circuit performance
+• Run thermal simulations to understand board thermal performance
+• Export customized schematic and layout into popular CAD formats
+• Print PDF reports for the design, and share the design with colleagues
+Get more information about WEBENCH tools at www.ti.com/WEBENCH.
+
+12.2 Documentation Support
+12.2.1 Related Documentation
+For related documentation see the following:
+• TPS61178EVM Evaluation Board User's Guide, SLVUB05
+•
+12.3 Related Links
+The table below lists quick access links. Categories include technical documents, support and community
+resources, tools and software, and quick access to order now.
+
+                                                            Table 3. Related Links
+                                                                            TECHNICAL               TOOLS &             SUPPORT &
+        PARTS             PRODUCT FOLDER                ORDER NOW
+                                                                            DOCUMENTS              SOFTWARE             COMMUNITY
+      TPS61178                  Click here               Click here           Click here            Click here            Click here
+      TPS611781                 Click here               Click here           Click here            Click here            Click here
+
+
+12.4 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. In the upper
+right corner, click on Alert me to register and receive a weekly digest of any product information that has
+changed. For change details, review the revision history included in any revised document.
+
+
+
+
+Copyright © 2017–2019, Texas Instruments Incorporated                                              Submit Documentation Feedback       31
+                                                         Product Folder Links: TPS61178
+
