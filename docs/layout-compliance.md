@@ -35,7 +35,18 @@ it was clean while two of the charger rules below were broken (skill-gaps.md, ga
 
 ## TPS61178 12 V boost (datasheet s11, fig. 36)
 
-pending
+Placement redone against fig. 36 before routing (C_OUT1 had been rotated GND-up, away from PGND).
+
+| Rule | Status |
+|---|---|
+| 1. Smallest loop: switch FET, rectifier FET, output cap | ok: C14/C15 VOUT pads on the VOUT bar's pour, GND pads on the PGND bar's pour, both at the bar ends |
+| 2. SW short and small, ground plane under the converter | ok: one F.Cu pour, bar to L2 (2 mm) plus the CBST finger; In1 solid GND underneath |
+| 3. Small ceramics closest to the IC | ok: C14/C15 (4.7 uF) at the bars, C17-C19 (22 uF) after the P-FET |
+| 4. Wide VOUT/SW/GND copper with vias | ok: pours on all three; PGND stitched to In1 at C14/C15/C19 and one extra via |
+| 5. Input cap close to VIN and PGND | **deviation**: no room for a 22 uF 0805 at the 0.5 mm top-row escapes. VIN pin drops by via straight onto the In2 VSYS plane; C9/C10 sit at L2's input with GND vias into In1 directly below. VIN only supplies the controller (the power input is through L2) |
+| 6. FB / COMP away from SW | ok: network under the bottom row, on the side away from SW; FB sense from +12V on B.Cu |
+| 7. Separate ground trace for FB/COMP/FREQ/ILIM, single point to power ground | ok: AGND bus under R11/R12/C13/R14, joined to PGND only at the AGND pin; pour keepout `AGND_12V`; no plane vias |
+| P-FET disconnect: gate network at DISDRV, R_UP from VOUT2 | ok: DISDRV -> C16/R16 -> gate along the top edge; R13 fed from +12V |
 
 ## TPS61088-Q1 5 V boost (datasheet s11, fig. 21)
 

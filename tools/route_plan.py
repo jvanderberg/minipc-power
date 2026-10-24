@@ -18,7 +18,8 @@ def planes(r):
     r.rect('GND', 'B.Cu', X0 + m, Y0 + m, X1 - m, Y1 - m, prio=0, name='GND_BOTTOM')
 
 
-AGND = {('R2', '2'), ('R3', '2'), ('R5', '2')}   # charger analog ground: single point at U2's pad, no plane vias
+# analog grounds, single point to power ground, no plane vias: charger (at U2's pad) and 12 V boost (AGND pin -> PGND bar)
+AGND = {('R2', '2'), ('R3', '2'), ('R5', '2'), ('R11', '2'), ('R12', '2'), ('C13', '2'), ('R14', '2')}
 
 
 def stitch_pads(r):
@@ -168,9 +169,62 @@ def protection(r):
     r.track('B.Cu', 0.4, (r71[0], r71[1] + 1.0), (147.9, r71[1] + 1.0), (147.9, 124.4), net=bat)
 
 
+def boost12(r):
+    """TPS61178 (U4), per datasheet s11 / fig. 36. Bars: VOUT (top), SW, PGND (bottom).
+    SW: one pour from the bar's left end to L2 and C11 (BST cap). C_OUT1 (C14, C15) bridge the VOUT bar's copper and
+    the PGND bar's copper right at the bar ends (rule 1 loop). DISDRV -> RGATE/CGATE -> P-FET gate along the top;
+    VOUT2 (+12V) -> COUT2 and to the output pad on B.Cu. FREQ/ILIM/COMP/FB parts on a separate AGND bus that joins
+    PGND only at the AGND pin (rule 7)."""
+    sw, vout, gate = r.net('U4', '7'), r.net('U4', '8'), r.net('U4', '9')
+    r.zone(sw, 'F.Cu', [(106.85, 107.9), (109.2, 107.9), (109.2, 105.75), (110.75, 105.75), (110.75, 106.45), (109.85, 106.45),
+                        (109.85, 107.9), (111.05, 107.9), (111.05, 109.45), (111.55, 109.45), (111.55, 109.75),
+                        (111.05, 109.75), (111.05, 111.3), (106.85, 111.3)], prio=10, name='SW12')
+    r.zone(vout, 'F.Cu', [(114.6, 108.3), (116.85, 108.3), (116.85, 107.15), (119.0, 107.15), (119.0, 108.3), (121.9, 108.3),
+                          (121.9, 111.2), (119.3, 111.2), (119.3, 109.75), (114.6, 109.75)], prio=10, name='VOUT12A')
+    r.zone('GND', 'F.Cu', [(114.4, 110.0), (119.1, 110.0), (119.1, 111.4), (120.3, 111.4), (120.3, 115.1), (118.65, 115.1),
+                           (118.65, 111.55), (114.4, 111.55)], prio=10, name='PGND12')
+    r.via((119.7, 111.85), 'GND')
+    p12 = r.net('Q4', '1')
+    r.zone(p12, 'F.Cu', [(122.2, 109.0), (126.7, 109.0), (126.7, 110.7), (123.6, 110.7), (123.6, 113.8), (126.7, 113.8),
+                         (126.7, 115.4), (121.7, 115.4), (121.7, 111.95), (122.2, 111.95)], prio=10, name='P12V')
+    for y in (110.6, 111.4):
+        r.via((123.3, y), p12)
+    r.track('B.Cu', 0.6, (123.3, 110.6), (123.3, 104.9), ('J6', '1'))                    # +12V -> output pad
+    # top-row escapes: BST, VIN, EN, VCC, DISDRV (left to right)
+    r.track('F.Cu', 0.25, ('C11', '1'), (111.955, r.P('C11', '1')[1]), ('U4', '13'))
+    vsys = r.net('U4', '12')
+    r.track('F.Cu', 0.25, ('U4', '12'), (112.455, 106.5), (111.6, 106.5), (111.4, 106.3), (111.4, 105.9))
+    r.via((111.4, 105.9), vsys, 0.45, 0.2)                                                  # VIN -> In2 VSYS plane
+    en = r.net('U4', '11')
+    r.track('F.Cu', 0.2, ('U4', '11'), (112.955, 105.9))
+    r.via((112.955, 105.9), en, 0.45, 0.2)
+    r.track('F.Cu', 0.25, ('U4', '10'), (113.455, 106.9), (113.9, 106.45), ('C12', '1'))
+    r.track('F.Cu', 0.25, ('U4', '9'), (113.955, 107.25), (116.0, 107.25), (116.6, r.P('C16', '2')[1]), ('C16', '2'),
+            ('R16', '2'), (122.64, r.P('R16', '2')[1]), ('Q4', '4'))
+    # bottom row in pin order: FREQ, AGND, ILIM, COMP, FB
+    r.track('F.Cu', 0.2, ('U4', '1'), (111.955, 112.15), (111.6, 112.5), ('R11', '1'))
+    r.track('F.Cu', 0.2, ('U4', '3'), (112.955, 112.6), ('R12', '1'))
+    r.track('F.Cu', 0.2, ('U4', '4'), (113.455, 112.1), ('R15', '1'))
+    r.track('F.Cu', 0.2, ('R15', '2'), ('C13', '1'))
+    r.track('F.Cu', 0.2, ('U4', '5'), (113.955, 111.85), (116.5, 111.85), (116.8, 112.15), ('R14', '1'), ('R13', '2'))
+    bus = 114.5
+    r.track('F.Cu', 0.2, ('U4', '2'), (112.455, 110.2))                                    # single point: AGND -> PGND bar
+    r.track('F.Cu', 0.2, ('U4', '2'), (112.455, bus))
+    r.track('F.Cu', 0.2, (r.P('R11', '2')[0], bus), (r.P('R14', '2')[0], bus), net='GND')
+    for ref in ('R11', 'R12', 'C13', 'R14'):
+        r.track('F.Cu', 0.2, (ref, '2'), (r.P(ref, '2')[0], bus))
+    r.keepout('F.Cu', [(110.7, 111.65), (118.45, 111.65), (118.45, 115.3), (110.7, 115.3)], name='AGND_12V')
+    # FB sense from +12V (after the P-FET, like R_UP in fig. 36) on B.Cu, away from SW
+    r13 = r.P('R13', '1')
+    r.track('F.Cu', 0.2, ('R13', '1'), (r13[0], 114.75))
+    r.via((r13[0], 114.75), p12, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (r13[0], 114.75), (123.3, 114.75), (123.3, 111.4), net=p12)
+
+
 def build(r):
     planes(r)
     usb_pd(r)
     charger(r)
     protection(r)
+    boost12(r)
     stitch_pads(r)          # last, so the stitching vias avoid the routed copper
