@@ -22,9 +22,9 @@ PLACE = {
     'R15': (14.0, 13.2, 90), 'C13': (15.2, 13.2, 90),    # COMP network
     'R13': (17.0, 15.2, 0), 'R14': (17.0, 14.0, 0),     # FB divider (top from +12V)
     'C14': (17.2, 8.0, 90), 'C15': (17.2, 11.6, 90),    # COUT1 at the VOUT bar
-    'R16': (19.4, 5.6, 0), 'C16': (19.4, 6.8, 0),       # Rgate / Cgate (source - gate)
+    'R16': (17.6, 5.0, 0), 'C16': (17.6, 3.8, 0),       # Rgate / Cgate (source - gate)
     'Q4': (21.2, 9.8, 180),                              # S pad left, D/G right
-    'C17': (25.2, 7.4, 90), 'C18': (25.2, 12.2, 90), 'C19': (21.0, 13.6, 0),
+    'C17': (25.2, 8.4, 90), 'C18': (25.2, 13.2, 90), 'C19': (21.0, 13.6, 0),
     'J6': (21.0, 2.8), 'J15': (25.0, 2.8),
     # ================= band A: 5 V (TPS61088-Q1, rot 0 = datasheet fig. 21: L up-left, CIN low-left, COUT right)
     'L3': (31.4, 9.6, 0),
@@ -63,3 +63,24 @@ PLACE = {
     'R27': (5.4, 29.2, 0), 'R28': (5.4, 30.4, 0), 'C35': (7.6, 29.2, 0),
     'R29': (18.4, 29.6, 0), 'R30': (20.8, 29.6, 0), 'C36': (20.8, 28.4, 0),
 }
+
+
+# KiCad 10.0.1's library footprints reference 3D models that are not installed; use the JLCImport models instead.
+# (file, offset xyz mm, rotation xyz deg) - offsets corrected for the KiCad footprint origin (see git log)
+MODEL_OVERRIDE = {
+    'Fuse_Littelfuse-NANO2-451_453': ('${KIPRJMOD}/JLCImport.3dshapes/0451010_MRL.wrl', (0.702, 0, 1.35), (0, 0, 0)),
+    'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('${KIPRJMOD}/JLCImport.3dshapes/TYPE-C-31-M-12.wrl', (0, -0.879, 0),
+                                            (0, 0, -180)),
+}
+
+# Solder-pad labels: ref -> (text, dx, dy) from the pad centre. Square pads = positive / signal, round = GND / negative.
+_T, _B = 2.6, 2.15                    # label offset below top-edge pads / below bottom-edge pads (edge strip)
+PAD_LABELS = {
+    'J6': ('+12V', 0, _T), 'J15': ('GND', 0, _T), 'J7': ('+5V', 0, _T), 'J16': ('GND', 0, _T),
+    'J8': ('+3V3', 0, _B), 'J17': ('GND', 0, _B),
+    'J2': ('BAT+', 0, -2.9), 'J3': ('BAT-', 0, 2.9),
+    'J4': ('NTC', 0, _B), 'J5': ('NTC', 0, _B),
+    'J9': ('SW', 0, _B), 'J10': ('SW', 0, _B), 'J11': ('CHG', 0, _B), 'J12': ('PG', 0, _B),
+    'J13': ('VBAT', 0, _B), 'J14': ('PG3', 0, _B),
+}
+SILK_NOTES = []

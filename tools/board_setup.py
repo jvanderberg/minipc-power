@@ -130,6 +130,16 @@ for m in reversed(blocks):
             k, v.replace('"', '\\"'), uuid.uuid4())
         added += 1
     t = t[:m.start()] + prop + t[m.start():]
+# 3D models the KiCad library references but does not install -> JLCImport models (placement.MODEL_OVERRIDE).
+# Done as text: pcbnew's FOOTPRINT.Models() returns copies, so assigning m_Filename there does not stick.
+import placement
+for fpname, (fn, off, rot) in placement.MODEL_OVERRIDE.items():
+    pat = re.compile(r'\(model "[^"]*/%s\.(?:step|wrl)"\s*\(offset\s*\(xyz [^)]*\)\s*\)\s*\(scale\s*\(xyz [^)]*\)\s*\)'
+                     r'\s*\(rotate\s*\(xyz [^)]*\)\s*\)' % re.escape(fpname))
+    new = '(model "%s"\n\t\t\t(offset\n\t\t\t\t(xyz %s %s %s)\n\t\t\t)\n\t\t\t(scale\n\t\t\t\t(xyz 1 1 1)\n\t\t\t)\n' \
+          '\t\t\t(rotate\n\t\t\t\t(xyz %s %s %s)\n\t\t\t)' % ((fn,) + tuple(off) + tuple(rot))
+    t, n = pat.subn(lambda _m: new, t)
+    assert n >= 1, 'model override did not match: ' + fpname
 open(PCB, 'w').write(t)
 
 pro = json.load(open(PRO))

@@ -178,6 +178,12 @@ so far; workarounds are listed here.
   a temporary `gr_rect` outline to a copy of each imported WEBENCH board (`docs/layout-refs/*-view.kicad_pcb`).
 - `jlcimport-cli import`: no way to choose a KiCad library footprint -> footprints are assigned in the schematic
   generator instead; the importer's matcher was called directly from Python to get its suggestions.
+- KiCad 10.0.1's library footprints reference 3D models that are not installed (Fuse_Littelfuse-NANO2-451_453,
+  USB_C_Receptacle_HRO_TYPE-C-31-M-12): the 3D render silently shows bare pads. Worked around by pointing those
+  footprints at the JLCImport models (`placement.MODEL_OVERRIDE`, offsets corrected for the KiCad footprint origin).
+  The skill's 3D-render step should check every footprint's model path exists and flag missing ones.
+- pcbnew python: `FOOTPRINT.Models()` returns copies, so setting `m_Filename` / `m_Offset` on them does nothing
+  (no error). Model paths are rewritten as text in `tools/board_setup.py`. Belongs in `pcbnew-api.md`'s failure table.
 - `jlcimport-cli import C6331050`: "No component found" (no EasyEDA data) -> substituted FXL0530-R47-M (C475515).
 
 ## Tools that would have prevented the issues found so far

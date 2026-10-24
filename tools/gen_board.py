@@ -56,6 +56,7 @@ for i, c in enumerate(sorted(comps, key=lambda c: (c['ref'][0], int(''.join(ch f
     path = LIBS.get(lib, os.path.join(SYS_FP, lib + '.pretty'))
     f = pcbnew.Cast_to_FOOTPRINT(pcbnew.FootprintLoad(path, name).Duplicate(False))
     f.SetFPID(pcbnew.LIB_ID(lib, name))
+
     f.SetReference(c['ref'])
     f.SetValue(c['value'])
     if c['tstamp']:
@@ -73,6 +74,36 @@ for i, c in enumerate(sorted(comps, key=lambda c: (c['ref'][0], int(''.join(ch f
         n = pins.get((c['ref'], p.GetNumber()))
         if n:
             p.SetNet(net(n))
+
+# component references: off the silkscreen (dense assembled board), kept on F.Fab for the assembly drawing
+for f in b.GetFootprints():
+    r = f.Reference()
+    r.SetVisible(False)
+    for item in f.GraphicalItems():
+        if isinstance(item, pcbnew.PCB_TEXT) and item.GetText() == '${REFERENCE}' and item.GetLayer() == pcbnew.F_Fab:
+            item.SetVisible(True)
+
+# solder-pad labels on both silkscreens (wires may be soldered from either side); J refs hidden instead
+for ref, (text, dx, dy) in placement.PAD_LABELS.items():
+    f = b.FindFootprintByReference(ref)
+    f.Reference().SetVisible(False)
+    pos = f.GetPosition()
+    for layer, mirror in ((pcbnew.F_SilkS, False), (pcbnew.B_SilkS, True)):
+        t = pcbnew.PCB_TEXT(b)
+        t.SetText(text)
+        t.SetLayer(layer)
+        t.SetTextSize(pcbnew.VECTOR2I(MM(1.0), MM(1.0)))
+        t.SetTextThickness(MM(0.15))
+        t.SetPosition(pcbnew.VECTOR2I(pos.x + MM(dx), pos.y + MM(dy)))
+        t.SetMirrored(mirror)
+        b.Add(t)
+for text, x, y in placement.SILK_NOTES:
+    for layer, mirror in ((pcbnew.F_SilkS, False), (pcbnew.B_SilkS, True)):
+        t = pcbnew.PCB_TEXT(b)
+        t.SetText(text); t.SetLayer(layer); t.SetMirrored(mirror)
+        t.SetTextSize(pcbnew.VECTOR2I(MM(1.0), MM(1.0))); t.SetTextThickness(MM(0.15))
+        t.SetPosition(pcbnew.VECTOR2I(MM(ox + x), MM(oy + y)))
+        b.Add(t)
 
 # board outline
 w, h = placement.BOARD

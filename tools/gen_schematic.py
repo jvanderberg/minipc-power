@@ -26,6 +26,8 @@ R0402, C0402, C0603, C0805, C1206, C1210 = ('Resistor_SMD:R_0402_1005Metric', 'C
     'Capacitor_SMD:C_1210_3225Metric')
 PAD_PWR = 'TestPoint:TestPoint_THTPad_2.5x2.5mm_Drill1.2mm'
 PAD_SIG = 'TestPoint:TestPoint_THTPad_2.0x2.0mm_Drill1.0mm'
+PAD_PWR_GND = 'TestPoint:TestPoint_THTPad_D2.5mm_Drill1.2mm'     # round = ground / negative
+PAD_SIG_GND = 'TestPoint:TestPoint_THTPad_D2.0mm_Drill1.0mm'
 
 RES = {'6.8k': 'C25917', '249': 'C25096', '470': 'C25117', '5.23k': 'C25907', '30.9k': 'C270615', '1k': 'C11702',
        '10k': 'C25744', '1M': 'C26083', '330': 'C25104', '2k': 'C4109', '169k': 'C25758', '162k': 'C54068',
@@ -229,7 +231,7 @@ def fet_at(ref, val, lcsc, fp, rot, mirror, pin, target):
     return q
 
 
-J3 = pad('J3', 'BAT-', (350.52, yc), PAD_PWR)
+J3 = pad('J3', 'BAT-', (350.52, yc), PAD_PWR_GND)
 Q1 = fet_at('Q1', 'CSD13202Q2', 'C187839', 'Package_SON:Texas_DQK', 90, None, '1', (360.68, yc))
 s.wire(J3.p('1'), Q1.p('1'))
 s.wire(Q1.p('4'), (x_celln, yc))
@@ -296,7 +298,7 @@ pad('J12', 'PG_CHG', (xp, 142.24)); s.wire((xp, 142.24), (xp, 147.32)); s.label(
 pad('J14', '3V3_PG', (xp + 20.32, 142.24)); s.wire((xp + 20.32, 142.24), (xp + 20.32, 147.32)); s.label('3V3_PG', xp + 20.32, 147.32, 270)
 for i, ref in enumerate(('J5', 'J15', 'J16', 'J17')):
     x = xp + 45.72 + i * SP
-    pad(ref, 'GND' if ref != 'J5' else 'NTC-', (x, 142.24), PAD_PWR if ref != 'J5' else PAD_SIG)
+    pad(ref, 'GND' if ref != 'J5' else 'NTC-', (x, 142.24), PAD_PWR_GND if ref != 'J5' else PAD_SIG_GND)
     gnd((x, 142.24))
 for i, ref in enumerate(('H1', 'H2')):
     s.add('Mechanical:MountingHole', ref, 'M2', xp + i * 15.24, 167.64, footprint='MountingHole:MountingHole_2.2mm_M2', in_bom=False)
