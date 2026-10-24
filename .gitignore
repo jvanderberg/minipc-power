@@ -4,3 +4,5 @@ fp-info-cache
 *.lck
 _autosave-*
 .history/
+__pycache__/
+*.pyc

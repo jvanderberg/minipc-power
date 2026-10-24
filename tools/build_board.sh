@@ -6,7 +6,13 @@ S=${SCRATCH:-/tmp/minipc-build}; mkdir -p "$S"
 K=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 P=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
 PY=${PY:-$HOME/.cache/kicad-skills/venv/bin/python}
-bash ~/git/kicad-skills/skills/kicad-pcb-workflow/scripts/kicad_open.sh hardware >/dev/null || { echo "KiCad has the project open"; exit 1; }
+# Refuse only if KiCad has THIS project open: a lock file here, or a KiCad process holding files in this folder.
+# (Any KiCad process anywhere is not a reason: the user may be looking at another copy or another project.)
+HW=$(cd hardware && pwd -P)
+if ls hardware/*.lck hardware/~*.lck >/dev/null 2>&1; then echo "KiCad has the project open (lock file in hardware/)"; exit 1; fi
+for pid in $(pgrep -f 'KiCad.app/Contents/MacOS/(kicad|pcbnew|eeschema)$' 2>/dev/null); do
+  if lsof -p "$pid" 2>/dev/null | awk '{print $NF}' | grep -q "^$HW\(/\|$\)"; then echo "KiCad (pid $pid) has files open in hardware/"; exit 1; fi
+done
 $K sch export netlist --format kicadxml -o $S/net.xml hardware/minipc-power.kicad_sch >/dev/null
 $P tools/gen_board.py $S/net.xml 2>&1 | grep -v "traits\|wxApp" | tail -1
 python3 tools/board_setup.py $S/net.xml >/dev/null
@@ -17,6 +23,10 @@ for pass in 1 2; do
   $K pcb drc --refill-zones --save-board --schematic-parity --format json -o $S/drc.json hardware/minipc-power.kicad_pcb >/dev/null 2>&1 || true
 done
 rm -f "hardware/~minipc-power.kicad_pcb.lck"
+# every unused / strapped pin needs a recorded datasheet decision (docs/pin-decisions.json)
+if python3 ~/git/kicad-skills/skills/kicad-pcb-workflow/scripts/nc_audit.py $S/net.xml --notes docs/pin-decisions.json \
+     --require-notes --md docs/pin-decisions.md > $S/nc_audit.txt; then tail -1 $S/nc_audit.txt
+else tail -1 $S/nc_audit.txt; echo "pin decisions missing: see docs/pin-decisions.md (TODO rows)"; exit 1; fi
 python3 - "$S/drc.json" <<'P'
 import json, sys, collections
 d = json.load(open(sys.argv[1]))

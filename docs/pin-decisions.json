@@ -1,0 +1,21 @@
+{
+  "J1.A6": "USB D+: not connected. PD negotiates on CC1/CC2; the BC1.2/QC path through CH224Q DP/DM was dropped (0.4 mm-pitch inner pins could not escape beside CC1/CC2). Effect: a QC-only charger stays at 5 V. docs/power-design.md s1",
+  "J1.B6": "USB D+ (second row): not connected, as J1.A6",
+  "J1.A7": "USB D-: not connected, as J1.A6",
+  "J1.B7": "USB D- (second row): not connected, as J1.A6",
+  "J1.A8": "SBU1: unused. Sideband use is for alternate modes; a power-only sink needs none",
+  "J1.B8": "SBU2: unused, as J1.A8",
+  "U1.2": "CH224Q CFG2: floating. Single-resistor configuration (R1 6.8k on CFG1 = 9 V); 'CFG2 and CFG3 may be left floating' (CH224 datasheet s5.2.1, table 5-1)",
+  "U1.3": "CH224Q CFG3: floating, as U1.2 (CH224 datasheet s5.2.1)",
+  "U1.4": "CH224Q DP: not connected. BC1.2/QC requests dropped, see J1.A6; PD on CC1/CC2 only",
+  "U1.5": "CH224Q DM: not connected, as U1.4",
+  "U1.10": "CH224Q PG: unused. Open-drain active-low power-good indicator (pin table); nothing on this board needs it",
+  "U2.1": "BQ25606 VAC: tied to VBUS. 'Input voltage sensing. This pin must be shorted to the VBUS pin.' (SLUSCK6C table 7-1)",
+  "U2.3": "BQ25606 D+: floating on purpose. The DCD timer expires, nonstandard detection finds no divider, so the source is 'unknown' and the ILIM resistor (R2 249R, 1.92 A) sets the input limit (SLUSCK6C s9.3.2.3.1, ILIM row of table 7-1). This chain is inferred from the datasheet: confirm the input limit on the bench",
+  "U2.4": "BQ25606 D-: floating on purpose, as U2.3",
+  "U2.6": "BQ25606 OTG: tied to GND. 'When this pin is pulled HIGH, OTG is enabled. OTG cannot be floating.' (table 7-1); boost-back mode not used",
+  "U2.9": "BQ25606 /CE: tied to GND. 'When this pin is driven low, battery charging is enabled.' (table 7-1); charging always enabled",
+  "U2.12": "BQ25606 VSET: floating. RPD > 50 kohm (float pin) = 4.208 V charge voltage for Li-ion 18650 (table 7-1, VBATREG spec)",
+  "U5.13": "TPS61088-Q1 MODE: floating. Internal 800 kohm pull-up (RMODE); floating selects PFM at light load (SLVSE52A pin table); efficiency at light load preferred over forced PWM",
+  "U6.2": "TPS63802 MODE: tied to GND. 'Set LOW for power save mode, set HIGH for forced PWM mode. It must not be left floating.' (SLVSEU9D pin table)"
+}

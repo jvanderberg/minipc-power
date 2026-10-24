@@ -1,11 +1,13 @@
-"""Minimal KiCad 10 schematic writer for generated, wire-drawn schematics.
+"""Minimal schematic layout helper for generated, wire-drawn schematics, written through kicad-skills' kicad_sexpr
+layer (no s-expression text is formatted here).
 
 Coordinates are millimetres, y pointing down (KiCad sheet coordinates). Keep everything on the 1.27 mm grid.
 Usage: build a Sch, place parts (returns Part objects whose .p(pin) gives the pin's connection point), draw wires
 between points, add power symbols / labels, then write(). Junctions are added automatically wherever three or more
 connection ends meet, or a wire end lands on the interior of another wire.
 """
-import math, re, uuid
+import kskills  # noqa: F401  (kicad_sexpr on sys.path)
+from kicad_sexpr import Schematic, SymbolLibrary, pins_of, symbol_point  # noqa: E402
 
 G = 1.27
 
@@ -14,71 +16,14 @@ def snap(v):
     return round(round(v / G) * G, 4)
 
 
-def uid():
-    return str(uuid.uuid4())
-
-
-def kstr(s):
-    return '"' + str(s).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') + '"'
-
-
 # ---------------------------------------------------------------- symbol libraries
 
-def _blocks(text, head):
-    """Yield (name, start, end) for top-level '(symbol "name"' blocks in a .kicad_sym text."""
-    i = 0
-    depth = 0
-    n = len(text)
-    starts = []
-    in_str = False
-    while i < n:
-        c = text[i]
-        if in_str:
-            if c == '\\':
-                i += 2
-                continue
-            if c == '"':
-                in_str = False
-        elif c == '"':
-            in_str = True
-        elif c == '(':
-            if depth == 1 and text.startswith(head, i):
-                starts.append(i)
-            depth += 1
-        elif c == ')':
-            depth -= 1
-            if depth == 1 and starts and starts[-1] is not None:
-                s = starts[-1]
-                name = re.match(r'\(symbol "([^"]+)"', text[s:]).group(1)
-                yield name, s, i + 1
-                starts[-1] = None
-        i += 1
+class SymLib(SymbolLibrary):
+    """A .kicad_sym library under a nickname (kicad_sexpr.SymbolLibrary)."""
 
-
-class SymLib:
-    def __init__(self, nickname, path=None, text=None):
-        self.nick = nickname
-        text = text if text is not None else open(path).read()
-        self.raw = {name: text[s:e] for name, s, e in _blocks(text, '(symbol "')}
-
-    def get(self, name):
-        return self.raw[name]
-
-
-def pin_list(sym_text):
-    """Pins of a symbol block: list of dict(num, name, type, x, y, rot) in symbol coordinates (y up)."""
-    out = []
-    for m in re.finditer(r'\(pin (\w+) \w+\s*\(at ([-\d.]+) ([-\d.]+)(?: ([-\d.]+))?\)(.*?)\(name "([^"]*)"(.*?)\(number "([^"]*)"',
-                         sym_text, re.S):
-        out.append(dict(type=m.group(1), x=float(m.group(2)), y=float(m.group(3)), rot=float(m.group(4) or 0),
-                        name=m.group(6), num=m.group(8)))
-    return out
-
-
-def embed(lib_id, sym_text):
-    """Rename a library symbol block for the schematic's lib_symbols section."""
-    name = re.match(r'\(symbol "([^"]+)"', sym_text).group(1)
-    return sym_text.replace('(symbol "%s"' % name, '(symbol "%s"' % lib_id, 1)
+    def __init__(self, nickname, path=None, text=None, lib=None):
+        src = lib if lib is not None else (SymbolLibrary.from_text(text) if text is not None else SymbolLibrary.load(path))
+        super().__init__(src.tree, nickname, path)
 
 
 # ---------------------------------------------------------------- schematic
@@ -92,32 +37,25 @@ class Part:
         self.fields = fields
         self.footprint = footprint
         self.in_bom, self.on_board, self.dnp = in_bom, on_board, dnp
-        self.uuid = uid()
 
     def p(self, key):
         """Connection point of a pin, by number or (unique) name."""
-        cands = [q for q in self.pins if q['num'] == str(key)] or [q for q in self.pins if q['name'] == str(key)]
+        cands = [q for q in self.pins if q.number == str(key)] or [q for q in self.pins if q.name == str(key)]
         if not cands:
             raise KeyError('%s has no pin %s' % (self.ref, key))
         q = cands[0]
-        vx, vy = q['x'], -q['y']
-        a = math.radians(self.rot)
-        x = vx * math.cos(a) + vy * math.sin(a)
-        y = -vx * math.sin(a) + vy * math.cos(a)
-        if self.mirror == 'x':
-            y = -y
-        elif self.mirror == 'y':
-            x = -x
-        return (snap(self.x + x), snap(self.y + y))
+        x, y = symbol_point(q.x, q.y, (self.x, self.y), self.rot, self.mirror)
+        return (snap(x), snap(y))
+
+    def pin_numbers(self):
+        return [q.number for q in self.pins]
 
 
 class Sch:
     def __init__(self, project, paper='A2', title='', rev='', date=''):
         self.project = project
         self.paper, self.title, self.rev, self.date = paper, title, rev, date
-        self.uuid = uid()
         self.libs = {}
-        self.used = {}
         self.parts = []
         self.wires = []
         self.labels = []
@@ -126,21 +64,20 @@ class Sch:
         self.extra_junctions = []
         self.pwr_n = 0
 
-    def lib(self, nickname, path=None, text=None):
-        self.libs[nickname] = SymLib(nickname, path, text)
+    def lib(self, nickname, path=None, text=None, lib=None):
+        self.libs[nickname] = SymLib(nickname, path, text, lib)
 
-    def symtext(self, lib_id):
+    def libsym(self, lib_id):
         nick, name = lib_id.split(':', 1)
         return self.libs[nick].get(name)
 
     def add(self, lib_id, ref, value, x, y, rot=0, footprint='', lcsc='', fields=None, in_bom=True, on_board=True,
             dnp=False, mirror=None):
-        t = self.symtext(lib_id)
-        self.used[lib_id] = t
         f = dict(fields or {})
         if lcsc:
             f['LCSC'] = lcsc
-        p = Part(self, lib_id, ref, value, x, y, rot, pin_list(t), f, footprint, in_bom, on_board, dnp, mirror)
+        p = Part(self, lib_id, ref, value, x, y, rot, pins_of(self.libsym(lib_id), 1, 1), f, footprint, in_bom,
+                 on_board, dnp, mirror)
         self.parts.append(p)
         return p
 
@@ -185,8 +122,8 @@ class Sch:
             bump(a); bump(b)
         pin_pts = set()
         for p in self.parts:
-            for q in p.pins:
-                pin_pts.add(p.p(q['num']))
+            for q in p.pin_numbers():
+                pin_pts.add(p.p(q))
         for pt in list(ends):
             if pt in pin_pts:
                 bump(pt)
@@ -205,60 +142,17 @@ class Sch:
         """Pins that sit on the interior of a wire (they connect to it - usually a mistake unless intended)."""
         bad = []
         for p in self.parts:
-            for q in p.pins:
-                pt = p.p(q['num'])
+            for q in p.pin_numbers():
+                pt = p.p(q)
                 for a, b in self.wires:
                     if pt in (a, b):
                         continue
                     if (a[0] == b[0] == pt[0] and min(a[1], b[1]) < pt[1] < max(a[1], b[1])) or \
                        (a[1] == b[1] == pt[1] and min(a[0], b[0]) < pt[0] < max(a[0], b[0])):
-                        bad.append((p.ref, q['num'], pt))
+                        bad.append((p.ref, q, pt))
         return bad
 
     # ------------------------------------------------------------ output
-
-    def _sym_inst(self, p):
-        props = [('Reference', p.ref, False), ('Value', p.value, False), ('Footprint', p.footprint, True),
-                 ('Datasheet', p.fields.get('Datasheet', ''), True)]
-        for k, v in p.fields.items():
-            if k != 'Datasheet' and not k.startswith('_') and k not in p.fields.get('_visible', []):
-                props.append((k, v, True))
-        hide_ref = p.ref.startswith('#')
-        out = ['\t(symbol\n\t\t(lib_id %s)\n\t\t(at %s %s %s)\n%s\t\t(unit 1)\n\t\t(exclude_from_sim no)\n'
-               '\t\t(in_bom %s)\n\t\t(on_board %s)\n\t\t(dnp %s)\n\t\t(uuid "%s")\n' %
-               (kstr(p.lib_id), p.x, p.y, p.rot, '\t\t(mirror %s)\n' % p.mirror if p.mirror else '', 'yes' if p.in_bom else 'no', 'yes' if p.on_board else 'no',
-                'yes' if p.dnp else 'no', p.uuid)]
-        rx, ry, vx, vy, ang, just = self._field_spots(p)
-        if '_ref_at' in p.fields:
-            rx, ry = p.fields['_ref_at']
-        if '_val_at' in p.fields:
-            vx, vy = p.fields['_val_at']
-        for k, v, hidden in props:
-            if k.startswith('_'):
-                continue
-            if k == 'Reference':
-                at = (rx, ry)
-                hid = hide_ref
-            elif k == 'Value':
-                at = (vx, vy)
-                hid = p.fields.get('_hide_value', p.lib_id == 'power:GND')
-            else:
-                at = (p.x, p.y)
-                hid = True
-            just = p.fields.get('_just', just)
-            out.append('\t\t(property %s %s\n\t\t\t(at %s %s %s)\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n'
-                       '\t\t\t\t)%s%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(v), snap(at[0]), snap(at[1]), ang,
-                                                        '' if just == 'center' else '\n\t\t\t\t(justify %s)' % just,
-                                                        '\n\t\t\t\t(hide yes)' if hid else ''))
-        for i, k in enumerate(p.fields.get('_visible', [])):     # extra visible fields stacked under the value
-            out.append('\t\t(property %s %s\n\t\t\t(at %s %s %s)\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n'
-                       '\t\t\t\t)%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(p.fields[k]), snap(vx), snap(vy + 2.54 * (i + 1)), ang,
-                                                        '' if just == 'center' else '\n\t\t\t\t(justify %s)' % just))
-        for q in p.pins:
-            out.append('\t\t(pin %s\n\t\t\t(uuid "%s")\n\t\t)\n' % (kstr(q['num']), uid()))
-        out.append('\t\t(instances\n\t\t\t(project %s\n\t\t\t\t(path "/%s"\n\t\t\t\t\t(reference %s)\n'
-                   '\t\t\t\t\t(unit 1)\n\t\t\t\t)\n\t\t\t)\n\t\t)\n\t)\n' % (kstr(self.project), self.uuid, kstr(p.ref)))
-        return ''.join(out)
 
     def _split_wires(self):
         """Split wires at every pin point and wire end lying on their interior, so T-taps are real joints."""
@@ -266,8 +160,8 @@ class Sch:
         for a, b in self.wires:
             pts.add(a); pts.add(b)
         for p in self.parts:
-            for q in p.pins:
-                pts.add(p.p(q['num']))
+            for q in p.pin_numbers():
+                pts.add(p.p(q))
         out = []
         for a, b in self.wires:
             cuts = [pt for pt in pts if pt not in (a, b) and (
@@ -277,9 +171,16 @@ class Sch:
             out += [(u, v) for u, v in zip(seq, seq[1:]) if u != v]
         self.wires = out
 
+    def _body_rect(self, lib_id):
+        """(x1, y1, x2, y2) of the first rectangle in a library symbol's body, or None."""
+        for r in self.libsym(lib_id).walk('rectangle'):
+            s, e = r.find('start'), r.find('end')
+            return float(s[1]), float(s[2]), float(e[1]), float(e[2])
+        return None
+
     def _field_spots(self, p):
         """Default (ref x, y, value x, y, angle, justify) for a placed part."""
-        n = len({q['num'] for q in p.pins})
+        n = len(set(p.pin_numbers()))
         if p.ref.startswith('#'):                       # power symbols: text beyond the symbol
             if p.rot == 180:
                 return p.x, p.y + 5.08, p.x, p.y + 5.08, 0, 'center'
@@ -290,48 +191,65 @@ class Sch:
             if p.fields.get('_visible'):
                 return p.x + 2.54, p.y - 2.54, p.x + 2.54, p.y, 0, 'left'
             return p.x + 2.54, p.y - 1.27, p.x + 2.54, p.y + 1.27, 0, 'left'
-        m = re.search(r'\(rectangle\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)', self.symtext(p.lib_id))
-        if m and p.rot == 0 and not p.mirror:
-            x1, y1, x2, y2 = (float(v) for v in m.groups())
+        rect = self._body_rect(p.lib_id)
+        if rect and p.rot == 0 and not p.mirror:
+            x1, y1, x2, y2 = rect
             left, top, bot = p.x + min(x1, x2), p.y - max(y1, y2), p.y - min(y1, y2)
             return left, top - 1.27, left, bot + 2.54, 0, 'left'
         return p.x + 3.81, p.y - 3.81, p.x + 3.81, p.y + 3.81, 90 if p.rot in (90, 270) else 0, 'left'
 
-    def write(self, path):
+    def _place(self, sch, p):
+        """Place one Part through kicad_sexpr and position its fields the way this generator lays them out."""
+        fields = {k: v for k, v in p.fields.items() if not k.startswith('_') and k != 'Datasheet'}
+        desc = fields.pop('Description', None)
+        sym = sch.add_symbol(p.lib_id, p.ref, p.value, (p.x, p.y), p.rot, p.mirror, footprint=p.footprint,
+                             datasheet=p.fields.get('Datasheet', ''), description=desc, fields=fields,
+                             in_bom=p.in_bom, on_board=p.on_board, dnp=p.dnp)
+        rx, ry, vx, vy, ang, just = self._field_spots(p)
+        if '_ref_at' in p.fields:
+            rx, ry = p.fields['_ref_at']
+        if '_val_at' in p.fields:
+            vx, vy = p.fields['_val_at']
+        just = p.fields.get('_just', just)
+        hide_val = p.fields.get('_hide_value', p.lib_id == 'power:GND')
+        sym.set_field('Reference', at=(snap(rx), snap(ry)), angle=ang, justify=[just], hide=p.ref.startswith('#'))
+        sym.set_field('Value', at=(snap(vx), snap(vy)), angle=ang, justify=[just], hide=hide_val)
+        for k in ('Footprint', 'Datasheet', 'Description'):
+            if sym.field(k) is not None:
+                sym.set_field(k, at=(p.x, p.y), angle=ang, hide=True, justify=[just])
+        for k in fields:
+            if k not in p.fields.get('_visible', []):
+                sym.set_field(k, at=(p.x, p.y), angle=ang, hide=True, justify=[just])
+        for i, k in enumerate(p.fields.get('_visible', [])):     # extra visible fields stacked under the value
+            sym.set_field(k, at=(snap(vx), snap(vy + 2.54 * (i + 1))), angle=ang, hide=False, justify=[just])
+        return sym
+
+    def build(self):
+        """The kicad_sexpr Schematic for everything drawn so far."""
         self._split_wires()
-        o = ['(kicad_sch\n\t(version 20260306)\n\t(generator "eeschema")\n\t(generator_version "10.0")\n',
-             '\t(uuid "%s")\n\t(paper "%s")\n' % (self.uuid, self.paper),
-             '\t(title_block\n\t\t(title %s)\n\t\t(date %s)\n\t\t(rev %s)\n\t)\n' % (kstr(self.title), kstr(self.date),
-                                                                                kstr(self.rev)),
-             '\t(lib_symbols\n']
-        for lib_id, t in sorted(self.used.items()):
-            o.append('\t\t' + embed(lib_id, t).replace('\n', '\n\t\t').rstrip('\t') + '\n')
-        o.append('\t)\n')
+        sch = Schematic.new(self.project, paper=self.paper, title=self.title, date=self.date, rev=self.rev)
+        for lib_id in sorted({p.lib_id for p in self.parts}):
+            nick, name = lib_id.split(':', 1)
+            sch.embed_symbol(lib_id, self.libs[nick])
         for pt in self._junctions():
-            o.append('\t(junction\n\t\t(at %s %s)\n\t\t(diameter 0)\n\t\t(color 0 0 0 0)\n\t\t(uuid "%s")\n\t)\n' %
-                     (pt[0], pt[1], uid()))
+            sch.junction(pt)
         for pt in self.noconnects:
-            o.append('\t(no_connect\n\t\t(at %s %s)\n\t\t(uuid "%s")\n\t)\n' % (pt[0], pt[1], uid()))
+            sch.no_connect(pt)
         for a, b in self.wires:
-            o.append('\t(wire\n\t\t(pts\n\t\t\t(xy %s %s) (xy %s %s)\n\t\t)\n\t\t(stroke\n\t\t\t(width 0)\n'
-                     '\t\t\t(type default)\n\t\t)\n\t\t(uuid "%s")\n\t)\n' % (a[0], a[1], b[0], b[1], uid()))
+            sch.wire(a, b)
         for kind, name, x, y, rot, shape in self.labels:
-            just = 'left' if rot in (0, 90) else 'right'
             if kind == 'label':
-                o.append('\t(label %s\n\t\t(at %s %s %s)\n\t\t(effects\n\t\t\t(font\n\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n'
-                         '\t\t\t(justify %s bottom)\n\t\t)\n\t\t(uuid "%s")\n\t)\n' % (kstr(name), x, y, rot, just, uid()))
+                sch.label(name, (x, y), rot)
             else:
-                o.append('\t(global_label %s\n\t\t(shape %s)\n\t\t(at %s %s %s)\n\t\t(effects\n\t\t\t(font\n'
-                         '\t\t\t\t(size 1.27 1.27)\n\t\t\t)\n\t\t\t(justify %s)\n\t\t)\n\t\t(uuid "%s")\n\t)\n' %
-                         (kstr(name), shape, x, y, rot, just, uid()))
+                sch.global_label(name, (x, y), rot, shape)
         for s, x, y, size, bold in self.texts:
-            o.append('\t(text %s\n\t\t(exclude_from_sim no)\n\t\t(at %s %s 0)\n\t\t(effects\n\t\t\t(font\n'
-                     '\t\t\t\t(size %s %s)%s\n\t\t\t)\n\t\t\t(justify left bottom)\n\t\t)\n\t\t(uuid "%s")\n\t)\n' %
-                     (kstr(s), x, y, size, size, '\n\t\t\t\t(bold yes)' if bold else '', uid()))
+            sch.text(s, (x, y), size, bold=bold)
         for p in self.parts:
-            o.append(self._sym_inst(p))
-        o.append('\t(sheet_instances\n\t\t(path "/"\n\t\t\t(page "1")\n\t\t)\n\t)\n\t(embedded_fonts no)\n)\n')
-        open(path, 'w').write(''.join(o))
+            self._place(sch, p)
+        return sch
+
+    def write(self, path):
+        self.build().save(path)
 
 
 def find_merges(sch, intended):
@@ -348,9 +266,6 @@ def find_merges(sch, intended):
         return x
     tags = {}
 
-    def tag_of(x):
-        return tags.get(f(x), set())
-
     def union(a, b, why):
         ra, rb = f(a), f(b)
         if ra == rb:
@@ -361,9 +276,9 @@ def find_merges(sch, intended):
         parent[ra] = rb
         tags[rb] = ta | tb
     for p in sch.parts:
-        for q in p.pins:
-            pt = ('pt',) + p.p(q['num'])
-            key = '%s.%s' % (p.ref, q['num'])
+        for q in p.pin_numbers():
+            pt = ('pt',) + p.p(q)
+            key = '%s.%s' % (p.ref, q)
             if p.ref.startswith('#'):
                 union(pt, ('name', p.value), 'power symbol %s at %s' % (p.value, pt[1:]))
                 continue

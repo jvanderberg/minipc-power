@@ -7,6 +7,7 @@ Run from the repo root:  python3 tools/gen_schematic.py
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from schgen import Sch, SymLib, G
+from kicad_sexpr import Node, load, save
 import symbols
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,7 +19,7 @@ s.lib('Device', os.path.join(KS, 'Device.kicad_sym'))
 s.lib('power', os.path.join(KS, 'power.kicad_sym'))
 s.lib('Connector', os.path.join(KS, 'Connector.kicad_sym'))
 s.lib('Mechanical', os.path.join(KS, 'Mechanical.kicad_sym'))
-s.lib('minipc', text=symbols.library_text())
+s.lib('minipc', lib=symbols.library())
 
 # ------------------------------------------------------------------ footprints / parts
 R0402, C0402, C0603, C0805, C1206, C1210 = ('Resistor_SMD:R_0402_1005Metric', 'Capacitor_SMD:C_0402_1005Metric',
@@ -490,12 +491,13 @@ for i, net in enumerate(('VBUS', 'BAT', '+12V', '+5V', 'GND')):
     s.power(net, x, y + 5.08, 180 if net != 'GND' else 0)
 
 # ------------------------------------------------------------------ write
-open(os.path.join(HW, 'minipc.kicad_sym'), 'w').write(symbols.library_text())
+symbols.library().save(os.path.join(HW, 'minipc.kicad_sym'))
 tbl = os.path.join(HW, 'sym-lib-table')
-t = open(tbl).read()
-if '"minipc"' not in t:
-    t = t.rstrip().rstrip(')') + '  (lib (name "minipc")(type "KiCad")(uri "${KIPRJMOD}/minipc.kicad_sym")(options "")(descr "redrawn symbols"))\n)\n'
-    open(tbl, 'w').write(t)
+lt = load(tbl)
+if not any(n.get('name') == 'minipc' for n in lt.nodes('lib')):
+    lt.append(Node('lib', Node('name', 'minipc'), Node('type', 'KiCad'), Node('uri', '${KIPRJMOD}/minipc.kicad_sym'),
+                   Node('options', ''), Node('descr', 'redrawn symbols')))
+    save(lt, tbl)
 out = os.path.join(HW, 'minipc-power.kicad_sch')
 s.write(out)
 bad = s.pin_on_wire_interior()

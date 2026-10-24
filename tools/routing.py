@@ -6,7 +6,7 @@ placement changes. Net names are taken from the pads, never typed, so a route ca
 Vias placed with via_near() / via_field() are clearance-checked against every other-net pad, track and via
 (round caps, clearance + radius) before they are accepted.
 """
-import json, math, uuid
+import json, math
 from shapely.geometry import Point, LineString, Polygon, box
 from shapely.ops import unary_union
 
@@ -154,32 +154,15 @@ class Router:
         self.zone(net, layer, [(x0, y0), (x1, y0), (x1, y1), (x0, y1)], **kw)
 
     # -------------------------------------------------------------- output
-    def sexpr(self):
-        out = []
+    def emit(self, board):
+        """Add the routed copper to a kicad_sexpr Board (it owns the file syntax, uuids and escaping)."""
         for t in self.tracks:
-            out.append('\t(segment\n\t\t(start %s %s)\n\t\t(end %s %s)\n\t\t(width %s)\n\t\t(layer "%s")\n\t\t(net "%s")\n'
-                       '\t\t(uuid "%s")\n\t)\n' % (t['a'][0], t['a'][1], t['b'][0], t['b'][1], t['w'], t['layer'], t['net'],
-                                                   uuid.uuid4()))
+            board.segment(t['a'], t['b'], t['w'], t['layer'], t['net'])
         for v in self.vias:
-            out.append('\t(via\n\t\t(at %s %s)\n\t\t(size %s)\n\t\t(drill %s)\n\t\t(layers "F.Cu" "B.Cu")\n\t\t(free yes)\n'
-                       '\t\t(net "%s")\n\t\t(uuid "%s")\n\t)\n' % (v['at'][0], v['at'][1], v['size'], v['drill'], v['net'],
-                                                                 uuid.uuid4()))
+            board.via(v['at'], v['size'], v['drill'], v['net'], free=True)
         for z in self.zones:
-            pts = ' '.join('(xy %s %s)' % p for p in z['pts'])
-            conn = '(connect_pads yes\n\t\t\t(clearance %s)\n\t\t)' % z['clearance'] if z['solid'] else \
-                   '(connect_pads\n\t\t\t(clearance %s)\n\t\t)' % z['clearance']
-            out.append('\t(zone\n\t\t(net "%s")\n\t\t(layer "%s")\n\t\t(uuid "%s")\n%s\t\t(hatch edge 0.5)\n'
-                       '\t\t(priority %d)\n\t\t%s\n\t\t(min_thickness %s)\n\t\t(filled_areas_thickness no)\n'
-                       '\t\t(fill yes\n\t\t\t(thermal_gap 0.3)\n\t\t\t(thermal_bridge_width 0.4)\n\t\t\t(island_removal_mode 0)\n\t\t)\n'
-                       '\t\t(polygon\n\t\t\t(pts\n\t\t\t\t%s\n\t\t\t)\n\t\t)\n\t)\n' % (
-                           z['net'], z['layer'], uuid.uuid4(), '\t\t(name "%s")\n' % z['name'] if z['name'] else '',
-                           z['prio'], conn, z['min_thick'], pts))
+            board.zone(z['net'], z['layer'], z['pts'], priority=z['prio'], name=z['name'], clearance=z['clearance'],
+                       min_thickness=z['min_thick'], connect_pads='yes' if z['solid'] else None,
+                       thermal_gap=0.3, thermal_bridge_width=0.4, island_removal_mode=0)
         for k in self.keepouts:
-            pts = ' '.join('(xy %s %s)' % p for p in k['pts'])
-            out.append('\t(zone\n\t\t(layers "%s")\n\t\t(uuid "%s")\n%s\t\t(hatch edge 0.5)\n'
-                       '\t\t(connect_pads\n\t\t\t(clearance 0)\n\t\t)\n\t\t(min_thickness 0.25)\n'
-                       '\t\t(keepout\n\t\t\t(tracks allowed)\n\t\t\t(vias allowed)\n\t\t\t(pads allowed)\n'
-                       '\t\t\t(copperpour not_allowed)\n\t\t\t(footprints allowed)\n\t\t)\n'
-                       '\t\t(polygon\n\t\t\t(pts\n\t\t\t\t%s\n\t\t\t)\n\t\t)\n\t)\n' % (
-                           k['layer'], uuid.uuid4(), '\t\t(name "%s")\n' % k['name'] if k['name'] else '', pts))
-        return ''.join(out)
+            board.rule_area(k['layer'], k['pts'], name=k['name'], copperpour=False)

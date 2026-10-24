@@ -1,133 +1,74 @@
 #!/usr/bin/env python3
 """Build hardware/minipc-power.kicad_pcb from the schematic's netlist (KiCad has no CLI "update PCB from schematic").
 
-Run with KiCad's bundled python (it has pcbnew):
-  $KICAD_PYTHON tools/gen_board.py <netlist.xml>
+Plain python3, through kicad-skills' kicad_sexpr layer (no pcbnew, no hand-formatted s-expressions):
+  python3 tools/gen_board.py <netlist.xml>
 Footprints come from the libraries named in the schematic; each gets its reference, value, the symbol link (path),
 and pad nets. Positions come from tools/placement.py (unplaced parts are staged beside the board). Afterwards run
-tools/board_setup.py (plain python) for the stackup, design rules, net classes and LCSC fields.
+tools/board_setup.py for the stackup, design rules, net classes and schematic fields.
 """
 import os, sys, xml.etree.ElementTree as ET
-import pcbnew
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import placement
+import kskills  # noqa: F401  (kicad_sexpr on sys.path)
+from kicad_sexpr import Board, board_net_name
 
 HW = os.path.join(ROOT, 'hardware')
 SYS_FP = '/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints'
 LIBS = {'JLCImport': os.path.join(HW, 'JLCImport.pretty')}
-MM = pcbnew.FromMM
 
 root = ET.parse(sys.argv[1]).getroot()
 comps = []
 for c in root.find('components'):
-    ref = c.get('ref')
     fp = c.findtext('footprint') or ''
-    if not fp:
-        continue
-    fields = {f.get('name'): (f.text or '') for f in (c.find('fields') or [])}
-    comps.append(dict(ref=ref, value=c.findtext('value') or '', fp=fp, tstamp=c.findtext('tstamps') or '',
-                      lcsc=fields.get('LCSC', '')))
+    if fp:
+        comps.append(dict(ref=c.get('ref'), value=c.findtext('value') or '', fp=fp, tstamp=c.findtext('tstamps') or ''))
 pins = {}
 for net in root.find('nets'):
     for n in net.findall('node'):
-        pins[(n.get('ref'), n.get('pin'))] = net.get('name')
+        pins.setdefault(n.get('ref'), {})[n.get('pin')] = board_net_name(net.get('name'))
 
-b = pcbnew.CreateEmptyBoard()
-b.SetCopperLayerCount(4)
-netinfo = {}
-
-
-def net(name):
-    if name.startswith(('Net-(', 'unconnected-(')):
-        name = name.replace('/', '{slash}')       # KiCad stores '/' in auto net names as {slash} (file-format.md)
-    if name not in netinfo:
-        ni = pcbnew.NETINFO_ITEM(b, name)
-        b.Add(ni)
-        netinfo[name] = ni
-    return netinfo[name]
-
-
+b = Board.new(copper_layers=4)
 ox, oy = placement.ORIGIN
 stage_x, stage_y = ox + placement.BOARD[0] + 15, oy
-for i, c in enumerate(sorted(comps, key=lambda c: (c['ref'][0], int(''.join(ch for ch in c['ref'] if ch.isdigit()) or 0)))):
-    lib, name = c['fp'].split(':', 1)
-    path = LIBS.get(lib, os.path.join(SYS_FP, lib + '.pretty'))
-    f = pcbnew.Cast_to_FOOTPRINT(pcbnew.FootprintLoad(path, name).Duplicate(False))
-    f.SetFPID(pcbnew.LIB_ID(lib, name))
 
-    f.SetReference(c['ref'])
-    f.SetValue(c['value'])
-    if c['tstamp']:
-        f.SetPath(pcbnew.KIID_PATH('/' + c['tstamp']))
-    b.Add(f)
+
+def refnum(c):
+    return (c['ref'][0], int(''.join(ch for ch in c['ref'] if ch.isdigit()) or 0))
+
+
+for i, c in enumerate(sorted(comps, key=refnum)):
+    lib, name = c['fp'].split(':', 1)
+    path = os.path.join(LIBS.get(lib, os.path.join(SYS_FP, lib + '.pretty')), name + '.kicad_mod')
     pl = placement.PLACE.get(c['ref'])
     if pl:
-        x, y, rot = pl[0], pl[1], pl[2] if len(pl) > 2 else 0
-        f.SetPosition(pcbnew.VECTOR2I(MM(ox + x), MM(oy + y)))
-        f.SetOrientationDegrees(rot)
+        at, rot = (ox + pl[0], oy + pl[1]), (pl[2] if len(pl) > 2 else 0)
     else:
         col, row = divmod(i, 12)
-        f.SetPosition(pcbnew.VECTOR2I(MM(stage_x + col * 10), MM(stage_y + row * 8)))
-    for p in f.Pads():
-        n = pins.get((c['ref'], p.GetNumber()))
-        if n:
-            p.SetNet(net(n))
+        at, rot = (stage_x + col * 10, stage_y + row * 8), 0
+    f = b.add_footprint(path, c['fp'], c['ref'], c['value'], at, rot,
+                        path='/' + c['tstamp'] if c['tstamp'] else None, pad_nets=pins.get(c['ref'], {}))
+    # component references: off the silkscreen (dense assembled board), kept on F.Fab for the assembly drawing
+    f.set_field('Reference', c['ref'], hide=True)
+    for t in f.node.nodes('fp_text'):
+        if str(t[2]) == '${REFERENCE}' and str(t.get('layer')) == 'F.Fab':
+            t.remove_all('hide')
 
-# component references: off the silkscreen (dense assembled board), kept on F.Fab for the assembly drawing
-for f in b.GetFootprints():
-    r = f.Reference()
-    r.SetVisible(False)
-    for item in f.GraphicalItems():
-        if isinstance(item, pcbnew.PCB_TEXT) and item.GetText() == '${REFERENCE}' and item.GetLayer() == pcbnew.F_Fab:
-            item.SetVisible(True)
-
-# solder-pad labels on both silkscreens (wires may be soldered from either side); J refs hidden instead
+# solder-pad labels on both silkscreens (wires may be soldered from either side)
 for ref, (text, dx, dy, *rot) in placement.PAD_LABELS.items():
-    f = b.FindFootprintByReference(ref)
-    f.Reference().SetVisible(False)
-    pos = f.GetPosition()
-    for layer, mirror in ((pcbnew.F_SilkS, False), (pcbnew.B_SilkS, True)):
-        t = pcbnew.PCB_TEXT(b)
-        t.SetText(text)
-        t.SetLayer(layer)
-        t.SetTextSize(pcbnew.VECTOR2I(MM(1.0), MM(1.0)))
-        t.SetTextThickness(MM(0.15))
-        t.SetPosition(pcbnew.VECTOR2I(pos.x + MM(dx), pos.y + MM(dy)))
-        t.SetMirrored(mirror)
-        if rot:
-            t.SetTextAngle(pcbnew.EDA_ANGLE(rot[0], pcbnew.DEGREES_T))
-        b.Add(t)
+    x, y = b.footprint(ref).at
+    for layer in ('F.SilkS', 'B.SilkS'):
+        b.gr_text(text, (x + dx, y + dy), layer, size=1.0, thickness=0.15, angle=rot[0] if rot else 0)
 for text, x, y in placement.SILK_NOTES:
-    for layer, mirror in ((pcbnew.F_SilkS, False), (pcbnew.B_SilkS, True)):
-        t = pcbnew.PCB_TEXT(b)
-        t.SetText(text); t.SetLayer(layer); t.SetMirrored(mirror)
-        t.SetTextSize(pcbnew.VECTOR2I(MM(1.0), MM(1.0))); t.SetTextThickness(MM(0.15))
-        t.SetPosition(pcbnew.VECTOR2I(MM(ox + x), MM(oy + y)))
-        b.Add(t)
+    for layer in ('F.SilkS', 'B.SilkS'):
+        b.gr_text(text, (ox + x, oy + y), layer, size=1.0, thickness=0.15)
 
 # board outline
 w, h = placement.BOARD
-r = placement.CORNER_R
-seg = []
-pts = [(ox + r, oy), (ox + w - r, oy), (ox + w, oy + r), (ox + w, oy + h - r), (ox + w - r, oy + h), (ox + r, oy + h),
-       (ox, oy + h - r), (ox, oy + r)]
-for a, c2 in ((0, 1), (2, 3), (4, 5), (6, 7)):
-    s = pcbnew.PCB_SHAPE(b)
-    s.SetShape(pcbnew.SHAPE_T_SEGMENT)
-    s.SetStart(pcbnew.VECTOR2I(MM(pts[a][0]), MM(pts[a][1])))
-    s.SetEnd(pcbnew.VECTOR2I(MM(pts[c2][0]), MM(pts[c2][1])))
-    s.SetLayer(pcbnew.Edge_Cuts); s.SetWidth(MM(0.1)); b.Add(s)
-for cx, cy, sa in ((ox + w - r, oy + r, 270), (ox + w - r, oy + h - r, 0), (ox + r, oy + h - r, 90), (ox + r, oy + r, 180)):
-    s = pcbnew.PCB_SHAPE(b)
-    s.SetShape(pcbnew.SHAPE_T_ARC)
-    s.SetCenter(pcbnew.VECTOR2I(MM(cx), MM(cy)))
-    import math
-    s.SetStart(pcbnew.VECTOR2I(MM(cx + r * math.cos(math.radians(sa))), MM(cy + r * math.sin(math.radians(sa)))))
-    s.SetArcAngleAndEnd(pcbnew.EDA_ANGLE(90, pcbnew.DEGREES_T))
-    s.SetLayer(pcbnew.Edge_Cuts); s.SetWidth(MM(0.1)); b.Add(s)
+b.outline_rect(ox, oy, w, h, corner_radius=placement.CORNER_R, width=0.1)
 
 out = os.path.join(HW, 'minipc-power.kicad_pcb')
-pcbnew.SaveBoard(out, b)
-print('wrote', out, len(comps), 'footprints,', len(netinfo), 'nets,', len(placement.PLACE), 'placed')
+b.save(out)
+print('wrote', out, len(comps), 'footprints,', len(b.nets()), 'nets,', len(placement.PLACE), 'placed')

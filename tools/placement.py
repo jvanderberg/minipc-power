@@ -83,6 +83,9 @@ MODEL_OVERRIDE = {
     'Fuse_Littelfuse-NANO2-451_453': ('${KIPRJMOD}/JLCImport.3dshapes/0451010_MRL.wrl', (0.702, 0, 1.35), (0, 0, 0)),
     'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('${KIPRJMOD}/JLCImport.3dshapes/TYPE-C-31-M-12.wrl', (0, -0.879, 0),
                                             (0, 0, -180)),
+    # TPS61088-Q1 (U5): KiCad's RHL footprint model is not installed; LCSC C1850341's model, whose footprint is laid out
+    # 90 deg from KiCad's (its pin 1 at (-2.185, 0.75), KiCad's at (-0.75, -2.15)); checked by the pin-1 dot in a 3D render
+    'Texas_VQFN-RHL-20': ('${KIPRJMOD}/JLCImport.3dshapes/TPS61088QRHLRQ1.wrl', (0, 0, 0.02), (0, 0, 90)),
 }
 
 # Solder-pad labels: ref -> (text, dx, dy[, rotation deg]) from the pad centre. Square pads = positive / signal, round = GND / negative.
