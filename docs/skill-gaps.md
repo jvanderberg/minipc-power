@@ -28,6 +28,7 @@ skills should encode. Fixing only the exact incident would not prevent the next,
 | R12 | **Every default or unused element is a recorded decision** (no-connect pins, straps, floating inputs), **and every external interface gets user-facing affordances** (labels, polarity, orientation). | 24, 33 |
 | R13 | **One place owns each file format and each fiddly rule**: s-expression output, escaping, hole spacing. Generators describe intent, and shared tools enforce the rules. | 0, 16, 19, 20 |
 | R14 | **Prefer standard, verified building blocks over imported or improvised ones**, and check imported ones against their source. | 17, 18, still-missing 8 |
+| R15 | **Generated files are deterministic and match the tool's own canonical form.** An unchanged design regenerates byte-identical (stable ids from stable keys, stable order), a change touches only its own lines, and output matches what the tool itself writes (KiCad 10 stores net-class assignments as lists; we wrote strings, so every KiCad open rewrote them). Otherwise every rebuild is an unreviewable diff. | found moving minipc-power onto kicad_sexpr: random uuids + KiCad's uuid-sorted save gave a ~31,000-line diff for an unchanged board |
 
 ## Planning / interview (kicad-new-board)
 
