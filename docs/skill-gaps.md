@@ -7,6 +7,28 @@ and a suggested fix.
 Severity: **high** = would lead to a wrong or unsafe design if followed; **medium** = missing guidance that cost real
 time or needed outside knowledge; **low** = friction, wording, tooling.
 
+## General rules behind these gaps
+
+The numbered entries below are incidents. Each one is an instance of one of these rules, and the rules are what the
+skills should encode. Fixing only the exact incident would not prevent the next, different instance.
+
+| # | Rule | Instances |
+|---|---|---|
+| R1 | **Requirements cover the whole operating envelope**: simultaneous loads, worst case, thermal, physical and connector area, what runs before what. | 1, 2, 3, 23, 25 |
+| R2 | **Surface every assumption made in place of asking**, and never default it silently. The user decides. | 23, 26, 29 |
+| R3 | **External data is a snapshot about one exact item**: stock, lifecycle, tool recommendations, datasheet values. Verify it is the exact orderable variant, and that the data is current, before building on it. | 10, 14, 29 |
+| R4 | **Statements about third-party tools and sites go stale.** Date them, say how to re-verify them, and prefer steps that discover current behaviour. | 4, 11, 12, 32 |
+| R5 | **Gather the authoritative references early, and re-consult them at the point of use.** Each phase starts from a brief that restates its own inputs and constraints, so it doesn't rely on what earlier parts of a long session remember. | 9, 13, 21, 22 |
+| R6 | **Verify against the reference, not only against generic checks.** DRC/ERC prove electrical and manufacturing rules, not design intent. | 21, 24, 31, tool notes |
+| R7 | **Every automated check has blind spots**: state what each one does not cover, and add a targeted check or a visual inspection for those. | 17, 31, 33, tool notes (silk under bodies, missing 3D models) |
+| R8 | **Never suppress a whole category of validation output.** An exemption names the specific item and the reason, and is reported as exempted. | tool notes (DRC summary) |
+| R9 | **A claim that a requirement can't be met is itself a claim needing evidence**: what was tried, what blocked it. Try the cheaper alternatives (smaller package, other value, other position) first. | 28 |
+| R10 | **Decisions frozen in an earlier phase are checked for feasibility by the later phase before they are final.** If the later phase can't honour one, it goes back to the user as a decision, not a silent shortcut. | 26, 5 |
+| R11 | **Shared resources need an allocation plan before sub-tasks consume them**: layers, board areas, routing channels, plane regions, reserved via sites. | 27 |
+| R12 | **Every default or unused element is a recorded decision** (no-connect pins, straps, floating inputs), **and every external interface gets user-facing affordances** (labels, polarity, orientation). | 24, 33 |
+| R13 | **One place owns each file format and each fiddly rule**: s-expression output, escaping, hole spacing. Generators describe intent, and shared tools enforce the rules. | 0, 16, 19, 20 |
+| R14 | **Prefer standard, verified building blocks over imported or improvised ones**, and check imported ones against their source. | 17, 18, still-missing 8 |
+
 ## Planning / interview (kicad-new-board)
 
 1. **medium - No path for multi-amp 1S boards (power banks, handhelds).** `pcb-battery-power/SKILL.md` s4 makes a
