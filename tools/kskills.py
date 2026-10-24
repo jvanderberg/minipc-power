@@ -2,5 +2,7 @@
 import os, sys
 
 KICAD_SEXPR = os.environ.get('KICAD_SEXPR', os.path.expanduser('~/git/kicad-skills/skills/kicad-pcb-workflow/scripts'))
+# appended, not prepended: the scripts folder also holds generic module names (schgen, netspec, board_setup, ...)
+# and the project's own tools/ (sys.path[0]) must win; only kicad_sexpr is meant to come from here
 if KICAD_SEXPR not in sys.path:
-    sys.path.insert(0, KICAD_SEXPR)
+    sys.path.append(KICAD_SEXPR)

@@ -3,6 +3,10 @@
 set -e
 cd "$(dirname "$0")/.."
 S=${SCRATCH:-/tmp/minipc-build}; mkdir -p "$S"
+# git diffs of the board hide zone fills (derived, and KiCad's refill is not deterministic); see tools/fills.py
+git config diff.kicad_pcb.textconv "python3 tools/fills.py strip" 2>/dev/null || true
+# snapshot the board being replaced: the generators reuse its ids (stable ids -> clean git diffs)
+if [ -f hardware/minipc-power.kicad_pcb ]; then cp hardware/minipc-power.kicad_pcb "$S/previous.kicad_pcb"; export PREV_PCB="$S/previous.kicad_pcb"; fi
 K=/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli
 P=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3
 PY=${PY:-$HOME/.cache/kicad-skills/venv/bin/python}
@@ -23,6 +27,10 @@ for pass in 1 2; do
   $K pcb drc --refill-zones --save-board --schematic-parity --format json -o $S/drc.json hardware/minipc-power.kicad_pcb >/dev/null 2>&1 || true
 done
 rm -f "hardware/~minipc-power.kicad_pcb.lck"
+# only the zone fills changed (KiCad's refill is not deterministic)? keep the previous file, so git stays clean
+if [ -n "${PREV_PCB:-}" ] && ! cmp -s "$PREV_PCB" hardware/minipc-power.kicad_pcb && python3 tools/fills.py same "$PREV_PCB" hardware/minipc-power.kicad_pcb; then
+  cp "$PREV_PCB" hardware/minipc-power.kicad_pcb; echo "board unchanged apart from zone fills: kept the previous file"
+fi
 # every unused / strapped pin needs a recorded datasheet decision (docs/pin-decisions.json)
 if python3 ~/git/kicad-skills/skills/kicad-pcb-workflow/scripts/nc_audit.py $S/net.xml --notes docs/pin-decisions.json \
      --require-notes --md docs/pin-decisions.md > $S/nc_audit.txt; then tail -1 $S/nc_audit.txt

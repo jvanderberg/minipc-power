@@ -13,6 +13,9 @@ PCB = os.path.join(ROOT, 'hardware', 'minipc-power.kicad_pcb')
 r = Router(sys.argv[1])
 route_plan.build(r)
 b = Board.load(PCB)
+PREV = os.environ.get('PREV_PCB')
+if PREV and os.path.exists(PREV):
+    b.reuse_ids(PREV)                      # tracks / vias / zones keep their committed ids
 assert not b.items('segment') and not b.items('zone'), 'board already has routing: regenerate it first'
 r.emit(b)
 b.save()

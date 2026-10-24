@@ -6,6 +6,7 @@ Usage: build a Sch, place parts (returns Part objects whose .p(pin) gives the pi
 between points, add power symbols / labels, then write(). Junctions are added automatically wherever three or more
 connection ends meet, or a wire end lands on the interior of another wire.
 """
+import os
 import kskills  # noqa: F401  (kicad_sexpr on sys.path)
 from kicad_sexpr import Schematic, SymbolLibrary, pins_of, symbol_point  # noqa: E402
 
@@ -224,10 +225,13 @@ class Sch:
             sym.set_field(k, at=(snap(vx), snap(vy + 2.54 * (i + 1))), angle=ang, hide=False, justify=[just])
         return sym
 
-    def build(self):
-        """The kicad_sexpr Schematic for everything drawn so far."""
+    def build(self, previous=None):
+        """The kicad_sexpr Schematic for everything drawn so far. previous: the sheet being replaced, whose ids are kept
+        (stable ids: an unchanged design regenerates byte-identical, so git diffs show only real changes)."""
         self._split_wires()
-        sch = Schematic.new(self.project, paper=self.paper, title=self.title, date=self.date, rev=self.rev)
+        prev = previous if previous and os.path.exists(previous) else None
+        sch = Schematic.new(self.project, paper=self.paper, title=self.title, date=self.date, rev=self.rev,
+                            previous=prev)       # previous= at creation: the sheet keeps its own id (in every path)
         for lib_id in sorted({p.lib_id for p in self.parts}):
             nick, name = lib_id.split(':', 1)
             sch.embed_symbol(lib_id, self.libs[nick])
@@ -249,7 +253,7 @@ class Sch:
         return sch
 
     def write(self, path):
-        self.build().save(path)
+        self.build(previous=path).save(path)
 
 
 def find_merges(sch, intended):

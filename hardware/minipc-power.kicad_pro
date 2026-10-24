@@ -318,25 +318,63 @@
     },
     "net_colors": null,
     "netclass_assignments": {
-      "+12V": "Power",
-      "+3V3": "Power",
-      "+5V": "Power",
-      "BAT": "Power",
-      "GND": "Power",
-      "Net-(C24-Pad2)": "Power",
-      "Net-(C4-Pad2)": "Power",
-      "Net-(F1-Pad1)": "Power",
-      "Net-(J3-Pad1)": "Power",
-      "Net-(Q2-D-Pad1)": "Power",
-      "Net-(Q4-S)": "Power",
-      "Net-(Q5-S)": "Power",
-      "Net-(U2-PMID)": "Power",
-      "Net-(U3-VSS)": "Power",
-      "Net-(U4-SW)": "Power",
-      "Net-(U6-L1)": "Power",
-      "Net-(U6-L2)": "Power",
-      "VBUS": "Power",
-      "VSYS": "Power"
+      "+12V": [
+        "Power"
+      ],
+      "+3V3": [
+        "Power"
+      ],
+      "+5V": [
+        "Power"
+      ],
+      "BAT": [
+        "Power"
+      ],
+      "GND": [
+        "Power"
+      ],
+      "Net-(C24-Pad2)": [
+        "Power"
+      ],
+      "Net-(C4-Pad2)": [
+        "Power"
+      ],
+      "Net-(F1-Pad1)": [
+        "Power"
+      ],
+      "Net-(J3-Pad1)": [
+        "Power"
+      ],
+      "Net-(Q2-D-Pad1)": [
+        "Power"
+      ],
+      "Net-(Q4-S)": [
+        "Power"
+      ],
+      "Net-(Q5-S)": [
+        "Power"
+      ],
+      "Net-(U2-PMID)": [
+        "Power"
+      ],
+      "Net-(U3-VSS)": [
+        "Power"
+      ],
+      "Net-(U4-SW)": [
+        "Power"
+      ],
+      "Net-(U6-L1)": [
+        "Power"
+      ],
+      "Net-(U6-L2)": [
+        "Power"
+      ],
+      "VBUS": [
+        "Power"
+      ],
+      "VSYS": [
+        "Power"
+      ]
     },
     "netclass_patterns": []
   },

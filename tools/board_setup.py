@@ -37,6 +37,9 @@ for n in root.find('nets'):
         pin2net['%s.%s' % (node.get('ref'), node.get('pin'))] = n.get('name')
 
 b = Board.load(PCB)
+PREV = os.environ.get('PREV_PCB')
+if PREV and os.path.exists(PREV):
+    b.reuse_ids(PREV)                      # fields added below keep their committed ids
 setup = b.tree.find('setup')
 if setup.find('stackup') is None:
     b.set_stackup(STACKUP)

@@ -31,6 +31,12 @@ for net in root.find('nets'):
         pins.setdefault(n.get('ref'), {})[n.get('pin')] = board_net_name(net.get('name'))
 
 b = Board.new(copper_layers=4)
+# keep the ids of the board being replaced (build_board.sh snapshots it first), so rebuilds diff cleanly
+PREV = os.environ.get('PREV_PCB')
+if PREV and os.path.exists(PREV):
+    amb = b.reuse_ids(PREV).ambiguous
+    if amb:
+        print('note: ids matched in file order for %d repeated keys' % len(amb))
 ox, oy = placement.ORIGIN
 stage_x, stage_y = ox + placement.BOARD[0] + 15, oy
 
