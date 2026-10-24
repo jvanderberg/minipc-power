@@ -233,6 +233,10 @@ so far; workarounds are listed here.
   footprint's keepout zone) for the analog-ground islands of the charger, 12 V and 3.3 V converters (gaps 21-22).
 - KiCad DRC passed with pad labels (F.SilkS) under component bodies. It only checks silk against pads, so the 3D
   render was the only thing that caught it. A "silk text vs courtyard" check belongs in check.sh or the board review.
+- `tools/build_board.sh` (this repo): its DRC summary dropped every `silk*` type to hide one known warning (J1's
+  outline at the board edge). That hid three real silk overlaps (pad labels printed over J16 / J7 outlines), which KiCad
+  had reported. Now only that exact J1 case is exempted. Lesson for the skills' check.sh / drc_summary: exempt
+  specific known items by name, never a whole category.
 - `jlcimport-cli import C6331050`: "No component found" (no EasyEDA data) -> substituted FXL0530-R47-M (C475515).
 
 ## Tools that would have prevented the issues found so far

@@ -89,7 +89,7 @@ MODEL_OVERRIDE = {
 _T, _B = 2.6, 2.15                    # label offset below top-edge pads / below bottom-edge pads (edge strip)
 PAD_LABELS = {
     # the 5 V network fills the space under J16 / J7: labels beside the pads instead (+5V upright at the edge)
-    'J6': ('+12V', 0, _T), 'J15': ('GND', 0, _T), 'J7': ('+5V', 2.0, 0, 90), 'J16': ('GND', -2.85, 0),
+    'J6': ('+12V', 0, _T), 'J15': ('GND', 0, _T), 'J7': ('+5V', 2.4, 0, 90), 'J16': ('GND', -3.3, 0),
     'J8': ('+3V3', 0, _B), 'J17': ('GND', 0, _B),
     'J2': ('BAT+', 0, -2.9), 'J3': ('BAT-', 0, -2.25),          # both above their pads (R7/C8 sit below J3)
     'J4': ('NTC', 0, _B), 'J5': ('NTC', 0, _B),
