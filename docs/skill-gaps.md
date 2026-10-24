@@ -56,6 +56,31 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
    it: a charger that needs I2C cannot be configured by an MCU that it powers. *Fix:* add the standalone switching
    option to the charger-selection table in `charging.md`.
 
+## Power design (pcb-power-supply)
+
+9. **medium - WEBENCH is offered too late and too quietly.** The WEBENCH step is in `pcb-power-supply/SKILL.md` s3
+   ("Choose the controller IC"), mid-paragraph. In practice the controller was chosen during kicad-new-board step 8
+   (candidates) with pcb-part-selection, and the agent went straight to hand calculations from the datasheet; the user
+   had to ask "do we have any tools for TI?" before WEBENCH was used. Neither kicad-new-board's component-selection
+   step nor pcb-part-selection mentions it. *Fix:* in kicad-new-board step 8 and pcb-part-selection "Finding
+   candidates", say: for any switching regulator, run WEBENCH (ask the user about the terms and a myTI login up front)
+   *before* settling on a part and before hand sizing; make it a checklist item at the top of pcb-power-supply rather
+   than a bullet inside s3. Also say plainly that WEBENCH does not cover battery chargers (BQ25xxx), so those stay
+   datasheet-only.
+
+10. **medium - WEBENCH results are not stock-filtered before use.** `webench.md` mentions "WEBENCH does not know what
+    is in stock at JLC/LCSC" only in its last section, after the steps that pick and customize a design. On this
+    board the 5 V run's top three (TPS61022, TPS61230A, TPS61236P) had 0 / 0 / 13 units in LCSC's global warehouse.
+    Customizing any of them would have been wasted work. *Fix:* make the stock check step 2 of the WEBENCH flow: read
+    the table view, pull every part number, run them through `jlcimport-cli search --region global` in one batch,
+    and drop anything below the order quantity before opening Customize. A small script that takes the table text and
+    prints stock per part would make this one command.
+
+11. **low - WEBENCH can refuse a part the datasheet allows, without saying why.** Forcing TPS61178 at 3.0-4.35 V in,
+    5 V / 2.5 A out returned "Design cannot be created! Your preferred device does not work with the inputs you
+    selected" with no reason, although the datasheet allows 4.5-20 V out from 2.7 V in. `webench.md` does not say what
+    to do then (vary Iout / Vin to find the limit, or fall back to the datasheet procedure). *Fix:* add a line on that.
+
 ## Tooling
 
 4. **low - `jlcimport-cli` install not documented.** README lists it as a requirement with only a repo link. The
