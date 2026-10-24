@@ -17,6 +17,7 @@ PLACE = {
     # FREQ / ILIM / COMP / FB parts in pin order under the bottom row, ground pads down onto a separate AGND bus
     'L2': (5.15, 9.6, 0),
     'U4': (12.95, 9.6, 0),
+    'C37': (12.2, 4.9, 0),                               # VIN-pin bypass: above the VIN via, GND via beside it
     'C11': (10.35, 6.6, 90),                              # BST - SW
     'C12': (15.0, 5.6, 0),                               # VCC
     'C9': (2.95, 14.6, 0), 'C10': (6.75, 14.6, 0),        # VIN (input current is continuous in a boost)

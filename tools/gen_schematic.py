@@ -43,6 +43,7 @@ CAP = {  # value -> (footprint, LCSC, description)
     '47n': (C0402, 'C307434', '47nF 16V X7R'), '10n': (C0402, 'C15195', '10nF 50V X7R'),
     '1.8n': (C0402, 'C107024', '1.8nF 50V X7R'), '22n': (C0402, 'C337699', '22nF 50V X7R'),
     '680p': (C0402, 'C307451', '680pF 50V C0G'), '33p': (C0402, 'C70465', '33pF 50V C0G'),
+    '1u/25V/0402': (C0402, 'C52923', '1uF 25V X5R'),
 }
 
 
@@ -315,9 +316,10 @@ rail('VSYS', (x_in, y_top))
 L2 = ind('L2', '3.3uH', 'FXL0630-3R3-M', x_sw - 8.89, y_top, 'JLCImport:FXL0630-3R3-M', 'C167219')
 s.wire((x_in, y_top), L2.p('1'))
 s.wire(L2.p('2'), (x_sw, y_top), (x_sw, sw4[1]), sw4)
-s.wire((vin[0] - 5.08, y_top), (vin[0] - 5.08, vin[1]), vin)
+s.wire((vin[0] - 2.54, y_top), (vin[0] - 2.54, vin[1]), vin)
 shunt(C, 'C9', '22u/25V', (x_in + SP, y_top))
 shunt(C, 'C10', '22u/25V', (x_in + 2 * SP, y_top))
+shunt(C, 'C37', '1u/25V/0402', (x_in + 3 * SP, y_top))     # VIN-pin bypass (datasheet layout rule 5), placed at the pin
 bst, vcc = U4.p('BST'), U4.p('VCC')
 y_b = y_top + 12.7
 s.wire(bst, (bst[0], y_b), (x_sw - 10.16, y_b))

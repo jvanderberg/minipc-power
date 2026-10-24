@@ -81,6 +81,7 @@ Battery wiring: 18 AWG-20 AWG to the pads; cells bought as a matched pair, joine
 | Current limit | R_ILIM = **162 k** -> 4.6 A (eq. 1, 745/R); datasheet table suggests the equation reads ~15 % high, so ~4.0 A typ, ~2.6 A min | needed peak 2.31 A (WEBENCH, 3.0 V / 0.5 A) |
 | Inductor | **3.3 uH**, FXL0630-3R3-M (C167219): 22 mOhm, I_sat 8.7 A | WEBENCH 2.7 uH; 3.3 uH within the 0.47-3.3 uH range, ripple ~0.7 A; I_sat > ILIM max (~6.2 A) |
 | Cin | 2 x 22 uF 10-16 V 0805/1206 (input <= 4.35 V) | WEBENCH 2 x 22 uF 1210 (36 uF derated); input ripple current only 0.12 A RMS |
+| C_VIN | 1 uF 25 V X5R 0402 (C37, C52923) | datasheet layout rule 5: bypass at the VIN pin (C9/C10 sit at L2's input) |
 | Cout1 (before FET) | 4.7 uF 25 V 1206 | WEBENCH; COUT2 <= 10 x COUT1 (inrush rule) |
 | Cout2 (after FET) | 3 x 22 uF 25 V 1210 (31 uF effective at 12 V) | WEBENCH; COUT2 31 uF <= 10 x COUT1 (32 uF) |
 | FB | R_top **732 k** / R_bot **80.6 k** -> 12.08 V | VFB 1.198 V |
