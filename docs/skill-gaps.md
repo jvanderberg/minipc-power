@@ -81,7 +81,46 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
     selected" with no reason, although the datasheet allows 4.5-20 V out from 2.7 V in. `webench.md` does not say what
     to do then (vary Iout / Vin to find the limit, or fall back to the datasheet procedure). *Fix:* add a line on that.
 
+12. **high (wrong statement) - "there is no KiCad/CAD export there" is false, and the PCB layout tab is not
+    mentioned.** `webench.md` ("Export" paragraph) says the Export page has "no KiCad/CAD export". On 2026-10-24 the
+    Export page offers **Altium Designer, Cadence OrCAD, TINA-TI, CadSoft EAGLE, Mentor Graphics and P-CAD** exports
+    ("schematic, board, and simulation files"), and KiCad 10's `kicad-cli pcb import --format eagle|altium|pcad`
+    reads three of those. Customize and Export also show a **PCB LAYOUT** tab with a per-layer reference layout
+    (Top / Mid 1 / Mid 2 / Bottom). Following the skill, the agent skipped both and would have hand-placed every
+    converter's hot loop instead of starting from TI's layout. *Fix:* replace the sentence; add a step: capture the
+    PCB LAYOUT views for each chosen design and, with the user's permission to download, export EAGLE (or Altium),
+    import with `kicad-cli pcb import`, and use the copper as the placement/routing reference for that converter
+    (re-check against the datasheet layout guidelines; WEBENCH layouts use its own BOM footprints).
+
+13. **medium - No "layout reference pack" step, and no stated order of authority between layout sources.**
+    `pcb-power-supply` s6 says "copy the datasheet's layout example; then check against references/layout.md", and
+    nothing else. Before placing any converter the skill should have the agent gather, per IC, into the project
+    (e.g. `docs/layout-refs/<part>/`): (1) the datasheet's Layout Guidelines text and Layout Example figure (rendered
+    with pdftoppm) - **primary, these win any conflict**; (2) the EVM user guide's layout if one exists; (3) the
+    WEBENCH PCB LAYOUT views and imported EAGLE/Altium board - **reference only**, because they are drawn around
+    WEBENCH's BOM (different inductor/capacitor sizes from the stocked LCSC substitutes) and a generic stackup.
+    Then write down, per converter, the hot loop, the parts that must sit at the pins, the quiet-side parts, the
+    feedback routing and the thermal-pad via count, and check the KiCad placement against that list. *Fix:* add
+    this as a numbered step before s6 "Lay it out", and have kicad-pcb-workflow s1 ("Plan the change against real
+    data") point to it for any switching converter.
+
+## Part selection (pcb-part-selection)
+
+14. **high - No lifecycle (NRND/EOL) check, and distributor stock hides discontinued parts.** kicad-new-board step 8
+    says "avoid NRND/EOL parts" but neither it nor pcb-part-selection says how to check. On this board WEBENCH
+    recommended the TPS61088 (5 V boost) and LCSC listed 7,130 in stock, but ti.com/product/TPS61088 and its
+    datasheet symlink both return 404 and TI's site search does not find it; only the automotive TPS61088-Q1 is
+    still listed (ACTIVE). Stock at a distributor is not evidence that a part is still made. WEBENCH's own tell was
+    "IC Cost: N/A" for that part (every active part showed a price). *Fix:* add to pcb-part-selection "Reading the
+    datasheet": open the manufacturer's product page and record the lifecycle status (ACTIVE / NRND / LAST TIME BUY
+    / OBSOLETE); a 404 product page or a missing datasheet link means treat as obsolete; and in webench.md, treat
+    "IC Cost: N/A" as a lifecycle warning.
+
 ## Tooling
+
+15. **low - render.py cannot render a board without an Edge.Cuts outline, even with --window.** It exits with "no
+    Edge.Cuts outline found", which blocks rendering imported reference boards (the WEBENCH EAGLE imports have no
+    outline). *Fix:* when --window is given, use it and skip the outline lookup.
 
 4. **low - `jlcimport-cli` install not documented.** README lists it as a requirement with only a repo link. The
    repo's pyproject needs a modern pip (system Python 3.9 / pip 21 cannot do `pip install -e` on it) and a stale
