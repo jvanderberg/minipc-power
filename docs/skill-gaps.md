@@ -104,6 +104,37 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
     this as a numbered step before s6 "Lay it out", and have kicad-pcb-workflow s1 ("Plan the change against real
     data") point to it for any switching converter.
 
+## Schematic capture (kicad-pcb-workflow)
+
+16. **high - Nothing on creating a schematic or board from scratch, or on schematic readability.** kicad-pcb-workflow
+    is entirely about *editing* existing files (checkpoint, patch, verify). It never covers: creating the project and
+    first schematic, laying symbols out, and - since `kicad-cli` has no "update PCB from schematic" - getting a new
+    schematic's footprints and nets onto a new board (has to be pcbnew python: load each footprint, set pad nets from
+    the exported netlist). It also has no guidance on what a good generated schematic looks like; the default an agent
+    reaches for is "every pin gets a net label", which the owner called unreadable. *Fix:* a "new design" section or
+    a separate skill: (a) draw each functional block with real wires, power symbols for rails and ground, labels only
+    between blocks; (b) left-to-right signal/power flow, inputs on the left, outputs on the right, ground at the
+    bottom, supplies at the top; (c) minimise wire crossings, use junction dots only at real T-joins; (d) feel free to
+    redraw an imported symbol with pins grouped by function (and fix "unspecified" pin types while doing it); (e)
+    render the PDF and look at it before calling it done; (f) the netlist-to-board step with pcbnew.
+
+17. **low - Imported footprints have no courtyard.** All 17 JLCImport footprints on this board lack F.CrtYd; the
+    part-selection skill says to check for this, but kicad-pcb-workflow's DRC loop will not flag overlaps between
+    parts without courtyards. *Fix:* add a script step that generates a courtyard (pad/body bounding box + 0.25 mm)
+    for imported footprints that lack one.
+
+18. **medium - Say up front that standard KiCad footprints are preferred over imported ones.** pcb-part-selection's
+    "Importing into KiCad" treats the JLCImport footprint as the one to use (and then lists its usual defects). The
+    owner's rule: **use KiCad's library footprint whenever the package is a standard one** (SOT-23, SOD-123F, 0402/0603,
+    TI RGE/RHL/DQK, NexFET VSON-8, HRO USB-C, Littelfuse Nano2...), and keep the imported footprint only for genuinely
+    part-specific packages (here: TPS61178 HotRod RNW, TPS63802 DLA, CH224Q DFN-10 with EP, FXL inductors). Notes for
+    the skill: `jlcimport-cli import` has no switch for this (the GUI/TUI offer reuse; the CLI never passes the
+    confirm callback), and its matcher `find_best_matching_footprint()` is wrong often enough that every suggestion
+    needs checking - on this board it proposed a 12-pin 2x2.5 mm package for the 13-pin 3x3.5 mm TPS61178, a 3x2.5 mm
+    package for the 3.5x4.5 mm TPS61088-Q1, a 3x3 mm EP part for the 2x3 mm TPS63802, Phoenix terminal blocks for both
+    inductors and a 7.98x5.44 mm Bourns PTC for the Nano2 fuse. Also check pad numbering: KiCad's NexFET VSON-8
+    merges source pins 5-8 into one pad "5", so the symbol needs matching pin numbers.
+
 ## Part selection (pcb-part-selection)
 
 14. **high - No lifecycle (NRND/EOL) check, and distributor stock hides discontinued parts.** kicad-new-board step 8
@@ -127,3 +158,51 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
    PyInstaller build in `dist/` lacks `--region`, which the skill's commands use. *Fix:* give the install command
    (`pipx install git+https://github.com/jvanderberg/kicad_jlcimport` or a venv with Python >= 3.11) and the minimum
    version that has `--region`.
+
+## Tool notes
+
+Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified
+so far; workarounds are listed here.
+
+- `render.py` (kicad-pcb-workflow): refuses boards without Edge.Cuts even with `--window` -> worked around by adding
+  a temporary `gr_rect` outline to a copy of each imported WEBENCH board (`docs/layout-refs/*-view.kicad_pcb`).
+- `jlcimport-cli import`: no way to choose a KiCad library footprint -> footprints are assigned in the schematic
+  generator instead; the importer's matcher was called directly from Python to get its suggestions.
+- `jlcimport-cli import C6331050`: "No component found" (no EasyEDA data) -> substituted FXL0530-R47-M (C475515).
+
+## Tools that would have prevented the issues found so far
+
+Built for this project (in `tools/`, candidates to move into the skills):
+
+1. **`netspec.py` - intended netlist vs KiCad export.** The circuit written once as data ({net: [REF.PIN...]}),
+   compared with `kicad-cli sch export netlist`: reports SPLIT (one intended net became several) and SHORT (a KiCad
+   net mixes intended nets), tolerant of two-pin passive orientation. ERC did not catch VSYS shorted to GND in the
+   first generated draft (it only complained about an open-collector pin on a power output); this did, immediately.
+2. **`schgen.find_merges()` - locate the short.** Union-find over the drawn geometry (wire ends, pin points, power
+   symbols, labels) that prints the exact wire or pin coordinates where two intended nets merge. Turned "VSYS is on
+   GND somewhere" into "C14 pin 2 at (105.41, 242.57) sits on the FB wire".
+3. **`schgen.Sch` - wire-drawn schematic writer** with pin-coordinate transforms (rotation/mirror), automatic
+   junctions, wire splitting at T-taps, and no reliance on net labels inside a block.
+4. **`symbols.ic()` / `symbols.fet()` - symbol redraw.** Pins grouped by function with real pin types and stacked
+   duplicates; FET symbols renumbered to the KiCad footprint's pads (e.g. NexFET pad 5 = merged source).
+5. **`symlib.py` / `fpinfo.py` - dump symbol pins and footprint pads** side by side to check numbering before
+   assigning a footprint.
+
+Still missing (would have helped):
+
+6. **Collision check before writing**: any part's pin landing on another net's wire, two wires sharing a column/row
+   segment, a part body overlapping a wire or another body, and text overlapping text - all checkable from the
+   geometry the generator already has. Most of this board's drawing faults were "a shunt cap's ground pin lands on a
+   signal wire that runs 7.62 mm below the rail it hangs from".
+7. **Block layout helpers** that reserve space: "ladder" placement (rail on top, shunts below with their ground
+   symbols, signals routed below the lowest ground symbol) so the generator cannot put a signal row inside a shunt's
+   span.
+8. **Footprint vs datasheet land-pattern check**: pad count, pitch, EP size and pin-1 position from the datasheet's
+   recommended land pattern against the chosen footprint; and a matcher wrapper that refuses a KiCad footprint whose
+   body size or pin count differs from the LCSC package string (jlcimport's matcher proposed wrong sizes/pin counts
+   for four parts).
+9. **Lifecycle + stock gate**: one command that takes every MPN/LCSC number and reports manufacturer lifecycle
+   (product page status, 404 = suspect) and LCSC global stock vs order quantity - would have caught TPS61088
+   (discontinued, distributor stock still listed) and the HY2120 2-cell mix-up if it also echoed the datasheet title.
+10. **WEBENCH table -> stock filter**: paste/scrape the table view's part numbers and get stock per part before
+    customizing anything.
