@@ -125,11 +125,8 @@ def charger(r):
     r.track('F.Cu', 0.2, ('U2', '5'), (115.9, 122.955), (115.9, 125.6), (112.2, 125.6), ('LED1', '1'))
     r.track('F.Cu', 0.2, (115.9, 125.6), (115.9, 130.9), (111.8, 130.9), ('J11', '1'), net=st)
     r.track('F.Cu', 0.2, ('LED1', '2'), ('R6', '1'))
-    # PG -> J12 on B.Cu
-    pg = r.net('U2', '7')
-    r.track('F.Cu', 0.2, ('U2', '7'), (117.345, 124.6), (116.85, 125.0))
-    r.via((116.85, 125.0), pg, 0.45, 0.2)
-    r.track('B.Cu', 0.2, (116.85, 125.0), (116.85, 131.3), ('J12', '1'))
+    # PG -> J12 on F.Cu down the left of the resistor row (keeps B.Cu's bottom lane free for EN)
+    r.track('F.Cu', 0.2, ('U2', '7'), (117.345, 124.6), (117.0, 124.95), (117.0, 131.3), ('J12', '1'))
 
 
 def protection(r):
@@ -305,6 +302,28 @@ def buckboost33(r):
     r.via((128.0, 126.45), en, 0.45, 0.2)
 
 
+def misc(r):
+    """EN bus (switch RC -> all three converters' EN pins and the 5 V load-switch driver) on B.Cu: a trunk up the left
+    edge, a lane at y 116 above the BAT strip (never across it), and a lane along the bottom edge under the solder
+    pads into the 3.3 V converter. Switch pad, VBAT sense divider."""
+    en = r.net('U6', '1')
+    r.track('F.Cu', 0.2, ('R28', '1'), ('R27', '2'), ('C35', '1'), (r.P('C35', '1')[0], 130.6), (106.5, 131.2),
+            (106.5, 131.5))
+    r.via((106.5, 131.5), en, 0.45, 0.2)
+    r.track('B.Cu', 0.25, (106.5, 131.5), (110.5, 131.5), (110.5, 105.0), (112.955, 105.0), (112.955, 105.9), net=en)
+    r.track('B.Cu', 0.25, (110.5, 116.0), (137.9, 116.0), (137.9, 107.75), net=en)
+    r.track('B.Cu', 0.25, (137.9, 116.0), (r.P('Q6', '1')[0], 116.0), (r.P('Q6', '1')[0], 115.75), net=en)
+    r.track('B.Cu', 0.25, (106.5, 131.5), (106.5, 135.1), (129.0, 135.1), (129.0, 127.2), (128.0, 126.45), net=en)
+    # switch pad -> R27
+    r.track('F.Cu', 0.25, ('J9', '1'), (104.0, 132.2), (104.0, r.P('R27', '1')[1]), ('R27', '1'))
+    # VBAT sense: BAT from the charger's BAT pour down past R4, R29 / R30 / C36 divider to J13
+    bat = r.net('R29', '1')
+    r.track('F.Cu', 0.3, (122.6, 124.2), (122.6, r.P('R29', '1')[1]), ('R29', '1'), net=bat)
+    r.track('F.Cu', 0.2, ('C36', '1'), ('R29', '2'), ('R30', '1'))
+    mid = (round((r.P('R29', '2')[0] + r.P('R30', '1')[0]) / 2, 3), r.P('R30', '1')[1])
+    r.track('F.Cu', 0.2, mid, (mid[0], 132.2), ('J13', '1'), net=r.net('R30', '1'))
+
+
 def build(r):
     planes(r)
     usb_pd(r)
@@ -313,4 +332,5 @@ def build(r):
     boost12(r)
     boost5(r)
     buckboost33(r)
+    misc(r)
     stitch_pads(r)          # last, so the stitching vias avoid the routed copper
