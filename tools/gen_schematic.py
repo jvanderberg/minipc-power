@@ -81,7 +81,7 @@ def shunt(maker, ref, val, top):
 
 
 def pad(ref, label, pt, fp=PAD_SIG):
-    return s.add('Connector:TestPoint', ref, label, pt[0], pt[1], 0, footprint=fp,
+    return s.add('Connector:TestPoint', ref, label, pt[0], pt[1], 0, footprint=fp, in_bom=False,
                  fields={'_ref_at': (pt[0] + 1.27, pt[1] - 3.81), '_val_at': (pt[0] + 1.27, pt[1] - 6.35)})
 
 
@@ -299,7 +299,7 @@ for i, ref in enumerate(('J5', 'J15', 'J16', 'J17')):
     pad(ref, 'GND' if ref != 'J5' else 'NTC-', (x, 142.24), PAD_PWR if ref != 'J5' else PAD_SIG)
     gnd((x, 142.24))
 for i, ref in enumerate(('H1', 'H2')):
-    s.add('Mechanical:MountingHole', ref, 'M2', xp + i * 15.24, 167.64, footprint='MountingHole:MountingHole_2.2mm_M2')
+    s.add('Mechanical:MountingHole', ref, 'M2', xp + i * 15.24, 167.64, footprint='MountingHole:MountingHole_2.2mm_M2', in_bom=False)
 
 # ================================================================== E. 12 V boost (TPS61178)
 header('12 V / 0.5 A boost TPS61178 (WEBENCH design 33)', 20.32, 200.66)

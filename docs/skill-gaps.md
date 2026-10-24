@@ -106,6 +106,16 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
 
 ## Schematic capture (kicad-pcb-workflow)
 
+19. **medium (research miss) - No ready-made board setup / stackup; the agent had to hunt for syntax.** kicad-new-board
+    says "set the physical stackup to the chosen JLC stackup" and `jlcpcb-stackups.md` gives the numbers, but nothing
+    gives the KiCad syntax or a way to apply it: `kicad-cli` cannot create a project or board, and pcbnew's Python
+    bindings do not expose `BOARD_STACKUP` (GetStackupDescriptor() returns an opaque SwigPyObject with no methods in
+    KiCad 10.0.1). The agent ended up grepping the user's other projects for a board that happened to contain a
+    `(stackup ...)` block to copy. *Fix:* ship template files with the skill - a blank 2-layer and 4-layer
+    `.kicad_pcb` (+ `.kicad_pro` with JLC-safe design rules and net classes) per JLC stackup (JLC04161H-7628, -3313,
+    ...), or a small script that writes the `(setup (stackup ...))` block and the `.kicad_pro` design settings from
+    the table in `jlcpcb-stackups.md`.
+
 16. **high - Nothing on creating a schematic or board from scratch, or on schematic readability.** kicad-pcb-workflow
     is entirely about *editing* existing files (checkpoint, patch, verify). It never covers: creating the project and
     first schematic, laying symbols out, and - since `kicad-cli` has no "update PCB from schematic" - getting a new

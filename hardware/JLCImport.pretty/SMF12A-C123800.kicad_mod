@@ -31,6 +31,17 @@
   (fp_poly (pts (xy -1.905 -0.127) (xy -1.016 -0.127) (xy -1.016 0.127) (xy -1.905 0.127)) (stroke (width 0) (type solid)) (fill solid) (layer "F.Fab") (uuid "2edf5b0a-ad30-4b99-97b4-21b6920d4019"))
   (fp_poly (pts (xy 1.471371 0.436372) (xy 1.471371 -0.452628) (xy 1.725371 -0.452628) (xy 1.725371 0.436372)) (stroke (width 0) (type solid)) (fill solid) (layer "F.Fab") (uuid "8de412e1-fea9-4053-a77b-189a28787874"))
   (fp_poly (pts (xy 1.143 -0.127) (xy 2.032 -0.127) (xy 2.032 0.127) (xy 1.143 0.127)) (stroke (width 0) (type solid)) (fill solid) (layer "F.Fab") (uuid "201bb0df-9369-434f-bd05-e146aad61f6e"))
+	(fp_rect
+		(start -2.4 -1.2)
+		(end 2.4 1.19)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "d4dd9b18-16b4-47af-9b46-efd8e4e95a2b")
+	)
   (pad "2" smd rect (at 1.65 0) (size 1 1.2) (layers "F.Cu" "F.Mask" "F.Paste") (uuid "af903390-db2d-4de3-8db6-142884ae6b5b"))
   (pad "1" smd rect (at -1.65 0) (size 1 1.2) (layers "F.Cu" "F.Mask" "F.Paste") (uuid "bccd7fd8-94c2-4fb0-a858-bf11c3c8e5fa"))
   (model "${KIPRJMOD}/JLCImport.3dshapes/SMF12A-C123800.wrl"
