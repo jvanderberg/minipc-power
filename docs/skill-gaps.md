@@ -195,6 +195,23 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
     single-point AGND vs blanket stitching/pour (a pour keepout is needed), cap ground returns on top copper vs via
     the plane, "no parallel layers on SW", and FB/COMP away from SW.
 
+22. **high (process) - run each layout stage as its own agent session with a written brief (user suggestion).**
+    Board design here is one very long session: requirements, part selection, WEBENCH, schematic, placement, routing.
+    The datasheet layout figures and WEBENCH boards were collected early (docs/layout-refs/). By routing time they had
+    dropped out of working attention, and were only re-read when the user asked (gap 21). A checklist file alone does
+    not fix that if nothing forces it to be re-read. *Suggestion:* the skills should split layout into stages
+    (placement; then routing per block: input/PD, charger, each converter, protection, planes/stitching; then review)
+    and start each one in a fresh agent session. Each gets a brief built from the repo:
+    - that block's datasheet layout rules and figure, plus the WEBENCH/EVM reference, from docs/layout-refs/<part>/;
+    - its parts and nets (from netspec);
+    - the board-wide rules (stackup, netclasses, keepouts);
+    - the interfaces to neighbouring blocks (which pours and vias it must land on);
+    - the done criteria: DRC clean, block nets connected, a net-coloured render compared with the datasheet figure,
+      and every rule ticked in docs/layout-compliance.md.
+    The brief is also the hand-off record, so a stage can be re-run without the whole conversation. Related: gap 21,
+    and the s-expression/router tooling (gap 20), which makes stages independent because the board is regenerated
+    from data rather than edited in place.
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified

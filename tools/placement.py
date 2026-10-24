@@ -13,18 +13,20 @@ CORNER_R = 1.0
 PLACE = {
     'H1': (2.8, 2.8), 'H2': (49.2, 33.2),
     # ================= band A: 12 V (TPS61178, rot 0 = datasheet fig. 36: L left, VOUT/FET/COUT2 right)
-    'L2': (5.6, 9.6, 0),
-    'U4': (13.4, 9.6, 0),
-    'C11': (10.8, 6.6, 90),                              # BST - SW
-    'C12': (14.4, 6.4, 0),                               # VCC
-    'C9': (3.4, 14.6, 0), 'C10': (7.2, 14.6, 0),        # VIN (input current is continuous in a boost)
-    'R11': (11.6, 13.2, 90), 'R12': (12.8, 13.2, 90),   # FREQ, ILIMIT
-    'R15': (14.0, 13.2, 90), 'C13': (15.2, 13.2, 90),    # COMP network
-    'R13': (16.3, 14.4, 90), 'R14': (17.5, 14.4, 90),     # FB divider (top from +12V)
-    'C14': (17.2, 8.0, 90), 'C15': (17.2, 11.6, 90),    # COUT1 at the VOUT bar
-    'R16': (17.6, 5.0, 0), 'C16': (17.6, 3.8, 0),       # Rgate / Cgate (source - gate)
+    # C_OUT1 (C14, C15) VOUT pad on the VOUT bar, GND pad on the PGND bar's copper (smallest SW-rectifier-COUT loop);
+    # FREQ / ILIM / COMP / FB parts in pin order under the bottom row, ground pads down onto a separate AGND bus
+    'L2': (5.15, 9.6, 0),
+    'U4': (12.95, 9.6, 0),
+    'C11': (10.35, 6.6, 90),                              # BST - SW
+    'C12': (15.0, 5.6, 0),                               # VCC
+    'C9': (2.95, 14.6, 0), 'C10': (6.75, 14.6, 0),        # VIN (input current is continuous in a boost)
+    'R11': (11.6, 13.25, 270), 'R12': (13.1, 13.25, 270),   # FREQ, ILIMIT
+    'R15': (14.6, 13.25, 270), 'C13': (15.7, 13.25, 270),    # COMP network
+    'R13': (17.9, 13.25, 90), 'R14': (16.8, 13.25, 270),     # FB divider (top from +12V)
+    'C14': (16.05, 10.0, 270), 'C15': (18.1, 10.0, 270),    # COUT1 at the VOUT bar
+    'R16': (18.4, 7.1, 90), 'C16': (17.35, 7.1, 90),       # Rgate / Cgate (source - gate)
     'Q4': (21.2, 9.8, 180),                              # S pad left, D/G right
-    'C17': (25.2, 8.4, 90), 'C18': (25.2, 13.2, 90), 'C19': (21.0, 13.6, 0),
+    'C17': (25.2, 8.4, 90), 'C18': (25.2, 13.2, 90), 'C19': (21.0, 13.6, 180),
     'J6': (21.0, 2.8), 'J15': (25.0, 2.8),
     # ================= band A: 5 V (TPS61088-Q1, rot 0 = datasheet fig. 21: L up-left, CIN low-left, COUT right)
     'L3': (31.4, 9.6, 0),
