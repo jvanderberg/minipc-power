@@ -17,7 +17,7 @@ is 15 W (requirements s4); the per-rail corners below do not all happen at once.
 | Request | 9 V | R_CFG1 = **6.8 k** to GND (CH224Q table 5-1); CFG2/CFG3 floating |
 | VHV / VBUS pins | tied together, 1 uF to GND (25 V) | CH224Q pin table: "VBUS needs to be shorted to VHV" |
 | PG | not used (pad optional) | open drain, active low |
-| D+/D- | connector D+/D- to CH224Q DP/DM only | the charger's D+/D- are left floating (see s2) |
+| D+/D- | **not connected** (connector and CH224Q) | PD negotiates on CC1/CC2. CH224Q's DP/DM only add BC1.2/QC requests; dropped because its 0.4 mm-pitch inner pins cannot be routed beside CC1/CC2 without crossings. Effect: a QC-only (non-PD) charger stays at 5 V. The charger's D+/D- stay open (s2) |
 | TVS | SMF12A (C123800): 12 V standoff, 13.3-14.7 V breakdown, 19.9 V clamp | below BQ25606 VBUS/VAC abs max 22 V; CH224Q VBUS abs max 32 V |
 
 If the charger has no 9 V PDO, the CH224Q stays at 5 V (behaviour not stated in its datasheet - bench-check).

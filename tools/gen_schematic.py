@@ -119,10 +119,11 @@ gnd(D1.p('2'))
 shunt(C, 'C1', '1u', (x_vbus_up + 2 * SP, y_bus))
 s.wire(J1.p('A5'), U1.p('CC1'))
 s.wire(J1.p('B5'), U1.p('CC2'))
-s.wire(J1.p('A7'), U1.p('DM'))
-s.wire(J1.p('B7'), (J1.p('B7')[0] + 2.54, J1.p('B7')[1]), (J1.p('A7')[0] + 2.54, J1.p('A7')[1]))
-s.wire(J1.p('A6'), U1.p('DP'))
-s.wire(J1.p('B6'), (J1.p('B6')[0] + 2.54, J1.p('B6')[1]), (J1.p('A6')[0] + 2.54, J1.p('A6')[1]))
+# D+/D- deliberately not connected: PD negotiates on CC; CH224Q's BC1.2/QC path is not needed and its 0.4 mm-pitch
+# inner pins cannot be routed next to CC1/CC2 without crossings (docs/power-design.md s1)
+for pn in ('A6', 'B6', 'A7', 'B7'):
+    NC_(J1.p(pn))
+NC_(U1.p('DM')); NC_(U1.p('DP'))
 NC_(J1.p('A8')); NC_(J1.p('B8'))
 gnd(J1.p('A1'))
 s.wire(J1.p('SH'), J1.p('A1'))
@@ -132,7 +133,7 @@ shunt(R, 'R1', '6.8k', (cfg[0] + 7.62, cfg[1]))
 for n in ('CFG2', 'CFG3', '~{PG}'):
     NC_(U1.p(n))
 gnd(U1.p('GND'))
-s.text('R1 6.8k selects 9 V (CH224 table 5-1).\nCharger D+/D- are left open on purpose:\nILIM sets the input limit.', 86.36, 109.22)
+s.text('R1 6.8k selects 9 V (CH224 table 5-1).\nD+/D- open on purpose (PD uses CC; charger ILIM\nsets the input limit only with D+/D- open).', 86.36, 109.22)
 
 # ================================================================== B. Charger
 header('Charger BQ25606: standalone NVDC, 1.44 A charge, 1.92 A input limit', 142.24, 35.56)
