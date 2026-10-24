@@ -212,6 +212,88 @@ time or needed outside knowledge; **low** = friction, wording, tooling.
     and the s-expression/router tooling (gap 20), which makes stages independent because the board is regenerated
     from data rather than edited in place.
 
+## Found in the end-of-session transcript review
+
+Items from a pass over the whole session transcript (user corrections, tool failures, workarounds) that had not been
+logged.
+
+23. **medium - The interview never asks whether the board needs its own MCU / power controller.** The agent assumed
+    "no MCU" without asking, and the user had to ask "when did we rule out an mcu?". The deciding argument (an
+    external MCU cannot bootstrap its own power source, so anything that must be configured before the MCU runs
+    needs a standalone part or an on-board controller) appears nowhere in kicad-new-board. *Fix:* add an interview
+    question: "does anything need a controller before the main MCU runs (charger config, soft power switch, fuel
+    gauge)?". Record the answer and the bootstrap argument in the requirements.
+
+24. **medium - No guidance for pad-only (solder-point) boards: labels and polarity.** The user asked for every
+    external connection as a solder pad. The skills say nothing about making such a board usable, and the user had
+    to ask for "user readable labels and polarity" after the first 3D render. *Fix:* a short section in
+    kicad-new-board / kicad-pcb-workflow:
+    - every pad gets a function label on F.SilkS (and B.SilkS, mirrored);
+    - consistent polarity: square = positive / signal, round = GND / negative;
+    - pairs in a consistent order (+ then GND);
+    - labels placed clear of footprint silk and courtyards (see the tool notes on silk under bodies and summary
+      filtering).
+
+25. **medium - The board-size estimate ignores connector / pad area.** The target was about 45 x 30 mm. 16
+    through-hole solder pads plus two M2 holes (keep-out radius about 2.45 mm) pushed it to 52 x 36 mm, and the user
+    had to offer more room. *Fix:* in kicad-new-board's size step, budget area for edge pads (pitch x count per
+    edge), mounting-hole keep-outs and connector overhang before promising a size, and say the size is provisional
+    until a placement pass.
+
+26. **medium - Fine-pitch fan-out is not checked before the schematic is frozen.** CH224Q's D+/D- (0.4 mm pitch
+    inner pins) could not be routed beside CC1/CC2 without crossings, so they were dropped at routing time. That
+    quietly removed a feature (QC fallback on non-PD chargers). *Fix:* at placement (kicad-pcb-workflow s1), check
+    escape routing for every pin of each fine-pitch part (<= 0.5 mm) against its connector before calling the
+    schematic final. If a pin cannot escape, that is a schematic decision for the user, not a routing shortcut.
+
+27. **medium - No board-level channel plan before per-block routing.** Routing block by block put the TS (thermistor)
+    track on B.Cu under U6, exactly where the 3.3 V converter's PGND via had to go, and forced the EN bus to snake
+    around the BAT strip. *Fix:* before routing any block, write a one-page layer / channel plan:
+    - which nets own which inner-layer planes and B.Cu pours (e.g. the BAT strip);
+    - reserved spots under each IC for ground / thermal vias;
+    - the lanes for slow board-wide signals (EN, status, sense lines).
+
+28. **medium - A layout rule marked "infeasible" needs recorded evidence.** The 12 V boost's VIN-pin bypass rule was
+    written up as "no room", after checking only whether a 22 uF 0805 fitted. A 1 uF 0402 fitted (C37, added later).
+    *Fix:* in the compliance checklist (gap 21), a deviation row must record what was tried: package sizes, positions,
+    the blocking parts. The agent must try the smallest sensible package and a different value before declaring a
+    datasheet rule unachievable.
+
+29. **low - Switching to a part variant means re-deriving every value from that variant's datasheet.** WEBENCH
+    designed around the commercial TPS61088, which turned out discontinued. The available TPS61088-Q1 has a
+    different ILIM equation (R = 550000 / I, 0.6 V reference vs 1.204 V) and higher Rds(on). Neither webench.md nor
+    pcb-power-supply warns that a variant (-Q1, A/B suffix, package option) can differ in equations and limits.
+    *Fix:* a note: re-run WEBENCH on the exact orderable variant, or re-derive every resistor from that variant's own
+    datasheet.
+
+30. **low - Viewing vs editing, and reporting paths.** Two related frictions:
+    - The kicad_open.sh lock makes the agent refuse to regenerate while the user only wants to look ("open it in
+      kicad for me", "I won't edit it").
+    - The user had to ask for full paths in summaries.
+
+    *Fix:* for viewing, open a copy in the scratchpad (or say the board is read-only and will be regenerated on
+    close). In kicad-new-board's reporting guidance, give absolute paths for every artifact.
+
+31. **low - render.py full-board renders are unreadable once a GND pour exists.** Everything is one colour.
+    kicad-board-review's view.py (net-coloured, with a grid) was the tool that worked for checking routing.
+    *Fix:* kicad-pcb-workflow's rendering reference should point to view.py for routing checks, or render.py should
+    gain a net-colour mode.
+
+32. **low - Datasheet and reference-pack handling.** Several problems:
+    - TI datasheet "symlink" URLs return an HTML page (not a PDF) for discontinued parts.
+    - pdftotext prints font errors on some TI PDFs.
+    - The layout pack saved neighbouring pages without saying which PNG holds the figure, and the support page was
+      opened twice in place of the layout example.
+
+    *Fix:* the download step checks the `%PDF` magic. The pack README names the figure page per part (e.g.
+    `tps61178-12v/datasheet-p30.png = fig. 36`). A small "find the page that contains section X / figure N" helper
+    would replace the repeated grep-per-page loops.
+
+33. **low - No-connect pins hide decisions.** ERC no-connect flags make every unused pin pass silently. TPS61088-Q1's
+    MODE pin was left floating (correct: internal 800 k pull-up selects PFM), but that was only checked at routing
+    time. *Fix:* a no-connect audit that lists each NC pin with the datasheet pin-table text, so each choice is made
+    deliberately.
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified
