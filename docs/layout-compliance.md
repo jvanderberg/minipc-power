@@ -66,4 +66,13 @@ C_OUT was GND-up, and the VIN cap was 4 mm from the pin.
 
 ## TPS63802 3.3 V buck-boost (datasheet s12, fig. 12-1)
 
-pending
+Placement redone against fig. 12-1 and WEBENCH d36 (same orientation as this board) before routing. Before that, L4
+lay flat, which would have needed a 5 mm L2 trace around L4.1.
+
+| Rule | Status |
+|---|---|
+| 1. Input and output caps as close as possible, short wide traces | ok: C33 VSYS pad 1.4 mm above VIN pin 10; C34 directly under VOUT pin 6; grounds via to In1 next to the pads |
+| 2. Separate power and control ground nodes, joined close to an IC ground pin | ok: MODE (tied low), AGND pin and R25 form the control-ground node with pour keepout `AGND_3V3`; joined to PGND pin 8 and In1 by one via in the IC centre (as WEBENCH d36 does) |
+| 3. Separate traces for power-stage and analog supply | n/a: the DLA package has a single VIN pin; EN comes on its own trace from the system EN net |
+| 4. FB away from the L1 / L2 nodes | ok: FB divider on the left side; L1/L2 pours on the right. The TS B.Cu track was rerouted off U6's centre |
+| (fig. 12-1) Inductor over the L1 / L2 pins | ok: L4 upright, pads level with L1 (upper) and L2 (lower); pours about 2 mm each, clear of PGND pin 8 |

@@ -56,8 +56,10 @@ PLACE = {
     'R2': (17.7, 26.0, 270), 'R3': (19.5, 26.0, 270), 'R4': (21.9, 26.0, 90), 'R5': (20.7, 26.0, 270),
     'LED1': (13.0, 26.6, 0), 'R6': (13.0, 28.0, 180),
     # ================= band B: 3.3 V buck-boost (TPS63802 rot 0: L1/L2 on the right column)
-    'U6': (30.0, 27.6, 0), 'L4': (35.4, 27.8, 0), 'C33': (30.2, 24.6, 0), 'C34': (30.0, 30.4, 0),
-    'R24': (26.6, 28.0, 0), 'R25': (26.6, 29.2, 0), 'R26': (26.6, 26.8, 0),
+    # as datasheet fig. 12-1 / WEBENCH d36: L4 upright right of the power column (pads level with L1 / L2 pins), C_IN over
+    # VIN, C_OUT under VOUT, FB / PG / EN parts on the left away from L1 / L2
+    'U6': (30.0, 27.6, 0), 'L4': (34.7, 27.7, 270), 'C33': (30.2, 24.6, 180), 'C34': (30.0, 30.4, 0),
+    'R24': (26.4, 28.65, 0), 'R25': (27.9, 27.85, 90), 'R26': (26.4, 29.75, 180),
     # ================= band B: protection (battery pads on the right edge)
     # FETs alternate 270 / 90 / 270 so facing columns share a net: Q3|Q2 drains (MID), Q2|Q1 sources (CELLN), Q1|J3 drains
     # (BATN); each gap is a 1.4 mm pour and the gates sit at the gap ends (Q1/Q3 top, Q2 bottom)

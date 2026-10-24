@@ -19,7 +19,7 @@ def planes(r):
 
 
 # analog grounds, single point to power ground, no plane vias: charger (at U2's pad) and 12 V boost (AGND pin -> PGND bar)
-AGND = {('R2', '2'), ('R3', '2'), ('R5', '2'), ('R11', '2'), ('R12', '2'), ('C13', '2'), ('R14', '2')}
+AGND = {('R2', '2'), ('R3', '2'), ('R5', '2'), ('R11', '2'), ('R12', '2'), ('C13', '2'), ('R14', '2'), ('R25', '2')}
 
 
 def stitch_pads(r):
@@ -110,8 +110,8 @@ def charger(r):
     r.track('F.Cu', 0.2, ('U2', '11'), (119.345, 124.85), (121.3, 124.85))
     r.track('F.Cu', 0.2, (r.P('R5', '1')[0], 124.85), ('R5', '1'), ('R4', '2'), net=ts)
     r.via((121.3, 124.85), ts, 0.45, 0.2)
-    r.track('B.Cu', 0.2, (121.3, 124.85), (121.3, 126.0), (122.8, 126.0), (122.8, 127.5), (133.6, 127.5), (134.4, 128.3),
-            ('J4', '1'))                                                                   # TS -> NTC pad
+    # TS -> NTC pad on B.Cu, above the 3.3 V converter (its PGND via sits in U6's centre) and down beside L4
+    r.track('B.Cu', 0.2, (121.3, 124.85), (121.3, 125.6), (136.5, 125.6), (136.5, 131.6), ('J4', '1'), net=ts)
     # REGN -> RT1 top (R4 pin 1) on B.Cu
     regn = r.net('U2', '22')
     r.via((120.1, 117.75), regn, 0.45, 0.2)
@@ -276,6 +276,35 @@ def boost5(r):
     r.via((q61[0], 115.75), en, 0.45, 0.2)
 
 
+def buckboost33(r):
+    """TPS63802 (U6), per datasheet s12 / fig. 12-1 and WEBENCH d36: C_IN on VIN, C_OUT on VOUT, short L1 / L2 pours to
+    the upright inductor; PGND through a via in the IC centre, where the control ground (MODE, AGND pins, R25) joins it
+    (rule 2); FB / PG / EN on the left, away from L1 / L2 (rule 4)."""
+    l1, l2, pg, en = r.net('U6', '9'), r.net('U6', '7'), r.net('U6', '5'), r.net('U6', '1')
+    p33 = r.net('U6', '6')
+    r.track('F.Cu', 0.3, ('U6', '9'), (131.6, r.P('U6', '9')[1]))
+    r.zone(l1, 'F.Cu', [(131.45, 126.55), (135.2, 126.55), (135.2, 127.25), (131.45, 127.25)], prio=10, name='L1_33')
+    r.track('F.Cu', 0.3, ('U6', '7'), (131.6, r.P('U6', '7')[1]))
+    r.zone(l2, 'F.Cu', [(131.45, 127.95), (135.2, 127.95), (135.2, 129.0), (131.45, 129.0)], prio=10, name='L2_33')
+    r.via((129.72, 127.35), 'GND', 0.45, 0.2)                          # PGND pin 8 + GND pins 2/3 -> In1, at the IC
+    r.track('F.Cu', 0.3, ('C33', '1'), (r.P('U6', '10')[0], 125.2), (r.P('U6', '10')[0], 126.5))   # VIN (stops short of L1)
+    r.track('F.Cu', 0.3, ('U6', '6'), (130.2, 129.2), (129.3, 129.2), ('C34', '1'))         # VOUT -> C_OUT
+    r.track('F.Cu', 0.5, ('C34', '1'), (128.6, 131.4), ('J8', '1'))                         # -> +3V3 pad
+    # control ground node: MODE (pin 2, tied low), AGND (pin 3), R25 bottom
+    r.track('F.Cu', 0.2, ('U6', '2'), (128.6, r.P('U6', '2')[1]), (128.6, r.P('U6', '3')[1]), ('U6', '3'))
+    r.track('F.Cu', 0.2, ('R25', '2'), (128.6, r.P('R25', '2')[1]))
+    r.track('F.Cu', 0.2, ('U6', '4'), (128.3, r.P('U6', '4')[1]), ('R25', '1'), (127.3, r.P('R24', '2')[1]), ('R24', '2'))
+    r.track('F.Cu', 0.25, (125.89, 132.3), ('R26', '2'), ('R24', '1'), net=p33)             # FB top / PG pull-up from +3V3
+    r.keepout('F.Cu', [(125.2, 126.95), (128.75, 126.95), (128.75, 130.3), (125.2, 130.3)], name='AGND_3V3')
+    # PG -> pull-up and the PG3 pad (B.Cu); EN
+    r.track('F.Cu', 0.2, ('U6', '5'), (128.88, r.P('U6', '5')[1]), (128.45, 129.03), (128.45, 129.15))
+    r.via((128.45, 129.15), pg, 0.45, 0.2)
+    r.track('F.Cu', 0.2, (128.45, 129.15), (127.5, r.P('R26', '1')[1]), ('R26', '1'))
+    r.track('B.Cu', 0.2, (128.45, 129.15), (124.9, 129.15), (124.9, 131.6), ('J14', '1'), net=pg)   # around J8 (THT)
+    r.track('F.Cu', 0.2, ('U6', '1'), (128.0, 126.45))
+    r.via((128.0, 126.45), en, 0.45, 0.2)
+
+
 def build(r):
     planes(r)
     usb_pd(r)
@@ -283,4 +312,5 @@ def build(r):
     protection(r)
     boost12(r)
     boost5(r)
+    buckboost33(r)
     stitch_pads(r)          # last, so the stitching vias avoid the routed copper
