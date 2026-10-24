@@ -18,10 +18,11 @@ def _pin(typ, x, y, rot, name, num, hide=False):
                                       kstr(name), kstr(num))
 
 
-def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc=''):
+def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc='', top_pitch=L):
     """Each side is a list of entries (name, [numbers], type) or None for an empty slot.
     left/right are listed top to bottom, top/bottom left to right."""
-    rows = max(len(left), len(right), 1)
+    # an empty row under the top pins and above the bottom pins keeps their (vertical) names off the side names
+    rows = max(len(left), len(right), 1) + (2 if top else 0) + (2 if bottom else 0)
     half_h = (rows + 1) * L / 2
     half_h = round(half_h / 1.27) * 1.27
     pins = []
@@ -34,12 +35,12 @@ def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc=''):
             x, y = xy(i)
             for k, n in enumerate(nums):
                 pins.append(_pin(typ, x, y, rot, pname, n, hide=k > 0))
-    y0 = half_h - L
+    y0 = half_h - L - (2 * L if top else 0)
     side(left, lambda i: (-half_w - L, y0 - i * L), 0)
     side(right, lambda i: (half_w + L, y0 - i * L), 180)
     # top/bottom pins right-aligned so the left half stays free for the reference and value text
-    x0 = half_w - L - (len(top) - 1) * L
-    side(top, lambda i: (x0 + i * L, half_h + L), 270)
+    x0 = half_w - L - (len(top) - 1) * top_pitch
+    side(top, lambda i: (x0 + i * top_pitch, half_h + L), 270)
     x0b = half_w - L - (len(bottom) - 1) * L
     side(bottom, lambda i: (x0b + i * L, -half_h - L), 90)
     body = ('\t\t(symbol %s\n\t\t\t(rectangle\n\t\t\t\t(start %s %s)\n\t\t\t\t(end %s %s)\n\t\t\t\t(stroke\n'
@@ -69,10 +70,10 @@ SYMBOLS = {
     'BQ25606': ic('BQ25606', 10.16,
                   left=[('VBUS', ['24'], PI), ('VAC', ['1'], IN), ('PMID', ['23'], PA), None, ('D+', ['3'], BI),
                         ('D-', ['4'], BI), None, ('ILIM', ['8'], PA), ('ICHG', ['10'], PA), ('VSET', ['12'], PA),
-                        ('~{CE}', ['9'], IN), ('OTG', ['6'], IN), ('NC', ['2'], NC), None],
+                        ('~{CE}', ['9'], IN), ('OTG', ['6'], IN), ('NC', ['2'], NC)],
                   right=[('BTST', ['21'], PA), ('SW', ['19', '20'], PO), None, ('SYS', ['15', '16'], PO),
-                         ('BAT', ['13', '14'], PA), None, ('REGN', ['22'], PO), None, None, None, None,
-                         ('TS', ['11'], IN), ('STAT', ['5'], OC), ('~{PG}', ['7'], OC)],
+                         ('BAT', ['13', '14'], PA), None, None, ('STAT', ['5'], OC), None, ('~{PG}', ['7'], OC),
+                         None, ('REGN', ['22'], PO), None, None, None, None, ('TS', ['11'], IN)],
                   bottom=[('GND', ['17', '18', '25'], PI)], desc='Standalone 3 A NVDC charger'),
     # HY2113 SOT-23-6 (DS-HY2113-V16 pin table)
     'HY2113': ic('HY2113', 5.08,
@@ -91,8 +92,9 @@ SYMBOLS = {
     'TPS61088-Q1': ic('TPS61088-Q1', 8.89,
                       left=[('VIN', ['9'], PI), ('EN', ['2'], IN), None, ('MODE', ['13'], IN), ('SS', ['10'], PA),
                             ('ILIM', ['19'], PA), None, ('NC', ['11'], NC), ('NC', ['12'], NC)],
-                      right=[('SW', ['4', '5', '6', '7'], PO), ('FSW', ['3'], PA), ('BOOT', ['8'], PA), None,
-                             ('VOUT', ['14', '15', '16'], PO), None, None, ('FB', ['17'], IN), ('COMP', ['18'], PA)],
+                      right=[('SW', ['4', '5', '6', '7'], PO), None, ('FSW', ['3'], PA), None, ('BOOT', ['8'], PA),
+                             None, ('VOUT', ['14', '15', '16'], PO), None, None, ('FB', ['17'], IN),
+                             ('COMP', ['18'], PA)],
                       top=[('VCC', ['1'], PO)],
                       bottom=[('PGND', ['21'], PI), ('AGND', ['20'], PI)], desc='10 A sync boost'),
     # TPS63802 VSON-10 DLA
@@ -100,7 +102,7 @@ SYMBOLS = {
                    left=[('VIN', ['10'], PI), ('EN', ['1'], IN), ('PG', ['5'], OC), ('MODE', ['2'], IN)],
                    right=[('VOUT', ['6'], PO), None, None, ('FB', ['4'], IN)],
                    top=[('L1', ['9'], PA), ('L2', ['7'], PA)],
-                   bottom=[('GND', ['8'], PI), ('AGND', ['3'], PI)], desc='2 A buck-boost'),
+                   bottom=[('GND', ['8'], PI), ('AGND', ['3'], PI)], desc='2 A buck-boost', top_pitch=7.62),
 }
 
 

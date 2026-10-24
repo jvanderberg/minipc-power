@@ -50,9 +50,13 @@ def R(ref, val, x, y, rot=0):
 
 def C(ref, val, x, y, rot=0):
     fp, lc, desc = CAP[val]
-    return s.add('Device:C', ref, val.split('/')[0].replace('u', 'uF').replace('n', 'nF').replace('p', 'pF') +
-                 ('' if '/' not in val else ' ' + val.split('/')[1]), x, y, rot, footprint=fp, lcsc=lc,
-                 fields={'Description': desc})
+    parts = val.split('/')
+    f = {'Description': desc}
+    if len(parts) > 1 and rot in (0, 180):
+        f.update({'Voltage': parts[1], '_visible': ['Voltage']})
+    elif len(parts) > 1:
+        f['Voltage'] = parts[1]
+    return s.add('Device:C', ref, parts[0] + 'F', x, y, rot, footprint=fp, lcsc=lc, fields=f)
 
 
 def gnd(pt):
@@ -85,387 +89,397 @@ def header(t, x, y):
     s.text(t, x, y, 2.0, bold=True)
 
 
+SP = 10.16          # spacing between neighbouring shunt parts
+NC_ = s.nc
+
+
+def ind(ref, val, mpn, x, y, fp, lcsc, rot=90):
+    return s.add('Device:L', ref, val, x, y, rot, footprint=fp, lcsc=lcsc, fields={'Description': mpn})
+
+
 # ================================================================== A. USB-C input + PD sink
 header('USB-C input, PD sink (requests 9 V)', 20.32, 35.56)
-J1 = s.add('Connector:USB_C_Receptacle_USB2.0_16P', 'J1', 'USB-C (HRO TYPE-C-31-M-12)', 35.56, 76.2,
-           footprint='Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12', lcsc='C165948')
-U1 = s.add('minipc:CH224Q', 'U1', 'CH224Q', 91.44, 68.58, footprint='JLCImport:CH224Q_C46061833',
-           lcsc='C46061833')
-vb = J1.p('A4')                                   # VBUS on the connector
-x_tie = U1.p('VBUS')[0] - 2.54
-s.wire(vb, U1.p('VHV'))                           # connector VBUS -> U1 VHV (same row)
-s.vh((x_tie, vb[1]), U1.p('VBUS'))
-# VBUS riser to a bus above the block; TVS and VHV cap hang off the bus, clear of the CC/D lines
+J1 = s.add('Connector:USB_C_Receptacle_USB2.0_16P', 'J1', 'USB-C HRO TYPE-C-31-M-12', 35.56, 76.2,
+           footprint='Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12', lcsc='C165948',
+           fields={'_ref_at': (25.4, 50.8), '_val_at': (25.4, 104.14)})
+U1 = s.add('minipc:CH224Q', 'U1', 'CH224Q', 96.52, 68.58, footprint='JLCImport:CH224Q_C46061833', lcsc='C46061833')
+vb = J1.p('A4')
+U1.y += vb[1] - U1.p('VHV')[1]          # align U1's VHV/CC/D rows with the connector
+s.wire(vb, U1.p('VHV'))
+s.vh((U1.p('VBUS')[0] - 2.54, vb[1]), U1.p('VBUS'))
 x_vbus_up = vb[0] + 5.08
 y_bus = 45.72
 s.wire((x_vbus_up, vb[1]), (x_vbus_up, y_bus))
-D1 = s.add('Device:D_Zener', 'D1', 'SMF12A', x_vbus_up + 7.62, y_bus + 3.81, 270, footprint='Diode_SMD:D_SOD-123F',
-           lcsc='C123800', fields={'Description': 'TVS 12 V standoff'})
+D1 = s.add('Device:D_Zener', 'D1', 'SMF12A', x_vbus_up + SP, y_bus + 3.81, 270, footprint='Diode_SMD:D_SOD-123F',
+           lcsc='C123800', fields={'Description': 'TVS 12 V standoff', '_ref_at': (x_vbus_up + SP + 3.81, y_bus + 2.54),
+                                   '_val_at': (x_vbus_up + SP + 3.81, y_bus + 5.08)})
 gnd(D1.p('2'))
-C1 = shunt(C, 'C1', '1u', (x_vbus_up + 15.24, y_bus))
-# CC / D+ / D-
+shunt(C, 'C1', '1u', (x_vbus_up + 2 * SP, y_bus))
 s.wire(J1.p('A5'), U1.p('CC1'))
 s.wire(J1.p('B5'), U1.p('CC2'))
 s.wire(J1.p('A7'), U1.p('DM'))
 s.wire(J1.p('B7'), (J1.p('B7')[0] + 2.54, J1.p('B7')[1]), (J1.p('A7')[0] + 2.54, J1.p('A7')[1]))
 s.wire(J1.p('A6'), U1.p('DP'))
 s.wire(J1.p('B6'), (J1.p('B6')[0] + 2.54, J1.p('B6')[1]), (J1.p('A6')[0] + 2.54, J1.p('A6')[1]))
-s.nc(J1.p('A8')); s.nc(J1.p('B8'))
+NC_(J1.p('A8')); NC_(J1.p('B8'))
 gnd(J1.p('A1'))
 s.wire(J1.p('SH'), J1.p('A1'))
-# CFG1 -> 6.8k (9 V); CFG2/3 float; PG unused
 cfg = U1.p('CFG1')
-s.wire(cfg, (cfg[0] + 5.08, cfg[1]))
-shunt(R, 'R1', '6.8k', (cfg[0] + 5.08, cfg[1]))
+s.wire(cfg, (cfg[0] + 7.62, cfg[1]))
+shunt(R, 'R1', '6.8k', (cfg[0] + 7.62, cfg[1]))
 for n in ('CFG2', 'CFG3', '~{PG}'):
-    s.nc(U1.p(n))
+    NC_(U1.p(n))
 gnd(U1.p('GND'))
-s.text('R1 6.8k = 9 V request (CH224 table 5-1)', 101.6, 96.52)
+s.text('R1 6.8k selects 9 V (CH224 table 5-1).\nCharger D+/D- are left open on purpose:\nILIM sets the input limit.', 86.36, 109.22)
 
 # ================================================================== B. Charger
-header('Charger BQ25606 (standalone NVDC, 1.44 A charge, 1.92 A input limit)', 129.54, 35.56)
-U2 = s.add('minipc:BQ25606', 'U2', 'BQ25606', 170.18, 83.82,
+header('Charger BQ25606: standalone NVDC, 1.44 A charge, 1.92 A input limit', 142.24, 35.56)
+U2 = s.add('minipc:BQ25606', 'U2', 'BQ25606', 210.82, 99.06,
            footprint='Package_DFN_QFN:Texas_RGE0024H_VQFN-24-1EP_4x4mm_P0.5mm_EP2.7x2.7mm_ThermalVias',
            lcsc='C374063')
 pv = U2.p('VBUS')
-x_drop = pv[0] - 17.78
+x_drop = pv[0] - 35.56
 s.wire((x_vbus_up, y_bus), (x_drop, y_bus), (x_drop, pv[1]), pv)
 rail('VBUS', (x_drop, y_bus))
 s.wire((pv[0] - 2.54, pv[1]), (pv[0] - 2.54, U2.p('VAC')[1]), U2.p('VAC'))
-shunt(C, 'C2', '1u', (x_drop + 5.08, pv[1]))
+shunt(C, 'C2', '1u', (x_drop + 7.62, pv[1]))
 pm = U2.p('PMID')
-s.wire(pm, (pm[0] - 7.62, pm[1]))
-shunt(C, 'C3', '10u/25V', (pm[0] - 7.62, pm[1]))
+s.wire(pm, (x_drop + 7.62 + SP, pm[1]))
+shunt(C, 'C3', '10u/25V', (x_drop + 7.62 + SP, pm[1]))
 for n in ('D+', 'D-', 'VSET', 'NC'):
-    s.nc(U2.p(n))
+    NC_(U2.p(n))
 il, ic_ = U2.p('ILIM'), U2.p('ICHG')
-s.wire(il, (il[0] - 12.7, il[1]))
-shunt(R, 'R2', '249', (il[0] - 12.7, il[1]))
-s.wire(ic_, (ic_[0] - 7.62, ic_[1]))
-shunt(R, 'R3', '470', (ic_[0] - 7.62, ic_[1]))
+s.wire(il, (x_drop + 7.62, il[1]))
+shunt(R, 'R2', '249', (x_drop + 7.62, il[1]))
+s.wire(ic_, (x_drop + 7.62 + SP, ic_[1]))
+shunt(R, 'R3', '470', (x_drop + 7.62 + SP, ic_[1]))
 ce, otg = U2.p('~{CE}'), U2.p('OTG')
-s.wire(ce, (ce[0] - 2.54, ce[1]), (otg[0] - 2.54, otg[1] + 7.62))
-s.wire(otg, (otg[0] - 2.54, otg[1]))
-gnd((otg[0] - 2.54, otg[1] + 7.62))
+x_ce = ce[0] - 5.08
+s.wire(ce, (x_ce, ce[1]), (x_ce, otg[1] + 10.16))
+s.wire(otg, (x_ce, otg[1]))
+gnd((x_ce, otg[1] + 10.16))
 gnd(U2.p('GND'))
-# BTST / SW / inductor / SYS / BAT
+s.text('ILIM 249R -> 1.92 A (<= 2 A of an 18 W PD charger)\nICHG 470R -> 1.44 A    VSET open -> 4.208 V',
+       x_drop - 12.7, U2.p('NC')[1] + 30.48)
+# BTST / SW / L1 / SYS / BAT
 bt, sw = U2.p('BTST'), U2.p('SW')
-x_l = sw[0] + 12.7
+x_l = sw[0] + 17.78
 s.wire(bt, (bt[0] + 5.08, bt[1]), (bt[0] + 5.08, bt[1] - 5.08))
 C4 = C('C4', '47n', bt[0] + 8.89, bt[1] - 5.08, 90)
 s.wire(C4.p('2'), (x_l, C4.p('2')[1]), (x_l, sw[1]))
 s.wire(sw, (x_l, sw[1]))
-L1 = s.add('Device:L', 'L1', '2.2uH FXL0630-2R2-M', x_l + 3.81, sw[1], 90, footprint='JLCImport:FXL0630-2R2-M',
-           lcsc='C167218', fields={'_ref_at': (x_l + 1.27, sw[1] - 3.81), '_val_at': (x_l - 2.54, sw[1] + 3.81)})
+L1 = ind('L1', '2.2uH', 'FXL0630-2R2-M', x_l + 3.81, sw[1], 'JLCImport:FXL0630-2R2-M', 'C167218')
 sy, ba = U2.p('SYS'), U2.p('BAT')
-x_sys = L1.p('2')[0] + 5.08
+x_sys = L1.p('2')[0] + 7.62
 s.wire(L1.p('2'), (x_sys, sw[1]), (x_sys, sy[1]), sy)
-y_vs = sw[1] - 15.24
-s.wire((x_sys, sw[1]), (x_sys, y_vs), (x_sys + 10.16, y_vs))
-shunt(C, 'C5', '10u/25V', (x_sys + 5.08, y_vs))
-rail('VSYS', (x_sys + 10.16, y_vs))
-x_bat = x_sys + 17.78
+y_vs = sw[1] - 17.78
+s.wire((x_sys, sw[1]), (x_sys, y_vs), (x_sys + 2 * SP, y_vs))
+shunt(C, 'C5', '10u/25V', (x_sys + SP, y_vs))
+rail('VSYS', (x_sys + 2 * SP, y_vs))
+x_bat = x_sys + 3 * SP
 s.wire(ba, (x_bat, ba[1]))
-shunt(C, 'C6', '10u/10V', (x_bat - 7.62, ba[1]))
+shunt(C, 'C6', '10u/10V', (x_bat - SP, ba[1]))
 s.wire((x_bat, ba[1]), (x_bat, ba[1] - 7.62))
 rail('BAT', (x_bat, ba[1] - 7.62))
-# REGN / TS divider / NTC pad
+# STAT: charge LED to VSYS + pad; PG: label to its pad
+st, pg = U2.p('STAT'), U2.p('~{PG}')
+x_led = st[0] + 12.7
+s.wire(st, (x_led - 3.81, st[1]))
+pad('J11', 'CHG', (st[0] + 5.08, st[1]))
+LED1 = s.add('Device:LED', 'LED1', 'red', x_led, st[1], 0, footprint='LED_SMD:LED_0603_1608Metric', lcsc='C2286',
+             fields={'Description': 'charging indicator', '_ref_at': (x_led, st[1] - 2.54),
+                     '_val_at': (x_led, st[1] + 2.54), '_just': 'center'})
+R6 = R('R6', '1k', LED1.p('2')[0] + 3.81 + 2.54, st[1], 90)
+s.wire(LED1.p('2'), R6.p('1'))
+rail('VSYS', R6.p('2'))
+s.wire(pg, (pg[0] + 35.56, pg[1]))
+s.label('PG_CHG', pg[0] + 35.56, pg[1])
+# REGN cap + RT1/RT2 divider to TS, NTC pad
 rg, ts = U2.p('REGN'), U2.p('TS')
-x_rt = rg[0] + 10.16
-s.wire(rg, (x_rt, rg[1]))
-shunt(C, 'C7', '4.7u/16V', (rg[0] + 5.08, rg[1]))
+x_rt = rg[0] + 7.62
+s.wire(rg, (x_rt + SP, rg[1]))
 R4, r4b = down_part(R, 'R4', '5.23k', (x_rt, rg[1]))
 s.wire(r4b, (x_rt, ts[1]))
-s.wire(ts, (x_rt + 12.7, ts[1]))
-shunt(R, 'R5', '30.9k', (x_rt + 5.08, ts[1]))
-J4 = pad('J4', 'NTC', (x_rt + 12.7, ts[1]))
-s.text('NTC 10k B3435 (103AT) from J4 to J5 (GND), taped to the pack', x_rt - 7.62, ts[1] + 15.24)
-# STAT LED + pad, PG pad
-st, pg = U2.p('STAT'), U2.p('~{PG}')
-x_led = st[0] + 7.62
-s.wire(st, (x_led, st[1]))
-LED1 = s.add('Device:LED', 'LED1', 'red (charging)', x_led + 3.81, st[1], 0, footprint='LED_SMD:LED_0603_1608Metric',
-             lcsc='C2286', fields={'_ref_at': (x_led + 1.27, st[1] - 2.54), '_val_at': (x_led + 1.27, st[1] + 3.81)})
-R6 = R('R6', '1k', LED1.p('2')[0] + 3.81, st[1], 90)
-s.wire(R6.p('2'), (R6.p('2')[0] + 2.54, st[1]), (R6.p('2')[0] + 2.54, st[1] - 5.08))
-rail('VSYS', (R6.p('2')[0] + 2.54, st[1] - 5.08))
-s.wire((x_led - 2.54, st[1]), (x_led - 2.54, st[1] + 7.62))
-pad('J11', 'CHG', (x_led - 2.54, st[1] + 7.62))
-s.wire(pg, (pg[0] + 15.24, pg[1]))
-s.label('PG_CHG', pg[0] + 15.24, pg[1])
+shunt(C, 'C7', '4.7u/16V', (x_rt + SP, rg[1]))
+s.wire(ts, (x_rt + 2 * SP + 5.08, ts[1]))
+shunt(R, 'R5', '30.9k', (x_rt + SP, ts[1]))
+pad('J4', 'NTC', (x_rt + 2 * SP + 5.08, ts[1]))
+s.text('RT1 5.23k / RT2 30.9k: 0-60 C window\nwith a 103AT NTC from J4 to J5 (GND)', x_rt + 2.54, ts[1] + 15.24)
 
 # ================================================================== C. Cell protection + reverse block
-header('1S2P pack: reverse block, HY2113 protector, fuse', 259.08, 35.56)
-yc = 132.08                                  # low-side chain row
-J2 = pad('J2', 'BAT+', (264.16, 63.5), PAD_PWR)
-F1 = s.add('Device:Fuse', 'F1', '10A 0451010', 271.78, 63.5, 90, footprint='Fuse:Fuse_Littelfuse-NANO2-451_453',
-           lcsc='C44479', fields={'_ref_at': (269.24, 60.96), '_val_at': (266.7, 68.58)})
+header('1S2P pack: fuse, reverse block, HY2113 protector', 337.82, 35.56)
+yc = 134.62
+J2 = pad('J2', 'BAT+', (350.52, 58.42), PAD_PWR)
+F1 = s.add('Device:Fuse', 'F1', '10A', 360.68, 58.42, 90, footprint='Fuse:Fuse_Littelfuse-NANO2-451_453',
+           lcsc='C44479', fields={'Description': 'Littelfuse 0451010.MRL'})
 s.wire(J2.p('1'), F1.p('1'))
-s.wire(F1.p('2'), (284.48, 63.5), (284.48, 58.42))
-rail('BAT', (284.48, 58.42))
-# HY2113 sits above the chain, VSS straight down to CELL-
-U3 = s.add('minipc:HY2113', 'U3', 'HY2113-MB1A', 297.18, 104.14, footprint='Package_TO_SOT_SMD:SOT-23-6',
+s.wire(F1.p('2'), (375.92, 58.42))
+rail('BAT', (375.92, 58.42))
+U3 = s.add('minipc:HY2113', 'U3', 'HY2113-MB1A', 378.46, 104.14, footprint='Package_TO_SOT_SMD:SOT-23-6',
            lcsc='C168772')
 vss = U3.p('VSS')
 x_celln = vss[0]
-J3 = pad('J3', 'BAT-', (256.54, yc), PAD_PWR)
-Q1 = s.add('minipc:CSD13202Q2', 'Q1', 'CSD13202Q2', 0, 0, 90, footprint='Package_SON:Texas_DQK', lcsc='C187839')
-# place Q1 so that its D lands on the chain row, ~10 mm right of J3
-dq = Q1.p('1'); Q1.x += 264.16 - dq[0]; Q1.y += yc - dq[1]
+
+
+def fet_at(ref, val, lcsc, fp, rot, mirror, pin, target):
+    q = s.add('minipc:' + val, ref, val, 0, 0, rot, footprint=fp, lcsc=lcsc, mirror=mirror)
+    p0 = q.p(pin)
+    q.x += target[0] - p0[0]
+    q.y += target[1] - p0[1]
+    return q
+
+
+J3 = pad('J3', 'BAT-', (350.52, yc), PAD_PWR)
+Q1 = fet_at('Q1', 'CSD13202Q2', 'C187839', 'Package_SON:Texas_DQK', 90, None, '1', (360.68, yc))
 s.wire(J3.p('1'), Q1.p('1'))
 s.wire(Q1.p('4'), (x_celln, yc))
 s.wire(vss, (x_celln, yc))
-Q2 = s.add('minipc:CSD13202Q2', 'Q2', 'CSD13202Q2', 0, 0, 270, footprint='Package_SON:Texas_DQK', lcsc='C187839')
-sq = Q2.p('4'); Q2.x += x_celln + 5.08 - sq[0]; Q2.y += yc - sq[1]
+Q2 = fet_at('Q2', 'CSD13202Q2', 'C187839', 'Package_SON:Texas_DQK', 270, None, '4', (x_celln + SP, yc))
 s.wire((x_celln, yc), Q2.p('4'))
-Q3 = s.add('minipc:CSD13202Q2', 'Q3', 'CSD13202Q2', 0, 0, 90, footprint='Package_SON:Texas_DQK', lcsc='C187839',
-           mirror='x')
-dq3 = Q3.p('1'); Q3.x += Q2.p('1')[0] + 7.62 - dq3[0]; Q3.y += yc - dq3[1]
+Q3 = fet_at('Q3', 'CSD13202Q2', 'C187839', 'Package_SON:Texas_DQK', 90, 'x', '1', (Q2.p('1')[0] + SP, yc))
 s.wire(Q2.p('1'), Q3.p('1'))
-s.wire(Q3.p('4'), (Q3.p('4')[0] + 5.08, yc))
-gnd((Q3.p('4')[0] + 5.08, yc))
-s.text('pack- = board GND', Q3.p('4')[0] + 2.54, yc + 7.62)
-# gates
+s.wire(Q3.p('4'), (Q3.p('4')[0] + 7.62, yc))
+gnd((Q3.p('4')[0] + 7.62, yc))
+Q2.fields.update({'_ref_at': (Q2.x - 5.08, yc + 7.62), '_val_at': (Q2.x - 5.08, yc + 10.16), '_just': 'left'})
+Q3.fields.update({'_ref_at': (Q3.x + 3.81, yc - 7.62), '_val_at': (Q3.x + 3.81, yc - 5.08), '_just': 'left'})
+Q1.fields.update({'_ref_at': (Q1.x + 5.08, yc - 10.16), '_val_at': (Q1.x + 5.08, yc - 7.62), '_just': 'left'})
+s.text('pack- = board GND', Q3.p('4')[0] + 2.54, yc + 10.16)
 oc, od = U3.p('OC'), U3.p('OD')
 s.wire(oc, (Q3.p('3')[0], oc[1]), Q3.p('3'))
 s.wire(od, (Q2.p('3')[0], od[1]), Q2.p('3'))
-# VDD filter, CS resistor
 vdd, cs = U3.p('VDD'), U3.p('CS')
-x_vdd = vdd[0] - 7.62
-s.wire(vdd, (x_vdd, vdd[1]))
+x_vdd = vdd[0] - SP - 2.54
+s.wire(vdd, (x_vdd - 10.16, vdd[1]))
 R7 = R('R7', '330', x_vdd, vdd[1] - 3.81)
-s.wire(R7.p('1'), (x_vdd, R7.p('1')[1] - 2.54))
-rail('BAT', (x_vdd, R7.p('1')[1] - 2.54))
-C8 = C('C8', '100n', x_vdd - 5.08, vdd[1] + 3.81)
-s.wire((x_vdd, vdd[1]), (x_vdd - 5.08, vdd[1]), C8.p('1'))
-s.wire(C8.p('2'), (x_vdd - 5.08, yc - 7.62), (x_celln, yc - 7.62))
-s.nc(U3.p('NC'))
-s.wire(cs, (cs[0] - 2.54, cs[1]))
-R8 = R('R8', '2k', cs[0] - 2.54 - 3.81, cs[1], 270)
-s.wire(R8.p('2'), (R8.p('2')[0] - 2.54, cs[1]), (R8.p('2')[0] - 2.54, cs[1] + 2.54))
-gnd((R8.p('2')[0] - 2.54, cs[1] + 2.54))
-# Q1 gate: 10k from BAT, 1M gate-source
+rail('BAT', R7.p('1'))
+C8 = C('C8', '100n', x_vdd - 10.16, vdd[1] + 3.81)
+s.wire(C8.p('2'), (x_vdd - 10.16, yc - 15.24), (x_celln, yc - 15.24))
+NC_(U3.p('NC'))
+s.wire(cs, (cs[0] - 5.08, cs[1]))
+r8 = shunt(R, 'R8', '2k', (cs[0] - 5.08, cs[1]))
+r8.fields.update({'_just': 'right', '_ref_at': (r8.x - 2.54, r8.y - 1.27), '_val_at': (r8.x - 2.54, r8.y + 1.27)})
 qg = Q1.p('3')
-s.wire(qg, (qg[0], qg[1] + 5.08))
-R10 = R('R10', '1M', qg[0] + 3.81, qg[1] + 5.08, 90)
+s.wire(qg, (qg[0], qg[1] + 10.16))
+R10 = R('R10', '1M', qg[0] + 3.81 + 2.54, qg[1] + 5.08, 90)
+s.wire((qg[0], qg[1] + 5.08), R10.p('1'))
 s.wire(R10.p('2'), (x_celln, qg[1] + 5.08), (x_celln, yc))
-s.wire((qg[0], qg[1] + 5.08), (qg[0], qg[1] + 10.16))
-R9 = R('R9', '10k', qg[0] - 3.81, qg[1] + 10.16, 90)
-s.wire(R9.p('1'), (R9.p('1')[0] - 2.54, qg[1] + 10.16), (R9.p('1')[0] - 2.54, qg[1] + 5.08))
-rail('BAT', (R9.p('1')[0] - 2.54, qg[1] + 5.08))
-s.text('Reversed pack: Q1 off, body diode blocks, U3 never sees reverse voltage', 256.54, yc + 25.4)
+R9 = R('R9', '10k', qg[0] - 3.81 - 2.54, qg[1] + 10.16, 90)
+s.wire((qg[0], qg[1] + 10.16), R9.p('2'))
+rail('BAT', R9.p('1'))
+s.text('Q1: a reversed pack turns it off and its body diode\nblocks, so U3 never sees reverse voltage.\n'
+       'Trip: 250 mV / (Q2+Q3) = ~8 A hot ... ~15 A cold.', 345.44, yc + 33.02)
 
-# ================================================================== D. Pads, enable, sense, mechanics
-header('Solder pads, enable switch, battery sense', 381.0, 35.56)
-xp = 391.16
-pad('J9', 'EN (to switch)', (xp, 58.42))
-pad('J10', 'VSYS (to switch)', (xp + 25.4, 58.42))
-rail('VSYS', (xp + 25.4, 53.34))
-s.wire(J9 := (xp, 58.42), (xp, 58.42))
-R27 = R('R27', '1k', xp + 3.81 + 2.54, 63.5, 90)
-s.wire((xp, 58.42), (xp, 63.5), R27.p('1'))
-s.wire((xp + 25.4, 53.34), (xp + 25.4, 58.42))
+# ================================================================== D. Pads, enable, sense
+header('Solder pads, enable switch, battery sense', 452.12, 35.56)
+xp = 462.28
+pad('J9', 'EN (switch)', (xp, 58.42))
+pad('J10', 'VSYS (switch)', (xp + 30.48, 58.42))
+rail('VSYS', (xp + 30.48, 50.8))
+s.wire((xp + 30.48, 50.8), (xp + 30.48, 58.42))
+R27 = R('R27', '1k', xp + 2.54 + 3.81, 66.04, 90)
+s.wire((xp, 58.42), (xp, 66.04), R27.p('1'))
 x_en = R27.p('2')[0] + 5.08
-s.wire(R27.p('2'), (x_en + 10.16, 63.5))
-shunt(R, 'R28', '100k', (x_en, 63.5))
-shunt(C, 'C35', '100n', (x_en + 5.08, 63.5))
-s.label('EN', x_en + 10.16, 63.5)
-s.text('Switch closed = on. EN high: U4, U5, U6 run and Q6 closes the 5 V switch.', xp - 2.54, 78.74)
-# battery sense
-R29 = R('R29', '470k', xp + 2.54, 96.52)
-rail('BAT', (xp + 2.54, R29.p('1')[1]))
-s.wire(R29.p('2'), (xp + 2.54, 104.14), (xp + 17.78, 104.14))
-shunt(R, 'R30', '1M', (xp + 7.62, 104.14))
-shunt(C, 'C36', '100n', (xp + 12.7, 104.14))
-pad('J13', 'VBAT_SENSE', (xp + 17.78, 104.14))
-s.text('2.96 V at 4.35 V; 3 uA', xp + 20.32, 99.06)
-# status / ground / NTC ground pads
-pad('J12', 'PG_CHG', (xp, 129.54)); s.label('PG_CHG', xp, 129.54)
-pad('J14', '3V3_PG', (xp + 15.24, 129.54)); s.label('3V3_PG', xp + 15.24, 129.54)
+s.wire(R27.p('2'), (x_en + 2 * SP + 5.08, 66.04))
+shunt(R, 'R28', '100k', (x_en, 66.04))
+shunt(C, 'C35', '100n', (x_en + SP, 66.04))
+s.label('EN', x_en + 2 * SP + 5.08, 66.04)
+s.text('Switch closed = on: U4, U5, U6 run and Q6 closes the 5 V switch.\nCharging works with the switch open.',
+       xp - 2.54, 86.36)
+R29 = R('R29', '470k', xp + 2.54, 104.14)
+rail('BAT', R29.p('1'))
+s.wire(R29.p('2'), (xp + 2.54, 111.76), (xp + 2.54 + 2 * SP + 5.08, 111.76))
+shunt(R, 'R30', '1M', (xp + 2.54 + SP, 111.76))
+shunt(C, 'C36', '100n', (xp + 2.54 + 2 * SP, 111.76))
+pad('J13', 'VBAT_SENSE', (xp + 2.54 + 2 * SP + 5.08, 111.76))
+s.text('2.96 V at 4.35 V, 3 uA', xp + 7.62, 101.6)
+pad('J12', 'PG_CHG', (xp, 142.24)); s.wire((xp, 142.24), (xp, 147.32)); s.label('PG_CHG', xp, 147.32, 270)
+pad('J14', '3V3_PG', (xp + 20.32, 142.24)); s.wire((xp + 20.32, 142.24), (xp + 20.32, 147.32)); s.label('3V3_PG', xp + 20.32, 147.32, 270)
 for i, ref in enumerate(('J5', 'J15', 'J16', 'J17')):
-    x = xp + 35.56 + i * 10.16
-    pad(ref, 'GND' if ref != 'J5' else 'NTC-', (x, 129.54), PAD_PWR if ref != 'J5' else PAD_SIG)
-    gnd((x, 129.54))
+    x = xp + 45.72 + i * SP
+    pad(ref, 'GND' if ref != 'J5' else 'NTC-', (x, 142.24), PAD_PWR if ref != 'J5' else PAD_SIG)
+    gnd((x, 142.24))
 for i, ref in enumerate(('H1', 'H2')):
-    s.add('Mechanical:MountingHole', ref, 'M2', xp + i * 15.24, 152.4, footprint='MountingHole:MountingHole_2.2mm_M2')
+    s.add('Mechanical:MountingHole', ref, 'M2', xp + i * 15.24, 167.64, footprint='MountingHole:MountingHole_2.2mm_M2')
 
 # ================================================================== E. 12 V boost (TPS61178)
-header('12 V / 0.5 A boost TPS61178 (WEBENCH design 33)', 20.32, 190.5)
-U4 = s.add('minipc:TPS61178', 'U4', 'TPS61178', 88.9, 243.84, footprint='JLCImport:TPS61178RNWR', lcsc='C127918')
+header('12 V / 0.5 A boost TPS61178 (WEBENCH design 33)', 20.32, 200.66)
+U4 = s.add('minipc:TPS61178', 'U4', 'TPS61178', 101.6, 254.0, footprint='JLCImport:TPS61178RNWR', lcsc='C127918')
 vin, sw4 = U4.p('VIN'), U4.p('SW')
-y_top = 210.82
-x_in = vin[0] - 30.48
+y_top = 220.98
+x_in = vin[0] - 40.64
+x_sw = sw4[0] + 15.24
 rail('VSYS', (x_in, y_top))
-x_sw = sw4[0] + 12.7
-L2 = s.add('Device:L', 'L2', '3.3uH FXL0630-3R3-M', x_sw - 8.89, y_top, 90, footprint='JLCImport:FXL0630-3R3-M',
-           lcsc='C167219', fields={'_ref_at': (x_sw - 11.43, y_top - 3.81), '_val_at': (x_sw - 16.51, y_top - 6.35)})
+L2 = ind('L2', '3.3uH', 'FXL0630-3R3-M', x_sw - 8.89, y_top, 'JLCImport:FXL0630-3R3-M', 'C167219')
 s.wire((x_in, y_top), L2.p('1'))
 s.wire(L2.p('2'), (x_sw, y_top), (x_sw, sw4[1]), sw4)
 s.wire((vin[0] - 5.08, y_top), (vin[0] - 5.08, vin[1]), vin)
-shunt(C, 'C9', '22u/25V', (x_in + 5.08, y_top))
-shunt(C, 'C10', '22u/25V', (x_in + 10.16, y_top))
-# BST cap: BST (top, right) -> up -> right -> cap down onto the SW vertical
+shunt(C, 'C9', '22u/25V', (x_in + SP, y_top))
+shunt(C, 'C10', '22u/25V', (x_in + 2 * SP, y_top))
 bst, vcc = U4.p('BST'), U4.p('VCC')
-y_b = y_top + 5.08
+y_b = y_top + 12.7
 s.wire(bst, (bst[0], y_b), (x_sw - 10.16, y_b))
 C11 = C('C11', '100n', x_sw - 10.16 + 3.81, y_b, 90)
 s.wire(C11.p('2'), (x_sw, y_b))
-# VCC cap: VCC (top, left) -> up -> left, cap hangs clear of the VIN drop
-y_v = y_top + 10.16
-s.wire(vcc, (vcc[0], y_v), (vcc[0] - 7.62, y_v))
-shunt(C, 'C12', '4.7u/16V', (vcc[0] - 7.62, y_v))
-# EN, FREQ, ILIMIT, COMP on the left
-s.wire(U4.p('EN'), (U4.p('EN')[0] - 15.24, U4.p('EN')[1]))
-s.label('EN', U4.p('EN')[0] - 15.24, U4.p('EN')[1], 180)
+y_v = y_top + 7.62
+s.wire(vcc, (vcc[0], y_v), (vcc[0] - SP, y_v))
+shunt(C, 'C12', '4.7u/16V', (vcc[0] - SP, y_v))
+en4 = U4.p('EN')
+s.wire(en4, (en4[0] - 17.78, en4[1])); s.label('EN', en4[0] - 17.78, en4[1], 180)
 fr, ilm, comp = U4.p('FREQ/SYNC'), U4.p('ILIMIT'), U4.p('COMP')
-s.wire(fr, (fr[0] - 15.24, fr[1]))
-shunt(R, 'R11', '169k', (fr[0] - 15.24, fr[1]))
-s.wire(ilm, (ilm[0] - 10.16, ilm[1]))
-shunt(R, 'R12', '162k', (ilm[0] - 10.16, ilm[1]))
+s.wire(fr, (fr[0] - 25.4, fr[1]))
+shunt(R, 'R11', '169k', (fr[0] - 25.4, fr[1]))
+s.wire(ilm, (ilm[0] - 15.24, ilm[1]))
+shunt(R, 'R12', '162k', (ilm[0] - 15.24, ilm[1]))
 s.wire(comp, (comp[0] - 5.08, comp[1]))
 R15, r15b = down_part(R, 'R15', '44.2k', (comp[0] - 5.08, comp[1]))
 shunt(C, 'C13', '1.8n', r15b)
 gnd(U4.p('PGND')); gnd(U4.p('AGND'))
-# VOUT (pre-switch) caps, disconnect P-FET with Rgate/Cgate, output caps, FB divider at the FB pin
 vo, dis, fb = U4.p('VOUT'), U4.p('DISDRV'), U4.p('FB')
-x_d = dis[0] + 5.08
-x_q = vo[0] + 38.1
+x_d = dis[0] + 15.24
+c14x = x_d + 12.7
+x_q = c14x + 4 * SP
 s.wire(vo, (x_q, vo[1]))
-shunt(C, 'C14', '4.7u/25V', (x_d + 5.08, vo[1]))
-shunt(C, 'C15', '4.7u/25V', (x_d + 10.16, vo[1]))
-Q4 = s.add('minipc:CSD25404Q3', 'Q4', 'CSD25404Q3', 0, 0, 270, footprint='Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET',
-           lcsc='C2865523', mirror='x')
-q4s = Q4.p('5'); Q4.x += x_q - q4s[0]; Q4.y += vo[1] - q4s[1]
-y_g = vo[1] + 12.7
-R16, r16b = down_part(R, 'R16', '178k', (x_d + 17.78, vo[1]))
-C16, c16b = down_part(C, 'C16', '22n', (x_d + 22.86, vo[1]))
+shunt(C, 'C14', '4.7u/25V', (c14x, vo[1]))
+shunt(C, 'C15', '4.7u/25V', (c14x + SP, vo[1]))
+Q4 = fet_at('Q4', 'CSD25404Q3', 'C2865523', 'Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET', 270, 'x', '5',
+            (x_q, vo[1]))
+Q4.fields.update({'_ref_at': (Q4.x - 2.54, vo[1] - 5.08), '_val_at': (Q4.x - 2.54, vo[1] - 7.62)})
+y_g = vo[1] + 17.78
+R16, r16b = down_part(R, 'R16', '178k', (c14x + 2 * SP, vo[1]))
+C16, c16b = down_part(C, 'C16', '22n', (c14x + 3 * SP, vo[1]))
 s.wire(r16b, (r16b[0], y_g)); s.wire(c16b, (c16b[0], y_g))
 s.wire(dis, (x_d, dis[1]), (x_d, y_g), (Q4.p('4')[0], y_g), Q4.p('4'))
 q4d = Q4.p('1')
-x_out = q4d[0] + 25.4
+x_out = q4d[0] + 3 * SP + 12.7
 s.wire(q4d, (x_out, q4d[1]))
 for i, ref in enumerate(('C17', 'C18', 'C19')):
-    shunt(C, ref, '22u/25V/1210', (q4d[0] + 5.08 + i * 5.08, q4d[1]))
-rail('+12V', (x_out, q4d[1]))
+    shunt(C, ref, '22u/25V/1210', (q4d[0] + 5.08 + i * SP, q4d[1]))
+s.wire((x_out - 7.62, q4d[1]), (x_out - 7.62, q4d[1] - 5.08))
+rail('+12V', (x_out - 7.62, q4d[1] - 5.08))
 pad('J6', '+12V OUT', (x_out, q4d[1]), PAD_PWR)
-# FB divider right at the FB pin; top from +12V (after the switch, as in datasheet fig. 22)
 x_fb = fb[0] + 2.54
 s.wire(fb, (x_fb, fb[1]))
 R13 = R('R13', '732k', x_fb, fb[1] - 3.81)
 rail('+12V', R13.p('1'))
 shunt(R, 'R14', '80.6k', (x_fb, fb[1]))
-s.text('FB senses after Q4 (VOUT2)', x_fb + 2.54, fb[1] + 12.7)
+s.text('FB senses after Q4 (VOUT2), as in datasheet fig. 22.\nRgate/Cgate: Vgs = 178k x 55 uA = 9.8 V, ~0.5 ms turn-on.',
+       x_d + 7.62, y_g + 12.7)
 
 # ================================================================== F. 5 V boost (TPS61088-Q1) + load switch
-header('5 V / 2.5 A boost TPS61088-Q1 (WEBENCH design 37) + load switch', 220.98, 190.5)
-U5 = s.add('minipc:TPS61088-Q1', 'U5', 'TPS61088-Q1', 289.56, 245.11,
+header('5 V / 2.5 A boost TPS61088-Q1 (WEBENCH design 37) + load switch', 233.68, 200.66)
+U5 = s.add('minipc:TPS61088-Q1', 'U5', 'TPS61088-Q1', 314.96, 256.54,
            footprint='Package_DFN_QFN:Texas_VQFN-RHL-20_ThermalVias', lcsc='C1850341')
+U5.fields.update({'_ref_at': (U5.x - 8.89, U5.y - 21.59 - 3.81), '_val_at': (U5.x - 8.89, U5.y - 21.59 - 1.27)})
 vin5, sw5, fsw, boot = U5.p('VIN'), U5.p('SW'), U5.p('FSW'), U5.p('BOOT')
-y5 = 213.36
-x_in5 = vin5[0] - 33.02
-x_sw5 = sw5[0] + 12.7
+y5 = 220.98
+x_in5 = vin5[0] - 50.8
+x_sw5 = sw5[0] + 22.86
 rail('VSYS', (x_in5, y5))
-L3 = s.add('Device:L', 'L3', '1uH FXL0630-1R0-M', x_sw5 - 8.89, y5, 90, footprint='JLCImport:FXL0630-1R0-M',
-           lcsc='C167216', fields={'_ref_at': (x_sw5 - 11.43, y5 - 3.81), '_val_at': (x_sw5 - 16.51, y5 - 6.35)})
+L3 = ind('L3', '1uH', 'FXL0630-1R0-M', x_sw5 - 8.89, y5, 'JLCImport:FXL0630-1R0-M', 'C167216')
 s.wire((x_in5, y5), L3.p('1'))
 s.wire((vin5[0] - 5.08, y5), (vin5[0] - 5.08, vin5[1]), vin5)
 for i, (ref, v) in enumerate((('C20', '10u/25V'), ('C21', '10u/25V'), ('C22', '10u/25V'), ('C23', '100n'))):
-    shunt(C, ref, v, (x_in5 + 5.08 + i * 5.08, y5))
+    shunt(C, ref, v, (x_in5 + SP + i * SP, y5))
 s.wire(L3.p('2'), (x_sw5, y5), (x_sw5, boot[1]))
 s.wire(sw5, (x_sw5, sw5[1]))
-R17 = R('R17', '267k', fsw[0] + 2.54 + 3.81, fsw[1], 90)       # FSW resistor goes to SW (datasheet s8.3.3)
+R17 = R('R17', '267k', fsw[0] + 2.54 + 3.81, fsw[1], 90)
 s.wire(fsw, R17.p('1')); s.wire(R17.p('2'), (x_sw5, fsw[1]))
 C24 = C('C24', '100n', boot[0] + 2.54 + 3.81, boot[1], 90)
 s.wire(boot, C24.p('1')); s.wire(C24.p('2'), (x_sw5, boot[1]))
+R17.fields.update({'_ref_at': (R17.x, fsw[1] - 2.54), '_val_at': (x_sw5 + 7.62, fsw[1])})
+C24.fields.update({'_ref_at': (C24.x, boot[1] + 2.54), '_val_at': (x_sw5 + 7.62, boot[1])})
 vcc5 = U5.p('VCC')
-y_vcc5 = y5 + 5.08
-s.wire(vcc5, (vcc5[0], y_vcc5), (vcc5[0] - 10.16, y_vcc5))
-shunt(C, 'C25', '1u', (vcc5[0] - 5.08, y_vcc5))
-shunt(C, 'C26', '1u', (vcc5[0] - 10.16, y_vcc5))
+y_vcc5 = y5 + 7.62
+s.wire(vcc5, (vcc5[0], y_vcc5), (vcc5[0] + 2 * 7.62, y_vcc5))
+shunt(C, 'C25', '1u', (vcc5[0] + 7.62, y_vcc5))
+shunt(C, 'C26', '1u', (vcc5[0] + 2 * 7.62, y_vcc5))
 en5 = U5.p('EN')
-s.wire(en5, (en5[0] - 15.24, en5[1])); s.label('EN', en5[0] - 15.24, en5[1], 180)
-s.nc(U5.p('MODE')); s.nc(U5.p('11')); s.nc(U5.p('12'))
+s.wire(en5, (en5[0] - 20.32, en5[1])); s.label('EN', en5[0] - 20.32, en5[1], 180)
+NC_(U5.p('MODE')); NC_(U5.p('11')); NC_(U5.p('12'))
 ss, il5 = U5.p('SS'), U5.p('ILIM')
-s.wire(ss, (ss[0] - 10.16, ss[1]))
-shunt(C, 'C27', '10n', (ss[0] - 10.16, ss[1]))
-s.wire(il5, (il5[0] - 5.08, il5[1]))
-shunt(R, 'R18', '69.8k', (il5[0] - 5.08, il5[1]))
+s.wire(ss, (ss[0] - 2 * SP, ss[1]))
+shunt(C, 'C27', '10n', (ss[0] - 2 * SP, ss[1]))
+s.wire(il5, (il5[0] - SP, il5[1]))
+shunt(R, 'R18', '69.8k', (il5[0] - SP, il5[1]))
 gnd(U5.p('PGND')); gnd(U5.p('AGND'))
 fb5, cp5, vo5 = U5.p('FB'), U5.p('COMP'), U5.p('VOUT')
-# COMP network close to the pin
-s.wire(cp5, (cp5[0] + 10.16, cp5[1]))
+s.wire(cp5, (cp5[0] + 5.08 + SP, cp5[1]))
 R21, r21b = down_part(R, 'R21', '28.7k', (cp5[0] + 5.08, cp5[1]))
 shunt(C, 'C28', '680p', r21b)
-shunt(C, 'C29', '33p', (cp5[0] + 10.16, cp5[1]))
-# VOUT (pre-switch): FB divider, output caps, load switch
-x_fb = vo5[0] + 17.78
-x_v5 = vo5[0] + 40.64
+shunt(C, 'C29', '33p', (cp5[0] + 5.08 + SP, cp5[1]))
+x_fb5 = x_sw5 + 7.62
+x_v5 = x_fb5 + 4 * SP
 s.wire(vo5, (x_v5, vo5[1]))
-R19, r19b = down_part(R, 'R19', '220k', (x_fb, vo5[1]))
+R19, r19b = down_part(R, 'R19', '220k', (x_fb5, vo5[1]))
 s.wire(fb5, r19b)
-s.wire(r19b, (x_fb + 5.08, r19b[1]))
-shunt(R, 'R20', '69.8k', (x_fb + 5.08, r19b[1]))
-shunt(C, 'C30', '47u/16V', (vo5[0] + 27.94, vo5[1]))
-shunt(C, 'C31', '47u/16V', (vo5[0] + 33.02, vo5[1]))
-Q5 = s.add('minipc:CSD25404Q3', 'Q5', 'CSD25404Q3', 0, 0, 270, footprint='Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET',
-           lcsc='C2865523', mirror='x')
-q5s = Q5.p('5'); Q5.x += x_v5 + 12.7 - q5s[0]; Q5.y += vo5[1] - q5s[1]
+s.wire(r19b, (x_fb5 + SP, r19b[1]))
+shunt(R, 'R20', '69.8k', (x_fb5 + SP, r19b[1]))
+shunt(C, 'C30', '47u/16V', (x_fb5 + 2 * SP, vo5[1]))
+shunt(C, 'C31', '47u/16V', (x_fb5 + 3 * SP, vo5[1]))
+Q5 = fet_at('Q5', 'CSD25404Q3', 'C2865523', 'Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET', 270, 'x', '5',
+            (x_v5 + 2 * SP, vo5[1]))
+Q5.fields.update({'_ref_at': (Q5.x - 2.54, vo5[1] - 5.08), '_val_at': (Q5.x - 2.54, vo5[1] - 7.62)})
 s.wire((x_v5, vo5[1]), Q5.p('5'))
 q5g = Q5.p('4')
-R22 = R('R22', '100k', x_v5, vo5[1] + 3.81)
-C32 = C('C32', '10n', x_v5 + 5.08, vo5[1] + 3.81)
-y_g5 = R22.p('2')[1]
-s.wire(R22.p('2'), C32.p('2'), (q5g[0], y_g5), q5g)
-R23 = R('R23', '10k', q5g[0], y_g5 + 3.81)
-Q6 = s.add('minipc:2N7002', 'Q6', '2N7002', 0, 0, 0, footprint='Package_TO_SOT_SMD:SOT-23', lcsc='C8545')
-q6d = Q6.p('3'); Q6.x += R23.p('2')[0] - q6d[0]; Q6.y += R23.p('2')[1] + 2.54 - q6d[1]
-s.wire(R23.p('2'), Q6.p('3'))
+R22, r22b = down_part(R, 'R22', '100k', (x_v5, vo5[1]))
+C32, c32b = down_part(C, 'C32', '10n', (x_v5 + SP, vo5[1]))
+y_g5 = vo5[1] + 15.24
+s.wire(r22b, (r22b[0], y_g5), (q5g[0], y_g5), q5g)
+s.wire(c32b, (c32b[0], y_g5))
+R23, r23b = down_part(R, 'R23', '10k', (q5g[0], y_g5))
+Q6 = fet_at('Q6', '2N7002', 'C8545', 'Package_TO_SOT_SMD:SOT-23', 0, None, '3', (r23b[0], r23b[1] + 2.54))
+s.wire(r23b, Q6.p('3'))
 gnd(Q6.p('2'))
 s.wire(Q6.p('1'), (Q6.p('1')[0] - 7.62, Q6.p('1')[1])); s.label('EN', Q6.p('1')[0] - 7.62, Q6.p('1')[1], 180)
 q5d = Q5.p('1')
-s.wire(q5d, (q5d[0] + 10.16, q5d[1]))
-rail('+5V', (q5d[0] + 10.16, q5d[1]))
-pad('J7', '+5V OUT', (q5d[0] + 10.16, q5d[1]), PAD_PWR)
+s.wire(q5d, (q5d[0] + 22.86, q5d[1]))
+s.wire((q5d[0] + 15.24, q5d[1]), (q5d[0] + 15.24, q5d[1] - 5.08))
+rail('+5V', (q5d[0] + 15.24, q5d[1] - 5.08))
+pad('J7', '+5V OUT', (q5d[0] + 22.86, q5d[1]), PAD_PWR)
+s.text('ILIM = 550000 / 69.8k = 7.9 A (-Q1 has a 0.6 V ILIM reference)\nFSW 267k (to SW) = 594 kHz, SS 10 nF = 2.4 ms',
+       vin5[0] - 30.48, U5.p('PGND')[1] + 27.94)
 
 # ================================================================== G. 3.3 V buck-boost (TPS63802)
-header('3.3 V / 1.5 A buck-boost TPS63802 (WEBENCH design 36)', 449.58, 190.5)
-U6 = s.add('minipc:TPS63802', 'U6', 'TPS63802', 495.3, 241.3, footprint='JLCImport:TPS63802DLAR', lcsc='C2845237')
+header('3.3 V / 1.5 A buck-boost TPS63802 (WEBENCH design 36)', 20.32, 312.42)
+U6 = s.add('minipc:TPS63802', 'U6', 'TPS63802', 76.2, 365.76, footprint='JLCImport:TPS63802DLAR', lcsc='C2845237')
 vin6 = U6.p('VIN')
-x_in6 = vin6[0] - 17.78
-rail('VSYS', (x_in6, vin6[1] - 7.62))
-s.wire((x_in6, vin6[1] - 7.62), (x_in6, vin6[1]), vin6)
-shunt(C, 'C33', '22u/6.3V', (x_in6 + 7.62, vin6[1]))
+x_vs6 = vin6[0] - 25.4
+y_vs6 = vin6[1] - 12.7
+rail('VSYS', (x_vs6, y_vs6))
+s.wire((x_vs6, y_vs6), (vin6[0] - 5.08, y_vs6), (vin6[0] - 5.08, vin6[1]), vin6)
+shunt(C, 'C33', '22u/6.3V', (x_vs6 + SP, y_vs6))
 l1, l2 = U6.p('L1'), U6.p('L2')
-y_l4 = l1[1] - 7.62
-L4 = s.add('Device:L', 'L4', '0.47uH FXL0530-R47-M', (l1[0] + l2[0]) / 2, y_l4, 90,
-           footprint='JLCImport:FXL0530-R47-M', lcsc='C475515',
-           fields={'_ref_at': (l1[0] - 2.54, y_l4 - 3.81), '_val_at': (l1[0] - 7.62, y_l4 - 6.35)})
-s.wire(l1, (l1[0], y_l4), L4.p('1')) if L4.p('1')[0] != l1[0] else s.wire(l1, L4.p('1'))
-s.wire(l2, (l2[0], y_l4), L4.p('2')) if L4.p('2')[0] != l2[0] else s.wire(l2, L4.p('2'))
-en6, md6, pg6 = U6.p('EN'), U6.p('MODE'), U6.p('PG')
-s.wire(en6, (en6[0] - 12.7, en6[1])); s.label('EN', en6[0] - 12.7, en6[1], 180)
+y_l4 = l1[1] - 10.16
+L4 = ind('L4', '0.47uH', 'FXL0530-R47-M', (l1[0] + l2[0]) / 2, y_l4, 'JLCImport:FXL0530-R47-M', 'C475515')
+s.wire(l1, (l1[0], y_l4), L4.p('1'))
+s.wire(l2, (l2[0], y_l4), L4.p('2'))
+L4.fields.update({'_ref_at': (L4.x, y_l4 - 3.81), '_val_at': (L4.x, y_l4 - 6.35)})
+en6, pg6, md6 = U6.p('EN'), U6.p('PG'), U6.p('MODE')
+s.wire(en6, (en6[0] - 17.78, en6[1])); s.label('EN', en6[0] - 17.78, en6[1], 180)
+x_pg = pg6[0] - 7.62
+s.wire(pg6, (x_pg - SP, pg6[1]))
+R26 = R('R26', '100k', x_pg, pg6[1] + 3.81)
+rail('+3V3', R26.p('2'), 180)
+s.label('3V3_PG', x_pg - SP, pg6[1], 180)
 s.wire(md6, (md6[0] - 2.54, md6[1]), (md6[0] - 2.54, md6[1] + 12.7))
 gnd((md6[0] - 2.54, md6[1] + 12.7))
-x_pg = pg6[0] - 7.62
-s.wire(pg6, (x_pg - 7.62, pg6[1]))
-R26 = R('R26', '100k', x_pg, pg6[1] + 3.81, 180)
-rail('+3V3', R26.p('1'), 180)
-s.label('3V3_PG', x_pg - 7.62, pg6[1], 180)
 gnd(U6.p('GND')); gnd(U6.p('AGND'))
 vo6, fb6 = U6.p('VOUT'), U6.p('FB')
 x_fb6 = vo6[0] + 5.08
-s.wire(vo6, (x_fb6 + 22.86, vo6[1]))
+x_o6 = x_fb6 + 3 * SP
+s.wire(vo6, (x_o6, vo6[1]))
 R24, r24b = down_part(R, 'R24', '511k', (x_fb6, vo6[1]))
 s.wire(fb6, r24b)
-s.wire(r24b, (x_fb6 + 5.08, r24b[1]))
-shunt(R, 'R25', '91k', (x_fb6 + 5.08, r24b[1]))
-shunt(C, 'C34', '22u/25V', (x_fb6 + 12.7, vo6[1]))
-rail('+3V3', (x_fb6 + 22.86, vo6[1]))
-pad('J8', '+3V3 OUT', (x_fb6 + 22.86, vo6[1]), PAD_PWR)
+s.wire(r24b, (x_fb6 + SP, r24b[1]))
+shunt(R, 'R25', '91k', (x_fb6 + SP, r24b[1]))
+shunt(C, 'C34', '22u/25V', (x_fb6 + 2 * SP, vo6[1]))
+s.wire((x_o6 - 7.62, vo6[1]), (x_o6 - 7.62, vo6[1] - 5.08))
+rail('+3V3', (x_o6 - 7.62, vo6[1] - 5.08))
+pad('J8', '+3V3 OUT', (x_o6, vo6[1]), PAD_PWR)
 
 # ------------------------------------------------------------------ power flags (rails fed only through passives)
 for i, net in enumerate(('VBUS', 'BAT', '+12V', '+5V', 'GND')):
-    x, y = 391.16 + i * 15.24, 172.72
+    x, y = 500.38 + i * 10.16, 162.56
     s.add('power:PWR_FLAG', '#FLG%02d' % (i + 1), 'PWR_FLAG', x, y, in_bom=False, on_board=False)
     s.wire((x, y), (x, y + 5.08))
     s.power(net, x, y + 5.08, 180 if net != 'GND' else 0)

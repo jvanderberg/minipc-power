@@ -221,7 +221,7 @@ class Sch:
         props = [('Reference', p.ref, False), ('Value', p.value, False), ('Footprint', p.footprint, True),
                  ('Datasheet', p.fields.get('Datasheet', ''), True)]
         for k, v in p.fields.items():
-            if k != 'Datasheet':
+            if k != 'Datasheet' and not k.startswith('_') and k not in p.fields.get('_visible', []):
                 props.append((k, v, True))
         hide_ref = p.ref.startswith('#')
         out = ['\t(symbol\n\t\t(lib_id %s)\n\t\t(at %s %s %s)\n%s\t\t(unit 1)\n\t\t(exclude_from_sim no)\n'
@@ -250,6 +250,10 @@ class Sch:
                        '\t\t\t\t)%s%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(v), snap(at[0]), snap(at[1]), ang,
                                                         '' if just == 'center' else '\n\t\t\t\t(justify %s)' % just,
                                                         '\n\t\t\t\t(hide yes)' if hid else ''))
+        for i, k in enumerate(p.fields.get('_visible', [])):     # extra visible fields stacked under the value
+            out.append('\t\t(property %s %s\n\t\t\t(at %s %s %s)\n\t\t\t(effects\n\t\t\t\t(font\n\t\t\t\t\t(size 1.27 1.27)\n'
+                       '\t\t\t\t)%s\n\t\t\t)\n\t\t)\n' % (kstr(k), kstr(p.fields[k]), snap(vx), snap(vy + 2.54 * (i + 1)), ang,
+                                                        '' if just == 'center' else '\n\t\t\t\t(justify %s)' % just))
         for q in p.pins:
             out.append('\t\t(pin %s\n\t\t\t(uuid "%s")\n\t\t)\n' % (kstr(q['num']), uid()))
         out.append('\t\t(instances\n\t\t\t(project %s\n\t\t\t\t(path "/%s"\n\t\t\t\t\t(reference %s)\n'
@@ -283,13 +287,15 @@ class Sch:
         if n == 2 or p.lib_id in ('Connector:TestPoint',):
             if p.rot in (90, 270):
                 return p.x, p.y - 2.54, p.x, p.y + 2.54, 90, 'center'
+            if p.fields.get('_visible'):
+                return p.x + 2.54, p.y - 2.54, p.x + 2.54, p.y, 0, 'left'
             return p.x + 2.54, p.y - 1.27, p.x + 2.54, p.y + 1.27, 0, 'left'
         m = re.search(r'\(rectangle\s*\(start ([-\d.]+) ([-\d.]+)\)\s*\(end ([-\d.]+) ([-\d.]+)\)', self.symtext(p.lib_id))
         if m and p.rot == 0 and not p.mirror:
             x1, y1, x2, y2 = (float(v) for v in m.groups())
             left, top, bot = p.x + min(x1, x2), p.y - max(y1, y2), p.y - min(y1, y2)
             return left, top - 1.27, left, bot + 2.54, 0, 'left'
-        return p.x + 3.81, p.y - 3.81, p.x + 3.81, p.y + 3.81, 0, 'left'
+        return p.x + 3.81, p.y - 3.81, p.x + 3.81, p.y + 3.81, 90 if p.rot in (90, 270) else 0, 'left'
 
     def write(self, path):
         self._split_wires()

@@ -190,6 +190,18 @@ Built for this project (in `tools/`, candidates to move into the skills):
 
 Still missing (would have helped):
 
+0. **(highest value) An s-expression object model + serializer for KiCad files, in the skills layer.** This
+   project's generator builds `.kicad_sch` text with hand-written format strings
+   (`'\t\t(property %s %s\n\t\t\t(at %s %s %s)...' % (...)`). That caused two of this session's bugs (a stray
+   `'''` fragment inside a format string, and a duplicated property name) and makes every new feature (mirrored
+   symbols, extra visible fields, field angles) a string-surgery exercise. What the skill should provide: typed
+   objects (Sheet, SymbolInstance, LibSymbol, Pin, Wire, Junction, Label, PowerSymbol, Text; Board, Footprint, Pad,
+   Track, Via, Zone) with one serializer that writes KiCad 10 syntax, uuids, instances and lib_symbols embedding, plus
+   a reader for round-trips - so a generator only describes the logical design ("place U2 here, wire VBUS to C2.1")
+   and never formats text. The same layer can enforce the gotchas file-format.md lists (no raw newlines, escaped
+   quotes, `{slash}` in board net names, insertion anchors). Existing open-source Python libraries to evaluate
+   first rather than writing from scratch: kiutils, kicad-skip (not checked here for KiCad 10 format support).
+
 6. **Collision check before writing**: any part's pin landing on another net's wire, two wires sharing a column/row
    segment, a part body overlapping a wire or another body, and text overlapping text - all checkable from the
    geometry the generator already has. Most of this board's drawing faults were "a shunt cap's ground pin lands on a
