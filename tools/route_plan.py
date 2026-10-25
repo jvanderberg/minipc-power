@@ -32,6 +32,64 @@ def stitch_pads(r):
         r.via_near(ref, num)
 
 
+def thermal_vias(r, net, pts, size=0.6, drill=0.3):
+    """Vias joining a net's F.Cu pour to its B.Cu copper at the given points, each kept off every pad (no unfilled
+    via-in-pad: it wicks solder from the joint) and clearance-checked like any other via."""
+    from shapely.geometry import Point
+    from shapely.ops import unary_union
+    pads = unary_union([p['geom'] for lst in r.pads.values() for p in lst])
+    n = 0
+    for q in pts:
+        if not pads.intersects(Point(q).buffer(size / 2 + 0.15)) and r.via(q, net, size, drill):
+            n += 1
+    r.log.append('thermal_vias %s: %d of %d' % (net, n, len(pts)))
+    return n
+
+
+def stitch_grid(r,edge_pitch=4.0, grid_pitch=5.0, edge_inset=1.2):
+    """GND stitching vias joining F.Cu GND, the In1 plane and B.Cu GND: a ring along the board edge (return current and
+    emissions at the edge) and a grid inside (no outer-layer GND piece hangs on one via; heat from the top-side parts
+    reaches the bottom pour). A site is used only where both outer layers are GND pour: never inside another net's pour
+    or an analog-ground keepout (AGND_*: no plane vias), never between a part's pads. Positions follow from the plan,
+    so the result is deterministic; each site tries a few fixed nudges, then is skipped."""
+    import math
+    from shapely.geometry import MultiPoint, Point, Polygon
+    from shapely.ops import unary_union
+    nogo = []
+    for z in r.zones:
+        if z['net'] != 'GND' and z['layer'] in ('F.Cu', 'B.Cu'):
+            nogo.append(Polygon(z['pts']).buffer(0.5))
+    for k in r.keepouts:
+        nogo.append(Polygon(k['pts']).buffer(0.5))
+    for f in r.B['footprints']:
+        if f['ref'].startswith('H'):
+            continue
+        pts = [q for p in f['pads'] for ring, _ in p['poly'] for q in ring] or [(f['x'], f['y'])]
+        nogo.append(MultiPoint(pts).convex_hull.buffer(0.35))
+    nogo = unary_union(nogo)
+    sites = []
+    x0, y0, x1, y1 = X0 + edge_inset, Y0 + edge_inset, X1 - edge_inset, Y1 - edge_inset
+    for a, b in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
+        n = max(1, round(math.dist(a, b) / edge_pitch))
+        sites += [(a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n) for i in range(n)]
+    y = Y0 + grid_pitch
+    while y < Y1 - grid_pitch / 2:
+        x = X0 + grid_pitch
+        while x < X1 - grid_pitch / 2:
+            sites.append((x, y))
+            x += grid_pitch
+        y += grid_pitch
+    placed = 0
+    for sx, sy in sites:
+        for dx, dy in ((0, 0), (0.6, 0), (-0.6, 0), (0, 0.6), (0, -0.6), (1.2, 0), (-1.2, 0), (0, 1.2), (0, -1.2)):
+            q = (round(sx + dx, 2), round(sy + dy, 2))
+            if not nogo.intersects(Point(q).buffer(0.3)) and r.via_ok(q, 'GND'):
+                r.via(q, 'GND')
+                placed += 1
+                break
+    r.log.append('stitch_grid: %d of %d sites' % (placed, len(sites)))
+
+
 
 
 def usb_pd(r):
@@ -139,10 +197,23 @@ def protection(r):
     # BAT on B.Cu from the fuse to the charger (20 mm x 3.6 mm, ~3 mOhm)
     r.zone(bat, 'B.Cu', [(120.7, 121.0), (148.2, 121.0), (148.2, 124.6), (120.7, 124.6)], prio=10, name='BAT_BOTTOM')
     mid, celln, batn = r.net('Q2', '1'), r.net('Q1', '4'), r.net('J3', '1')
-    r.zone(mid, 'F.Cu', [(140.0, 125.5), (143.4, 125.5), (143.4, 128.5), (140.0, 128.5)], prio=11, name='MID')
+    r.zone(mid, 'F.Cu', [(140.0, 125.5), (143.4, 125.5), (143.4, 129.35), (140.0, 129.35)], prio=11, name='MID')
     r.zone(celln, 'F.Cu', [(143.6, 124.8), (145.2, 124.8), (145.2, 125.6), (145.85, 125.6), (145.85, 128.6), (147.75, 128.6),
                            (147.75, 130.4), (144.2, 130.4), (144.2, 128.6), (143.6, 128.6)], prio=11, name='CELLN')
     r.zone(batn, 'F.Cu', [(145.95, 125.4), (151.5, 125.4), (151.5, 128.3), (145.95, 128.3)], prio=10, name='BATN')
+    # heat (docs/thermal.md s3): the three FETs carry the full battery current (~0.57 W each at 15 W from an empty cell)
+    # on small pours of their own nets, which cannot be stitched to the GND plane. Same-net copper on B.Cu under each,
+    # joined by vias in the gaps between the pads, doubles their spreading area. Edges clear the Q3 gate track (x 138.2);
+    # the R7 BAT feed runs along the right edge (below) so it does not cut these islands.
+    r.rect(mid, 'B.Cu', 139.6, 125.3, 143.4, 129.3, prio=11, name='MID_B')
+    r.zone(celln, 'B.Cu', [(143.75, 125.3), (145.85, 125.3), (145.85, 128.45), (147.6, 128.45), (147.6, 130.2),
+                           (143.75, 130.2)], prio=11, name='CELLN_B')
+    r.rect(batn, 'B.Cu', 146.1, 125.3, 150.95, 128.25, prio=11, name='BATN_B')
+    thermal_vias(r, mid, [(141.7, 126.0), (141.7, 126.8), (141.7, 127.6), (140.6, 128.95), (141.4, 128.95),
+                          (142.2, 128.95), (143.0, 128.95)])
+    thermal_vias(r, celln, [(144.7, 126.0), (144.7, 126.8), (144.7, 127.6), (144.7, 128.4), (144.75, 129.05),
+                            (145.55, 129.05), (146.35, 129.05), (147.15, 129.05)])
+    thermal_vias(r, batn, [(147.65, 125.95), (147.65, 126.75), (147.65, 127.55)])
     # Q3 source -> GND
     for y in (126.9, 127.75, 128.6):
         r.via((138.95, y), 'GND')
@@ -163,7 +234,7 @@ def protection(r):
     r71 = r.P('R7', '1')
     r.track('F.Cu', 0.3, ('R7', '1'), (r71[0], r71[1] + 1.0))
     r.via((r71[0], r71[1] + 1.0), bat)
-    r.track('B.Cu', 0.4, (r71[0], r71[1] + 1.0), (147.9, r71[1] + 1.0), (147.9, 124.4), net=bat)
+    r.track('B.Cu', 0.3, (r71[0], r71[1] + 1.0), (151.35, r71[1] + 1.0), (151.35, 123.9), (148.0, 123.9), net=bat)
 
 
 def boost12(r):
@@ -342,3 +413,7 @@ def build(r):
     buckboost33(r)
     misc(r)
     stitch_pads(r)          # last, so the stitching vias avoid the routed copper
+    stitch_grid(r)
+    # GND pad islands that the pour cut off with only their own via (planes.py weakly_stitched_gnd_pieces): a second one
+    for ref in ('C18', 'C1'):
+        r.via_near(ref, '2', max_r=1.5)

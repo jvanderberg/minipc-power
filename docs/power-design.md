@@ -153,6 +153,10 @@ Loss at corner (3.0 V, 1.5 A): 0.48 W, Tj 66 C.
 
 At the 15 W budget the converter losses are about 1.1 W; plus the charger (~1 W) only while charging from USB.
 
+**These are converter losses only.** The battery path (Q1-Q3, BATFET, F1, copper, ~74 mOhm) adds 3.9 W at 15 W from an
+empty cell, 1.9 W from a mid cell: 5.0 / 3.0 W on the board in all, more than a closed box can shed continuously. See
+[thermal.md](thermal.md): 15 W is a peak rating; ~10-12 W continuous at a mid cell.
+
 ## 9. Bench verification required (not optional)
 
 Charge profile with real cells (CC 1.5 A, CV 4.208 V, termination); TS cut-off with resistors in place of the NTC;
