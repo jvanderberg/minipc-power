@@ -317,6 +317,67 @@ logged.
     time. *Fix:* a no-connect audit that lists each NC pin with the datasheet pin-table text, so each choice is made
     deliberately.
 
+## Found running kicad-board-review (2026-10-24, GitHub main 77055cd)
+
+34. **medium - The starter review config silently classifies most switch nodes as "slow".** `make_pack.sh` writes
+    `review_config.example.json`, whose switch regex (`-SW\d?\)$|_LX$|^SW_NODE`) only matches nets KiCad names after an
+    IC's SW pin. Here two of three converter switch nodes were named after a capacitor pad (`Net-(C4-Pad2)`,
+    `Net-(C24-Pad2)`) and the buck-boost's are `U6-L1/L2`; the first pack reported "loops 0 fast 0" with no warning.
+    *Fix:* classify switch nodes from the netlist (a net joining an IC pin named SW/LX/L1/L2/PH to an inductor), and
+    have `emc.py` warn when an inductor-connected net or a configured hot-loop IC ends up unclassified.
+
+35. **medium - `nc_audit.py` treats a no_connect-typed pin as decided.** U5 (TPS61088-Q1) pins 11/12 were "symbol NC"
+    with an empty note and passed `--require-notes`, but the pin table says "connect these two pins to ground plane".
+    *Fix:* a pin named NC still needs a datasheet note; print the pin-table text for it like any other unused pin.
+
+36. **medium - Design currents ignore the source's own series resistance.** The checklist and the battery skill size a
+    battery path as P / (eff x Vcell_min). With ~70-100 mOhm of FETs, fuse, BATFET, copper and wires, 15 W at a 3.0 V
+    cell is 6.8 A, not 5.6 A, past this charger's 6.0 A BATFET trip (latches off until USB). *Fix:* solve
+    I x (Vcell - I x R_path) = P / eff and compare with every element's limit (BATFET OCP, protector, fuse derating,
+    converter UVLO at the resulting VSYS); `power.py` could report the copper part of R_path per run.
+
+37. **medium - "Small capacitor at the pins" items from the datasheet's typical application are easy to drop.** WEBENCH's
+    BOM for the TPS61088 omitted the 1 uF output capacitor that the datasheet's typical application (C9) and layout
+    figure show at the VOUT pins; the compliance check ticked "C_OUT at the VOUT pins" against the 47 uF parts 3 mm away.
+    *Fix:* in pcb-power-supply's reference-pack step, list every capacitor in the datasheet's typical application with
+    its position in the layout figure, and diff that list against the BOM (WEBENCH is a secondary source).
+
+38. **low - Load-switch and inrush timing is not in any checklist.** A P-FET load switch driven straight from EN
+    (Q5, 10 nF gate cap) connected the load before the boost started; inrush then comes through the boost's rectifier
+    body diode with no limit. *Fix:* checklist item: every output switch has a defined turn-on time, compared with the
+    upstream converter's soft-start and the upstream current trips.
+
+39. **low - `board_diff.py` bugs.** (a) `board_diff.py HEAD <board>` fails when the board is not at the repo root: it runs
+    `git show HEAD:<basename>` with cwd = the board's folder, which git resolves from the repo root (use `HEAD:./<name>`).
+    Worked around with `HEAD:hardware/minipc-power.kicad_pcb`. (b) It does not report changed footprint fields: R7, R16
+    and C32 value / LCSC changes were invisible ("0 unexpected change groups").
+
+40. **low - `check.sh` cannot see a project's pin-decision notes.** It runs `nc_audit.py` without `--notes`, so it
+    reports "19 without a decision" for a project whose own build finds 0 (notes in `docs/pin-decisions.json`). *Fix:*
+    `--notes FILE` passthrough, or look for `pin-decisions.json` next to the project / in `docs/`.
+
+41. **low - `planes.py` reports a pour of another net as one board-sized slot.** The B.Cu BAT pour plus the tracks that
+    touch its clearance came out as a "44.4 x 31.9 mm slot" (the bounding box of the merged hole). *Fix:* report other-
+    net pours separately from slots, and give each slot its own extent.
+
+42. **low - `emc.py` reference check on a 4-layer board with a power plane.** Every B.Cu track is "not over ground"
+    because the nearest plane is In2 (VSYS), even where it runs inside a B.Cu GND pour. That's correct as geometry but
+    drowns the list; say "over VSYS plane (decoupled?)" as a separate, lower-priority category.
+
+43. **low - The hot-loop metric measures pad-to-pad geometry only.** U6's loop looked fine (2-2.5 mm) while its
+    return went through one 0.2 mm via; the solver showed it. *Fix:* for each configured hot loop, run a small DC solve
+    from the cap's GND pad to the IC ground pin and report the via share and the top-layer share.
+
+44. **low - Environment.** `jlcimport-cli` was not installed (the README's `pipx install git+...` worked: v1.6.7);
+    KiCad's python prints a wx "traits" assert on every `boarddump.py` run; `view.py` puts the title and some labels
+    outside the axes for small windows. `docs/layout-refs/tps63802-3v3/` holds p28 and p29 with nothing
+    saying fig. 12-1 is on p28 (p29 is the documentation-support page; gap 32 again).
+
+45. **medium - The project builds deterministically only against an unpublished kicad-skills.** With GitHub main's
+    `kicad_sexpr`, `gen_schematic.py` writes random uuids (an unchanged design gave a ~18k-line diff). The deterministic
+    writer is on an uncommitted local branch. Publish it, and pin the kicad-skills revision a project builds with
+    (e.g. a `KICAD_SKILLS_REV` in `tools/kskills.py` checked at build time).
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified

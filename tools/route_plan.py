@@ -250,6 +250,9 @@ def boost5(r):
     r.track('F.Cu', 0.25, ('U5', '1'), (139.55, 107.6), (138.9, 107.0), ('C25', '1'), ('C26', '1'))
     r.track('F.Cu', 0.25, ('U5', '20'), (141.05, 107.3), ('C25', '2'))
     r.track('F.Cu', 0.2, ('U5', '10'), (139.55, 113.2), ('C27', '1'))                       # SS
+    # NC pins 11/12 to ground for heat (pin table); pad 12 sits inside the VOUT pour, so both drop onto PGND5
+    r.track('F.Cu', 0.2, ('U5', '11'), (r.P('U5', '11')[0], 113.55))
+    r.track('F.Cu', 0.2, ('U5', '12'), (r.P('U5', '12')[0], 113.55))
     # right column: ILIM, COMP, FB fan out to the column in the same order
     r.track('F.Cu', 0.2, ('U5', '19'), (142.45, 108.85), (142.45, r.P('R18', '1')[1]), ('R18', '1'))
     r.track('F.Cu', 0.2, ('U5', '18'), (142.85, 109.35), (142.85, r.P('C29', '1')[1]), ('C29', '1'))
@@ -286,6 +289,10 @@ def buckboost33(r):
     r.zone(l2, 'F.Cu', [(131.45, 127.95), (135.2, 127.95), (135.2, 129.0), (131.45, 129.0)], prio=10, name='L2_33')
     r.via((129.72, 127.35), 'GND', 0.45, 0.2)                          # PGND pin 8 + GND pins 2/3 -> In1, at the IC
     r.track('F.Cu', 0.3, ('C33', '1'), (r.P('U6', '10')[0], 125.2), (r.P('U6', '10')[0], 126.5))   # VIN (stops short of L1)
+    # C_IN ground straight to PGND pin 8 on top copper, down the gap between the pin columns (fig. 12-1 joins the cap
+    # grounds to the IC ground pin on top; the input loop is the hot one in buck mode, VSYS 3.0-4.35 V -> 3.3 V)
+    x_gap = (r.bounds('U6', '1')[2] + r.bounds('U6', '10')[0]) / 2
+    r.track('F.Cu', 0.4, ('C33', '2'), (x_gap, 125.6), (x_gap, r.P('U6', '8')[1]))
     r.track('F.Cu', 0.3, ('U6', '6'), (130.2, 129.2), (129.3, 129.2), ('C34', '1'))         # VOUT -> C_OUT
     r.track('F.Cu', 0.5, ('C34', '1'), (128.6, 131.4), ('J8', '1'))                         # -> +3V3 pad
     # control ground node: MODE (pin 2, tied low), AGND (pin 3), R25 bottom

@@ -17,5 +17,7 @@
   "U2.9": "BQ25606 /CE: tied to GND. 'When this pin is driven low, battery charging is enabled.' (table 7-1); charging always enabled",
   "U2.12": "BQ25606 VSET: floating. RPD > 50 kohm (float pin) = 4.208 V charge voltage for Li-ion 18650 (table 7-1, VBATREG spec)",
   "U5.13": "TPS61088-Q1 MODE: floating. Internal 800 kohm pull-up (RMODE); floating selects PFM at light load (SLVSE52A pin table); efficiency at light load preferred over forced PWM",
-  "U6.2": "TPS63802 MODE: tied to GND. 'Set LOW for power save mode, set HIGH for forced PWM mode. It must not be left floating.' (SLVSEU9D pin table)"
+  "U6.2": "TPS63802 MODE: tied to GND. 'Set LOW for power save mode, set HIGH for forced PWM mode. It must not be left floating.' (SLVSEU9D pin table)",
+  "U2.2": "BQ25606 NC: left floating. SLUSCK6C pin table: \"No connection. This pin must be floating.\"",
+  "U3.4": "HY2113 NC (SOT-23-6): left open. DS-HY2113-V16 table 6: \"No connection.\""
 }

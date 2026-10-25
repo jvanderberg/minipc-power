@@ -30,10 +30,10 @@ PAD_SIG = 'TestPoint:TestPoint_THTPad_2.0x2.0mm_Drill1.0mm'
 PAD_PWR_GND = 'TestPoint:TestPoint_THTPad_D2.5mm_Drill1.2mm'     # round = ground / negative
 PAD_SIG_GND = 'TestPoint:TestPoint_THTPad_D2.0mm_Drill1.0mm'
 
-RES = {'6.8k': 'C25917', '249': 'C25096', '470': 'C25117', '5.23k': 'C25907', '30.9k': 'C270615', '1k': 'C11702',
+RES = {'100': 'C25076', '6.8k': 'C25917', '249': 'C25096', '470': 'C25117', '5.23k': 'C25907', '30.9k': 'C270615', '1k': 'C11702',
        '10k': 'C25744', '1M': 'C26083', '330': 'C25104', '2k': 'C4109', '169k': 'C25758', '162k': 'C54068',
        '732k': 'C27016', '80.6k': 'C25921', '44.2k': 'C25895', '178k': 'C26995', '267k': 'C270622',
-       '69.8k': 'C26985', '220k': 'C25767', '28.7k': 'C26972', '100k': 'C25741', '511k': 'C64042', '91k': 'C4147',
+       '69.8k': 'C26985', '220k': 'C25767', '28.7k': 'C26972', '100k': 'C25741', '511k': 'C64042', '91k': 'C144733',
        '470k': 'C25790'}
 CAP = {  # value -> (footprint, LCSC, description)
     '100n': (C0402, 'C1525', '100nF 16V X7R'), '1u': (C0603, 'C15849', '1uF 50V X5R'),
@@ -255,7 +255,7 @@ s.wire(od, (Q2.p('3')[0], od[1]), Q2.p('3'))
 vdd, cs = U3.p('VDD'), U3.p('CS')
 x_vdd = vdd[0] - SP - 2.54
 s.wire(vdd, (x_vdd - 10.16, vdd[1]))
-R7 = R('R7', '330', x_vdd, vdd[1] - 3.81)
+R7 = R('R7', '100', x_vdd, vdd[1] - 3.81)          # HY2113 R1: 100-200 R, as small as possible (connection example)
 rail('BAT', R7.p('1'))
 C8 = C('C8', '100n', x_vdd - 10.16, vdd[1] + 3.81)
 s.wire(C8.p('2'), (x_vdd - 10.16, yc - 15.24), (x_celln, yc - 15.24))
@@ -351,7 +351,7 @@ Q4 = fet_at('Q4', 'CSD25404Q3', 'C2865523', 'Package_SON:VSON-8_3.3x3.3mm_P0.65m
             (x_q, vo[1]))
 Q4.fields.update({'_ref_at': (Q4.x - 2.54, vo[1] - 5.08), '_val_at': (Q4.x - 2.54, vo[1] - 7.62)})
 y_g = vo[1] + 17.78
-R16, r16b = down_part(R, 'R16', '178k', (c14x + 2 * SP, vo[1]))
+R16, r16b = down_part(R, 'R16', '100k', (c14x + 2 * SP, vo[1]))   # Vgs = R x 55 uA typ = 5.5 V (eq. 34); 178 k gave 9.8 V, near +/-12 V abs max with an untoleranced sink
 C16, c16b = down_part(C, 'C16', '22n', (c14x + 3 * SP, vo[1]))
 s.wire(r16b, (r16b[0], y_g)); s.wire(c16b, (c16b[0], y_g))
 s.wire(dis, (x_d, dis[1]), (x_d, y_g), (Q4.p('4')[0], y_g), Q4.p('4'))
@@ -401,7 +401,12 @@ shunt(C, 'C25', '1u', (vcc5[0] + 7.62, y_vcc5))
 shunt(C, 'C26', '1u', (vcc5[0] + 2 * 7.62, y_vcc5))
 en5 = U5.p('EN')
 s.wire(en5, (en5[0] - 20.32, en5[1])); s.label('EN', en5[0] - 20.32, en5[1], 180)
-NC_(U5.p('MODE')); NC_(U5.p('11')); NC_(U5.p('12'))
+NC_(U5.p('MODE'))
+# NC pins 11/12: 'connect these two pins to ground plane on the PCB for good thermal dissipation' (SLVSE52A pin table)
+nc11, nc12 = U5.p('11'), U5.p('12')
+x_nc = nc11[0] - 2.54
+s.wire(nc11, (x_nc, nc11[1])); s.wire(nc12, (x_nc, nc12[1])); s.wire((x_nc, nc11[1]), (x_nc, nc12[1] + 2.54))
+gnd((x_nc, nc12[1] + 2.54))
 ss, il5 = U5.p('SS'), U5.p('ILIM')
 s.wire(ss, (ss[0] - 2 * SP, ss[1]))
 shunt(C, 'C27', '10n', (ss[0] - 2 * SP, ss[1]))
@@ -414,21 +419,22 @@ R21, r21b = down_part(R, 'R21', '28.7k', (cp5[0] + 5.08, cp5[1]))
 shunt(C, 'C28', '680p', r21b)
 shunt(C, 'C29', '33p', (cp5[0] + 5.08 + SP, cp5[1]))
 x_fb5 = x_sw5 + 7.62
-x_v5 = x_fb5 + 4 * SP
+x_v5 = x_fb5 + 5 * SP
 s.wire(vo5, (x_v5, vo5[1]))
 R19, r19b = down_part(R, 'R19', '220k', (x_fb5, vo5[1]))
 s.wire(fb5, r19b)
 s.wire(r19b, (x_fb5 + SP, r19b[1]))
 shunt(R, 'R20', '69.8k', (x_fb5 + SP, r19b[1]))
-shunt(C, 'C30', '47u/16V', (x_fb5 + 2 * SP, vo5[1]))
-shunt(C, 'C31', '47u/16V', (x_fb5 + 3 * SP, vo5[1]))
+shunt(C, 'C38', '1u/25V/0402', (x_fb5 + 2 * SP, vo5[1]))   # HF output cap at the VOUT pins (datasheet fig. 13 C9, fig. 21)
+shunt(C, 'C30', '47u/16V', (x_fb5 + 3 * SP, vo5[1]))
+shunt(C, 'C31', '47u/16V', (x_fb5 + 4 * SP, vo5[1]))
 Q5 = fet_at('Q5', 'CSD25404Q3', 'C2865523', 'Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET', 270, 'x', '5',
             (x_v5 + 2 * SP, vo5[1]))
 Q5.fields.update({'_ref_at': (Q5.x - 2.54, vo5[1] - 5.08), '_val_at': (Q5.x - 2.54, vo5[1] - 7.62)})
 s.wire((x_v5, vo5[1]), Q5.p('5'))
 q5g = Q5.p('4')
 R22, r22b = down_part(R, 'R22', '100k', (x_v5, vo5[1]))
-C32, c32b = down_part(C, 'C32', '10n', (x_v5 + SP, vo5[1]))
+C32, c32b = down_part(C, 'C32', '100n', (x_v5 + SP, vo5[1]))   # soft turn-on: ~1 ms through R23 || R22 (10 nF switched the load in ~0.1 ms)
 y_g5 = vo5[1] + 15.24
 s.wire(r22b, (r22b[0], y_g5), (q5g[0], y_g5), q5g)
 s.wire(c32b, (c32b[0], y_g5))
@@ -498,6 +504,16 @@ if not any(n.get('name') == 'minipc' for n in lt.nodes('lib')):
     lt.append(Node('lib', Node('name', 'minipc'), Node('type', 'KiCad'), Node('uri', '${KIPRJMOD}/minipc.kicad_sym'),
                    Node('options', ''), Node('descr', 'redrawn symbols')))
     save(lt, tbl)
+# Datasheet on every BOM part: the redrawn symbol's link (symbols.DATASHEETS), else the LCSC page of the exact part
+# ordered (the KiCad library's own value is "~" for passives and the generic USB-C spec for J1). schgen refuses a blank.
+for p in s.parts:
+    if not p.in_bom or p.ref.startswith('#') or p.fields.get('Datasheet', '').strip() not in ('', '~'):
+        continue
+    nick, name = p.lib_id.split(':', 1)
+    if nick == 'minipc':
+        p.fields['Datasheet'] = symbols.DATASHEETS[name]
+    elif p.fields.get('LCSC'):
+        p.fields['Datasheet'] = 'https://www.lcsc.com/datasheet/%s.pdf' % p.fields['LCSC']
 out = os.path.join(HW, 'minipc-power.kicad_sch')
 s.write(out)
 bad = s.pin_on_wire_interior()

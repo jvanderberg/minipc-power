@@ -58,7 +58,7 @@ C_OUT was GND-up, and the VIN cap was 4 mm from the pin.
 | SW traces short and small, ground plane under the regulator | ok: one F.Cu pour from L3 to SW pins 4-7, with R17 (FSW) and C24 (BOOT) standing on it as in the figure; In1 GND underneath |
 | Input cap close to VIN and GND pins | ok: C23 directly under VIN pin 9 with its GND on PGND; C20-C22 at L3's input, C22's GND on the same PGND pour |
 | Thermal pad soldered to a large ground plate with thermal vias | ok: EP to the PGND pour by its bottom tab, plus the footprint's thermal vias to In1 |
-| (fig. 21) C_OUT right at the VOUT pins, GND on PGND | ok: C30/C31 VOUT pads on the VOUT pour beside pins 14-16, GND pads on PGND5 |
+| (fig. 21) C_OUT right at the VOUT pins, GND on PGND | **fixed** (review 2026-10-24): fig. 21 and the typical application (fig. 13, C9 1 uF) put a small capacitor directly at the VOUT pins; the board had only C30/C31 (47 uF 1210), whose VOUT pads start 2.9 mm from the pins. C38 (1 uF 0402) now stands between the VOUT pour and PGND5 0.5 mm from pin 14, with a GND via beside it; C30/C31 unchanged |
 | (fig. 21) AGND parts top-right, grounds via to the bottom plane | ok: ILIM/COMP/FB column in pin order (no crossings), ground pads stitched to In1. This part's datasheet vias AGND to the plane, so no single-point bus here (unlike the TPS61178) |
 | (fig. 21) VCC cap at VCC/AGND | ok: C25/C26 above the VCC and AGND pins |
 | MODE floating = PFM (internal 800 k pull-up, datasheet pin table) | ok: left unconnected on purpose |
@@ -71,7 +71,7 @@ lay flat, which would have needed a 5 mm L2 trace around L4.1.
 
 | Rule | Status |
 |---|---|
-| 1. Input and output caps as close as possible, short wide traces | ok: C33 VSYS pad 1.4 mm above VIN pin 10; C34 directly under VOUT pin 6; grounds via to In1 next to the pads |
+| 1. Input and output caps as close as possible, short wide traces | **partly fixed, output side open** (review 2026-10-24). C_IN: C33's VSYS pad is 1.4 mm above VIN pin 10; its ground pad was an island in the VSYS pour returning through one via, In1 and the 0.45/0.2 via in the IC centre. It now also runs on a 0.4 mm top-layer track down the 0.91 mm gap between the pin columns to PGND pin 8, as fig. 12-1 joins the cap grounds to the IC ground on top (solver, 1 A return: 3.1 -> 1.6 mV; centre via 0.89 -> 0.43 A). This is the hot loop in buck mode (VSYS 3.0-4.35 V -> 3.3 V). C_OUT: C34 is reached from VOUT pin 6 through a 0.3 mm dog-leg (not 'directly under' it) and its ground still returns through In1. A top-layer ground to pin 8 would cross the VOUT track or, flipped, push +3V3 to J8 across the B.Cu EN trunk at x 129: needs a re-placement of C34 / J8 / the EN lane. Bench-check 3V3 ripple in buck-boost mode (VSYS near 3.3 V) |
 | 2. Separate power and control ground nodes, joined close to an IC ground pin | ok: MODE (tied low), AGND pin and R25 form the control-ground node with pour keepout `AGND_3V3`; joined to PGND pin 8 and In1 by one via in the IC centre (as WEBENCH d36 does) |
 | 3. Separate traces for power-stage and analog supply | n/a: the DLA package has a single VIN pin; EN comes on its own trace from the system EN net |
 | 4. FB away from the L1 / L2 nodes | ok: FB divider on the left side; L1/L2 pours on the right. The TS B.Cu track was rerouted off U6's centre |

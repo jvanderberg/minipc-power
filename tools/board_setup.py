@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Setup pass on hardware/minipc-power.kicad_pcb / .kicad_pro after gen_board.py (through kicad_sexpr):
 - JLC04161H-7628 stackup (values: kicad-skills jlcpcb-stackups.md, re-check on jlcpcb.com/impedance before ordering)
-- hidden LCSC property on every footprint (from the schematic netlist)
+- the schematic's fields (LCSC, Datasheet, Description, ...) on every footprint, from the netlist
 - design rules and net classes in the project file (comfortable JLC values, not minimums)
 Usage: python3 tools/board_setup.py <netlist.xml>
 """
@@ -25,10 +25,16 @@ POWER = ['GND', 'VBUS', 'VSYS', 'BAT', 'BATP', 'BATN', 'CELLN', 'MID', 'SW_CHG',
          'SW5', 'VOUT5A', '+5V', 'L1_33', 'L2_33', '+3V3']
 
 root = ET.parse(sys.argv[1]).getroot()
+missing = []   # BOM parts the schematic gave no datasheet
 lcsc = {}      # ref -> {field: value} for every schematic field the footprint must carry (parity checks them)
 for c in root.find('components'):
     fields = {f.get('name'): (f.text or '') for f in (c.find('fields') or [])}
     fields = {k: v for k, v in fields.items() if k not in ('Reference', 'Value', 'Footprint')}
+    ds = (c.findtext('datasheet') or '').strip()
+    if ds not in ('', '~'):
+        fields['Datasheet'] = ds       # the netlist keeps it outside <fields>: copied here or it never reaches the board
+    elif not any(pr.get('name') == 'exclude_from_bom' for pr in c.findall('property')):
+        missing.append(c.get('ref'))
     if fields:
         lcsc[c.get('ref')] = fields
 pin2net = {}
@@ -49,6 +55,8 @@ for f in b.footprints():
     for k, v in lcsc.get(f.ref, {}).items():
         f.set_field(k, v)
         added += 1
+if missing:
+    sys.exit('BOM parts without a datasheet link in the schematic: %s' % ', '.join(sorted(missing)))
 # 3D models the KiCad library references but does not install -> JLCImport models (placement.MODEL_OVERRIDE).
 # (pcbnew's FOOTPRINT.Models() returns copies, so assigning m_Filename there does not stick.)
 import placement

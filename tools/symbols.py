@@ -10,6 +10,17 @@ DEVICE = SymLib('Device', '/Applications/KiCad/KiCad.app/Contents/SharedSupport/
 
 L = 2.54  # pin length and pitch
 
+# Datasheet link for each redrawn symbol: the manufacturer's page for the exact part where one is canonical (TI
+# symlinks), else the LCSC page JLCImport put on the symbol this one replaces. library() refuses a symbol without one.
+_TI = 'https://www.ti.com/lit/ds/symlink/%s.pdf'
+DATASHEETS = {
+    'CH224Q': 'https://www.lcsc.com/datasheet/C46061833.pdf', 'BQ25606': _TI % 'bq25606',
+    'HY2113': 'https://www.lcsc.com/datasheet/C168772.pdf', 'TPS61178': _TI % 'tps61178',
+    'TPS61088-Q1': _TI % 'tps61088-q1', 'TPS63802': _TI % 'tps63802',
+    'CSD13202Q2': _TI % 'csd13202q2', 'CSD25404Q3': _TI % 'csd25404q3',
+    '2N7002': 'https://www.lcsc.com/datasheet/C8545.pdf',
+}
+
 
 def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc='', top_pitch=L):
     """Each side is a list of entries (name, [numbers], type) or None for an empty slot.
@@ -37,7 +48,7 @@ def ic(name, half_w, left=(), right=(), top=(), bottom=(), ref='U', desc='', top
     x0b = half_w - L - (len(bottom) - 1) * L
     side(bottom, lambda i: (x0b + i * L, -half_h - L), 90)
     props = [lib_property('Reference', ref, 0, half_h + 1.27), lib_property('Value', name, 0, -half_h - 1.27),
-             lib_property('Footprint', '', hide=True), lib_property('Datasheet', '', hide=True),
+             lib_property('Footprint', '', hide=True), lib_property('Datasheet', DATASHEETS.get(name, ''), hide=True),
              lib_property('Description', desc, hide=True)]
     return lib_symbol(name, props, {(0, 1): [lib_rectangle(-half_w, half_h, half_w, -half_h)], (1, 1): pins})
 
@@ -74,10 +85,11 @@ SYMBOLS = {
                           ('FB', ['5'], IN)],
                    top=[('VCC', ['10'], PO), ('BST', ['13'], PA)],
                    bottom=[('PGND', ['6'], PI), ('AGND', ['2'], PI)], desc='20 V sync boost, load disconnect'),
-    # TPS61088-Q1 VQFN-20 RHL (SLVSE52A pin functions); thermal pad 21 = PGND
+    # TPS61088-Q1 VQFN-20 RHL (SLVSE52A pin functions); thermal pad 21 = PGND. NC 11/12 are passive: the pin table says
+    # to connect them to the ground plane for heat
     'TPS61088-Q1': ic('TPS61088-Q1', 8.89,
                       left=[('VIN', ['9'], PI), ('EN', ['2'], IN), None, ('MODE', ['13'], IN), ('SS', ['10'], PA),
-                            ('ILIM', ['19'], PA), None, ('NC', ['11'], NC), ('NC', ['12'], NC)],
+                            ('ILIM', ['19'], PA), None, ('NC', ['11'], PA), ('NC', ['12'], PA)],
                       right=[('SW', ['4', '5', '6', '7'], PO), None, ('FSW', ['3'], PA), None, ('BOOT', ['8'], PA),
                              None, ('VOUT', ['14', '15', '16'], PO), None, None, ('FB', ['17'], IN),
                              ('COMP', ['18'], PA)],
@@ -117,12 +129,17 @@ def fet(base, name, D, G, S, desc=''):
             p[2] = name
         elif p[1] == 'Description':
             p[2] = desc
+        elif p[1] == 'Datasheet':
+            p[2] = DATASHEETS.get(name, '')
     return sym
 
 
 def library():
     lib = SymbolLibrary.new('minipc')
     lib.tree.set('generator', 'minipc_symbols')
+    missing = sorted(set(SYMBOLS) - set(DATASHEETS))
+    if missing:
+        raise SystemExit('symbols without a datasheet link (add them to DATASHEETS): %s' % ', '.join(missing))
     for sym in SYMBOLS.values():
         lib.add(sym)
     return lib

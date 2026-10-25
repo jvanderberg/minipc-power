@@ -28,7 +28,7 @@ If the charger has no 9 V PDO, the CH224Q stays at 5 V (behaviour not stated in 
 |---|---|---|
 | U2 | BQ25606RGER (C374063, 8,201 stock) | 3.9-13.5 V in, 22 V abs max; ACOV 13.5/14.28/14.91 V |
 | Charge voltage | VSET floating -> **4.208 V** | VSET table (RPD > 50 k = float) |
-| Charge current | R_ICHG = **453 R** -> 1.41 / **1.49** / 1.58 A | ICHG = KICHG / R, KICHG 639/677/715 A.Ohm |
+| Charge current | R_ICHG = **470 R** (C25117, Basic) -> 1.36 / **1.44** / 1.52 A | ICHG = KICHG / R, KICHG 639/677/715 A.Ohm; 453 R would give 1.49 A but is an Extended part |
 | Input current limit | R_ILIM = **249 R** -> 1.84 / **1.92** / 2.01 A | IINDPM = KILIM / R, KILIM 459/478/500; must stay <= the 9 V PDO current (2 A on an 18 W charger) because VINDPM (4.3 V / VBAT+200 mV) does not protect a 9 V source |
 | D+ / D- | **floating** | ILIM applies only when detection returns "unknown adapter" (s9.3.2.3); a D+/D- short would read as DCP = 2.4 A |
 | TS (NTC) | RT1 = **5.23 k** (REGN-TS), RT2 = **30.9 k** (TS-GND), 103AT 10 k B3435 on pads | datasheet s9.3.5.4, 0-60 C window; JEITA cuts current below 10 C / voltage above 45 C |
@@ -56,12 +56,12 @@ regulation folds the charge current back if the box gets hot.
 ## 3. Cell protection and reverse connection
 
 Order from the battery pads: B- pad -> **Q1 reverse-block** -> CELL- (protector VSS) -> **Q2 discharge, Q3 charge**
-(common source, back-to-back) -> GND. B+ pad -> **F1** -> BAT (charger BAT pin, protector VDD via R).
+(common drain, back-to-back: drains joined on MID) -> GND. B+ pad -> **F1** -> BAT (charger BAT pin, protector VDD via R).
 
 | Item | Value | Basis |
 |---|---|---|
 | U3 | HY2113-MB1A (C168772) | 1-cell: VCU 4.280 +/-0.025, VDL 2.80 +/-0.05, VDIP 250 +/-15 mV, VCIP -100 mV, short 0.85 V; TDIP 12 ms, TSIP 300 us |
-| R (VDD) / C (VDD) | 330 R / 100 nF | HY2113 connection example (100-470 R, 0.01-1 uF) |
+| R (VDD) / C (VDD) | **100 R** / 100 nF | HY2113 datasheet external-parts table: R1 100 R min / typ, 200 R max, 'as small as possible' (overcharge accuracy); C1 0.01-1 uF. Was 330 R (outside the range) until the 2026-10-24 review |
 | R (CS) | 2 k | HY2113 connection example |
 | Q1, Q2, Q3 | CSD13202Q2 (C187839, 2,233 stock): 12 V, +/-8 V Vgs, 8.4 / 10.4 mOhm at Vgs 3 V | one part for all three |
 | Discharge trip | 250 mV / (Q2 + Q3) | at 25 C typ: ~15 A; at 3.0 V cell, max Rds, hot (x1.4): ~8 A. Above the ~5.6 A design peak |
@@ -82,12 +82,12 @@ Battery wiring: 18 AWG-20 AWG to the pads; cells bought as a matched pair, joine
 | Inductor | **3.3 uH**, FXL0630-3R3-M (C167219): 22 mOhm, I_sat 8.7 A | WEBENCH 2.7 uH; 3.3 uH within the 0.47-3.3 uH range, ripple ~0.7 A; I_sat > ILIM max (~6.2 A) |
 | Cin | 2 x 22 uF 10-16 V 0805/1206 (input <= 4.35 V) | WEBENCH 2 x 22 uF 1210 (36 uF derated); input ripple current only 0.12 A RMS |
 | C_VIN | 1 uF 25 V X5R 0402 (C37, C52923) | datasheet layout rule 5: bypass at the VIN pin (C9/C10 sit at L2's input) |
-| Cout1 (before FET) | 4.7 uF 25 V 1206 | WEBENCH; COUT2 <= 10 x COUT1 (inrush rule) |
+| Cout1 (before FET) | 2 x 4.7 uF 25 V **0805** (C14, C15) | WEBENCH; COUT2 <= 10 x COUT1 (inrush rule). As built in 0805, the effective COUT1 at 12 V is only about 2.5-3 uF, so the 10 x rule is marginal (31 uF after the FET) and any LCD input capacitance is outside it: bench-check start-up with the real LCD |
 | Cout2 (after FET) | 3 x 22 uF 25 V 1210 (31 uF effective at 12 V) | WEBENCH; COUT2 31 uF <= 10 x COUT1 (32 uF) |
 | FB | R_top **732 k** / R_bot **80.6 k** -> 12.08 V | VFB 1.198 V |
 | Compensation | Rc **44.2 k**, Cc **1.8 nF**, no Cp | WEBENCH: PM 54.9 deg, fc 13 kHz at 3 V |
 | Disconnect FET | CSD25404Q3 (C2865523): -20 V, 10.1 mOhm at -2.5 V | WEBENCH M3 |
-| Rgate / Cgate | **178 k / 22 nF** | Vgs = 178 k x 55 uA = 9.8 V (< 12 V abs); turn-on ~0.5 ms (< 3 ms) |
+| Rgate / Cgate | **100 k / 22 nF** | Vgs = R x 55 uA (eq. 34) = 5.5 V typ. The 55 uA sink has no min/max in the datasheet; 178 k (9.8 V typ) could reach the full -12 V of VOUT against the FET's +/-12 V abs max. Turn-on (eq. 33) depends on C and the sink current, not R: ~0.4 ms to threshold (< 3 ms). Changed in the 2026-10-24 review |
 | VCC / BST | 4.7 uF / 100 nF | datasheet s9.2.4.4.4-5 |
 | EN | from EN net | VEN_H 1.2 V max |
 
@@ -108,12 +108,14 @@ Loss at corner: 0.33 W total (IC 0.25 W, L 0.08 W); Tj 57 C (WEBENCH, theta-JA 2
 | Inductor | **1.0 uH**, FXL0630-1R0-M (C167216): 7.4 mOhm, I_sat 13.5 A | WEBENCH 1 uH / 11 mOhm; I_sat > 9.0 A |
 | Cin | 3 x 10 uF 16 V 0805 + 100 nF | WEBENCH |
 | Cout | 2 x 47 uF 16 V 1210 (63 uF effective) | WEBENCH |
+| Cout HF | **1 uF** 25 V X5R 0402 (C38, C52923 Basic) at VOUT pins 14-16, ground on the PGND pour to the thermal pad | datasheet typical application fig. 13 (C9 1 uF beside C4 47 uF) and layout fig. 21 (small cap at the VOUT pins); WEBENCH's BOM omits it. Added in the 2026-10-24 review |
 | FB | **220 k / 69.8 k** -> 5.00 V | |
 | Compensation | Rc **28.7 k**, Cc **680 pF**, Cp **33 pF** (0402) | WEBENCH: PM 55.1 deg, fc 34 kHz |
-| SS | 8.2 nF -> 2.0 ms | t = 1.204 x C / 5 uA |
+| SS | 10 nF (C27) -> 2.4 ms | t = 1.204 x C / 5 uA (WEBENCH had 8.2 nF / 2.0 ms) |
 | VCC / BOOT | 2 x 1 uF / 100 nF | |
 | MODE | floating (PFM at light load) | ILIM equation above assumes MODE floating |
-| Disconnect | Q5 CSD25404Q3 P-FET (source = boost VOUT, drain = 5V pad); Q6 2N7002 pulls the gate low when EN is high; 100 k gate-source, 10 nF gate-source for soft turn-on | TPS61088 has no load-disconnect |
+| NC 11 / 12 | to GND (PGND pour) | pin table: 'connect these two pins to ground plane on the PCB for good thermal dissipation'. Were left open until the 2026-10-24 review |
+| Disconnect | Q5 CSD25404Q3 P-FET (source = boost VOUT, drain = 5V pad); Q6 2N7002 pulls the gate low when EN is high; 100 k gate-source, **100 nF** gate-source for soft turn-on (about 1 ms through R23 10 k; 10 nF switched the load on in about 0.1 ms, before the boost had started, and the load's inrush then comes from VSYS through the boost's rectifier body diode with no current limit - a battery transient above the BQ25606's 6.0 A BATFET_OCP latches the board off until USB is plugged in). Turn-off ~10 ms (R22 x C32). Changed in the 2026-10-24 review | TPS61088 has no load-disconnect |
 
 Loss at corner (3.0 V, 2.5 A): ~0.88 W total, IC Tj ~74-78 C. Typical (3.7 V, 1 A) is a fraction of that.
 
@@ -122,10 +124,10 @@ Loss at corner (3.0 V, 2.5 A): ~0.88 W total, IC Tj ~74-78 C. Typical (3.7 V, 1 
 | Item | Value | Basis |
 |---|---|---|
 | U6 | TPS63802DLAR (C2845237, 37,457 stock) | buck-boost, 1.3-5.5 V in, current limit 4.0-5.75 A (boost) |
-| Inductor | **0.47 uH**, MWSA0402S-R47MT (C6331050): 14 mOhm, I_sat 7.5 A, 4.4 x 4.2 mm | datasheet 0.37-0.57 uH effective; I_sat > 5.75 A |
+| Inductor | **0.47 uH**, FXL0530-R47-M (C475515): 8.5 mOhm, 11 A / 12 A (LCSC listing), 5.4 x 5.2 mm | datasheet 0.37-0.57 uH effective; I_sat > 5.75 A. Substituted for MWSA0402S-R47MT (C6331050), which has no EasyEDA footprint data |
 | Cin | 22 uF 6.3-10 V 0603/0805 (>= 4 uF effective) | |
 | Cout | 22 uF 10 V 0805 (11 uF effective; >= 7 uF required) | |
-| FB | **511 k / 91 k** -> 3.31 V | VFB 0.5 V |
+| FB | **511 k / 91 k** -> 3.31 V | VFB 0.5 V. 91 k is C144733 (YAGEO AC0402FR-0791KL, 1 %): the earlier C4147 had 2 in stock (review 2026-10-24) |
 | MODE | GND (power-save at light load) | |
 | PG | 100 k pull-up to 3V3, to a pad | |
 

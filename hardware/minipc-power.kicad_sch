@@ -1983,7 +1983,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.lcsc.com/datasheet/C8545.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2281,7 +2281,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/bq25606.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2815,7 +2815,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.lcsc.com/datasheet/C46061833.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3098,7 +3098,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3497,7 +3497,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd25404q3.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -3833,7 +3833,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.lcsc.com/datasheet/C168772.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -4020,7 +4020,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps61088-q1.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -4146,7 +4146,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -11.43 -5.08 0)
 					(length 2.54)
 					(name "NC"
@@ -4164,7 +4164,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at -11.43 -7.62 0)
 					(length 2.54)
 					(name "NC"
@@ -4482,7 +4482,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps61178.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -4795,7 +4795,7 @@
 					)
 				)
 			)
-			(property "Datasheet" ""
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps63802.pdf"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -5820,6 +5820,12 @@
 		(uuid "c2d64651-d1be-43d6-b26b-dca0f176856e")
 	)
 	(junction
+		(at 300.99 264.16)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4b9bff42-a729-5941-9386-7e45ba124a3a")
+	)
+	(junction
 		(at 328.93 228.6)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5904,22 +5910,28 @@
 		(uuid "f708ec3b-950f-4bbd-abe1-06e621dc1fd4")
 	)
 	(junction
-		(at 407.67 274.32)
+		(at 417.83 259.08)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "d45bc5eb-1ce5-47ee-b903-029ce233eb1e")
+		(uuid "759b77d5-1536-5096-b5ee-c43a1b93403c")
 	)
 	(junction
-		(at 422.91 274.32)
+		(at 417.83 274.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "3c72faef-d345-44f6-a135-fe16e0038c7d")
+		(uuid "c2d359de-dc0e-538d-a1fe-eff1b99d89d0")
 	)
 	(junction
-		(at 443.23 259.08)
+		(at 433.07 274.32)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "93a75f90-e566-46a8-a0e8-04095ffc9f93")
+		(uuid "bb0c5f47-71a8-5186-95e3-bbc445f96854")
+	)
+	(junction
+		(at 453.39 259.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a4e7d593-bfae-5e0c-add3-e00004f23726")
 	)
 	(junction
 		(at 474.98 111.76)
@@ -6012,14 +6024,6 @@
 	(no_connect
 		(at 303.53 251.46)
 		(uuid "9fca86d2-9352-47cc-be25-25665375bf0f")
-	)
-	(no_connect
-		(at 303.53 261.62)
-		(uuid "93727f0c-47d2-4a6a-8dec-12f8cac7eb7e")
-	)
-	(no_connect
-		(at 303.53 264.16)
-		(uuid "9eafa6e6-a3db-4161-bb50-7186f591f103")
 	)
 	(wire
 		(pts
@@ -7493,6 +7497,46 @@
 	)
 	(wire
 		(pts
+			(xy 303.53 261.62) (xy 300.99 261.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e5c30e2-9034-527f-9ebe-b940677e2712")
+	)
+	(wire
+		(pts
+			(xy 303.53 264.16) (xy 300.99 264.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5e12955b-7ab5-5dee-ab7a-1dca7f98584a")
+	)
+	(wire
+		(pts
+			(xy 300.99 261.62) (xy 300.99 264.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2746b117-7a68-5a70-8809-bda4de1f38e6")
+	)
+	(wire
+		(pts
+			(xy 300.99 264.16) (xy 300.99 266.7)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "96c44d83-2660-56c9-8948-fe79fab5ec40")
+	)
+	(wire
+		(pts
 			(xy 303.53 254) (xy 283.21 254)
 		)
 		(stroke
@@ -7573,6 +7617,16 @@
 	)
 	(wire
 		(pts
+			(xy 397.51 259.08) (xy 407.67 259.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abf8ee03-a36c-4620-a959-5d983c7b03ec")
+	)
+	(wire
+		(pts
 			(xy 326.39 266.7) (xy 356.87 266.7)
 		)
 		(stroke
@@ -7593,16 +7647,6 @@
 	)
 	(wire
 		(pts
-			(xy 397.51 259.08) (xy 407.67 259.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "abf8ee03-a36c-4620-a959-5d983c7b03ec")
-	)
-	(wire
-		(pts
 			(xy 407.67 259.08) (xy 417.83 259.08)
 		)
 		(stroke
@@ -7613,43 +7657,13 @@
 	)
 	(wire
 		(pts
-			(xy 397.51 266.7) (xy 397.51 274.32)
+			(xy 417.83 259.08) (xy 427.99 259.08)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "00a48594-fe84-4adf-83ae-5be578408cb5")
-	)
-	(wire
-		(pts
-			(xy 397.51 274.32) (xy 407.67 274.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "511848d5-9f86-421c-981a-2a4a6d47e70f")
-	)
-	(wire
-		(pts
-			(xy 407.67 274.32) (xy 422.91 274.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fb636c9b-1797-4dbe-b1e2-5274b7c492f1")
-	)
-	(wire
-		(pts
-			(xy 422.91 274.32) (xy 422.91 266.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "48006864-9446-4f3c-a028-eb08a8f62ab6")
+		(uuid "8d823edd-c443-55be-bce2-6a1cc5856c8d")
 	)
 	(wire
 		(pts
@@ -7663,53 +7677,93 @@
 	)
 	(wire
 		(pts
-			(xy 422.91 281.94) (xy 422.91 284.48)
+			(xy 407.67 274.32) (xy 417.83 274.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "bbf77f39-ec03-44df-a694-df5e7b0d9f0c")
+		(uuid "07870fd1-6192-55d0-ae2c-c020b8c4bbe6")
 	)
 	(wire
 		(pts
-			(xy 415.29 289.56) (xy 407.67 289.56)
+			(xy 417.83 274.32) (xy 433.07 274.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "437da027-8e3e-49d9-b65e-a1baff53a675")
+		(uuid "a08102b1-56e8-5fb0-8b81-076ce92dbbe2")
 	)
 	(wire
 		(pts
-			(xy 427.99 259.08) (xy 443.23 259.08)
+			(xy 433.07 274.32) (xy 433.07 266.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "82ca49e9-6367-4f37-8d96-8e758ff411c1")
+		(uuid "f36b37fe-1870-5f10-bfaf-37048627af9a")
 	)
 	(wire
 		(pts
-			(xy 443.23 259.08) (xy 450.85 259.08)
+			(xy 417.83 266.7) (xy 417.83 274.32)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "bf820d8f-f9c2-4d73-a62e-33ff22dc767f")
+		(uuid "3f8dbac8-d38e-5206-befd-f71d124522b6")
 	)
 	(wire
 		(pts
-			(xy 443.23 259.08) (xy 443.23 254)
+			(xy 433.07 281.94) (xy 433.07 284.48)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "573b7988-bf44-4e87-867c-aa2d35267e2f")
+		(uuid "2003d511-688d-5fee-b58c-a1a848caf711")
+	)
+	(wire
+		(pts
+			(xy 425.45 289.56) (xy 417.83 289.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "380fb9d2-23da-5aa9-8ff7-43eff29f446a")
+	)
+	(wire
+		(pts
+			(xy 438.15 259.08) (xy 453.39 259.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "279c2589-c4bf-590c-9f20-cc1f7f519b99")
+	)
+	(wire
+		(pts
+			(xy 453.39 259.08) (xy 461.01 259.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a3497998-d2c6-5304-8a21-ec61a57a2f6f")
+	)
+	(wire
+		(pts
+			(xy 453.39 259.08) (xy 453.39 254)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6140d4bb-361b-5c32-95f0-d488f3e374ab")
 	)
 	(wire
 		(pts
@@ -8002,14 +8056,14 @@
 		(uuid "93ce5d62-d766-4107-b616-90d78b05729a")
 	)
 	(label "EN"
-		(at 407.67 289.56 180)
+		(at 417.83 289.56 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
 		)
-		(uuid "bfa921f7-7e15-444c-945f-0bc5a084216f")
+		(uuid "472e8832-2025-560b-8e19-8161ad3467f5")
 	)
 	(label "EN"
 		(at 48.26 364.49 180)
@@ -8076,7 +8130,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C165948.pdf"
 			(at 35.56 76.2 0)
 			(hide yes)
 			(show_name no)
@@ -8217,7 +8271,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C46061833.pdf"
 			(at 96.52 71.12 0)
 			(hide yes)
 			(show_name no)
@@ -8337,7 +8391,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C123800.pdf"
 			(at 66.04 49.53 90)
 			(hide yes)
 			(show_name no)
@@ -8508,7 +8562,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15849.pdf"
 			(at 76.2 49.53 0)
 			(hide yes)
 			(show_name no)
@@ -8760,7 +8814,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25917.pdf"
 			(at 114.3 62.23 0)
 			(hide yes)
 			(show_name no)
@@ -9012,7 +9066,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/bq25606.pdf"
 			(at 210.82 99.06 0)
 			(hide yes)
 			(show_name no)
@@ -9254,7 +9308,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15849.pdf"
 			(at 170.18 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -9428,7 +9482,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15850.pdf"
 			(at 180.34 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -9613,7 +9667,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25096.pdf"
 			(at 170.18 97.79 0)
 			(hide yes)
 			(show_name no)
@@ -9787,7 +9841,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25117.pdf"
 			(at 180.34 100.33 0)
 			(hide yes)
 			(show_name no)
@@ -10114,7 +10168,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C307434.pdf"
 			(at 232.41 71.12 90)
 			(hide yes)
 			(show_name no)
@@ -10204,7 +10258,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C167218.pdf"
 			(at 245.11 78.74 90)
 			(hide yes)
 			(show_name no)
@@ -10297,7 +10351,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15850.pdf"
 			(at 266.7 64.77 0)
 			(hide yes)
 			(show_name no)
@@ -10559,7 +10613,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C19702.pdf"
 			(at 276.86 90.17 0)
 			(hide yes)
 			(show_name no)
@@ -10899,7 +10953,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C2286.pdf"
 			(at 236.22 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -11000,7 +11054,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C11702.pdf"
 			(at 246.38 93.98 90)
 			(hide yes)
 			(show_name no)
@@ -11170,7 +11224,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25907.pdf"
 			(at 231.14 107.95 0)
 			(hide yes)
 			(show_name no)
@@ -11266,7 +11320,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C19666.pdf"
 			(at 241.3 107.95 0)
 			(hide yes)
 			(show_name no)
@@ -11451,7 +11505,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C270615.pdf"
 			(at 241.3 120.65 0)
 			(hide yes)
 			(show_name no)
@@ -11784,7 +11838,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C44479.pdf"
 			(at 360.68 58.42 90)
 			(hide yes)
 			(show_name no)
@@ -11954,7 +12008,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C168772.pdf"
 			(at 378.46 104.14 0)
 			(hide yes)
 			(show_name no)
@@ -12143,7 +12197,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
 			(at 365.76 137.16 90)
 			(hide yes)
 			(show_name no)
@@ -12257,7 +12311,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
 			(at 396.24 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12372,7 +12426,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
 			(at 416.56 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12541,7 +12595,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "330"
+		(property "Value" "100"
 			(at 360.68 96.52 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12564,7 +12618,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25076.pdf"
 			(at 358.14 95.25 0)
 			(hide yes)
 			(show_name no)
@@ -12588,7 +12642,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C25104"
+		(property "LCSC" "C25076"
 			(at 358.14 95.25 0)
 			(hide yes)
 			(show_name no)
@@ -12737,7 +12791,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 347.98 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -12833,7 +12887,7 @@
 				(justify right)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C4109.pdf"
 			(at 365.76 105.41 0)
 			(hide yes)
 			(show_name no)
@@ -13004,7 +13058,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C26083.pdf"
 			(at 372.11 147.32 90)
 			(hide yes)
 			(show_name no)
@@ -13094,7 +13148,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25744.pdf"
 			(at 359.41 152.4 90)
 			(hide yes)
 			(show_name no)
@@ -13500,7 +13554,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C11702.pdf"
 			(at 468.63 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -13593,7 +13647,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25741.pdf"
 			(at 477.52 69.85 0)
 			(hide yes)
 			(show_name no)
@@ -13767,7 +13821,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 487.68 69.85 0)
 			(hide yes)
 			(show_name no)
@@ -13941,7 +13995,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25790.pdf"
 			(at 464.82 104.14 0)
 			(hide yes)
 			(show_name no)
@@ -14114,7 +14168,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C26083.pdf"
 			(at 474.98 115.57 0)
 			(hide yes)
 			(show_name no)
@@ -14288,7 +14342,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 485.14 115.57 0)
 			(hide yes)
 			(show_name no)
@@ -15497,7 +15551,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps61178.pdf"
 			(at 101.6 254 0)
 			(hide yes)
 			(show_name no)
@@ -15700,7 +15754,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C167219.pdf"
 			(at 119.38 220.98 90)
 			(hide yes)
 			(show_name no)
@@ -15793,7 +15847,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C45783.pdf"
 			(at 59.69 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -15978,7 +16032,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C45783.pdf"
 			(at 69.85 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -16163,7 +16217,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C52923.pdf"
 			(at 80.01 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -16345,7 +16399,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 121.92 233.68 90)
 			(hide yes)
 			(show_name no)
@@ -16438,7 +16492,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C19666.pdf"
 			(at 95.25 232.41 0)
 			(hide yes)
 			(show_name no)
@@ -16623,7 +16677,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25758.pdf"
 			(at 64.77 256.54 0)
 			(hide yes)
 			(show_name no)
@@ -16797,7 +16851,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C54068.pdf"
 			(at 74.93 259.08 0)
 			(hide yes)
 			(show_name no)
@@ -16971,7 +17025,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25895.pdf"
 			(at 85.09 261.62 0)
 			(hide yes)
 			(show_name no)
@@ -17067,7 +17121,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C107024.pdf"
 			(at 85.09 269.24 0)
 			(hide yes)
 			(show_name no)
@@ -17397,7 +17451,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1779.pdf"
 			(at 140.97 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -17582,7 +17636,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1779.pdf"
 			(at 151.13 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -17768,7 +17822,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd25404q3.pdf"
 			(at 186.69 250.19 90)
 			(hide yes)
 			(show_name no)
@@ -17850,7 +17904,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "178k"
+		(property "Value" "100k"
 			(at 163.83 252.73 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17873,7 +17927,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25741.pdf"
 			(at 161.29 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -17897,7 +17951,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C26995"
+		(property "LCSC" "C25741"
 			(at 161.29 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -17969,7 +18023,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C337699.pdf"
 			(at 171.45 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -18065,7 +18119,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C52306.pdf"
 			(at 196.85 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -18250,7 +18304,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C52306.pdf"
 			(at 207.01 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -18435,7 +18489,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C52306.pdf"
 			(at 217.17 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -18778,7 +18832,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C27016.pdf"
 			(at 115.57 259.08 0)
 			(hide yes)
 			(show_name no)
@@ -18951,7 +19005,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25921.pdf"
 			(at 115.57 266.7 0)
 			(hide yes)
 			(show_name no)
@@ -19125,7 +19179,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps61088-q1.pdf"
 			(at 314.96 256.54 0)
 			(hide yes)
 			(show_name no)
@@ -19352,7 +19406,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C167216.pdf"
 			(at 340.36 220.98 90)
 			(hide yes)
 			(show_name no)
@@ -19445,7 +19499,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15850.pdf"
 			(at 262.89 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -19630,7 +19684,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15850.pdf"
 			(at 273.05 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -19815,7 +19869,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15850.pdf"
 			(at 283.21 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -20000,7 +20054,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 293.37 224.79 0)
 			(hide yes)
 			(show_name no)
@@ -20171,7 +20225,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C270622.pdf"
 			(at 332.74 248.92 90)
 			(hide yes)
 			(show_name no)
@@ -20261,7 +20315,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
 			(at 332.74 254 90)
 			(hide yes)
 			(show_name no)
@@ -20354,7 +20408,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15849.pdf"
 			(at 328.93 232.41 0)
 			(hide yes)
 			(show_name no)
@@ -20528,7 +20582,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15849.pdf"
 			(at 336.55 232.41 0)
 			(hide yes)
 			(show_name no)
@@ -20658,6 +20712,84 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 300.99 266.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "49850d46-ad8c-5ef8-9577-41cd962a4c00")
+		(property "Reference" "#PWR060"
+			(at 300.99 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 300.99 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 300.99 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 300.99 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 300.99 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1f11bf31-1551-5921-a864-555cb2a22ad1")
+		)
+		(instances
+			(project "minipc-power"
+				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
+					(reference "#PWR060")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 283.21 257.81 0)
 		(unit 1)
@@ -20702,7 +20834,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C15195.pdf"
 			(at 283.21 257.81 0)
 			(hide yes)
 			(show_name no)
@@ -20764,7 +20896,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "1ebdbecf-cf0e-4502-a84b-a67c95a7d512")
-		(property "Reference" "#PWR060"
+		(property "Reference" "#PWR061"
 			(at 283.21 257.81 0)
 			(hide yes)
 			(show_name no)
@@ -20825,7 +20957,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR060")
+					(reference "#PWR061")
 					(unit 1)
 				)
 			)
@@ -20876,7 +21008,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C26985.pdf"
 			(at 293.37 260.35 0)
 			(hide yes)
 			(show_name no)
@@ -20938,7 +21070,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "9e30a8a7-307e-423a-afb0-51b16d00f70e")
-		(property "Reference" "#PWR061"
+		(property "Reference" "#PWR062"
 			(at 293.37 260.35 0)
 			(hide yes)
 			(show_name no)
@@ -20999,7 +21131,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR061")
+					(reference "#PWR062")
 					(unit 1)
 				)
 			)
@@ -21016,7 +21148,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "8c8970c6-5372-406d-a248-724f2f77be9a")
-		(property "Reference" "#PWR062"
+		(property "Reference" "#PWR063"
 			(at 318.77 275.59 0)
 			(hide yes)
 			(show_name no)
@@ -21077,7 +21209,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR062")
+					(reference "#PWR063")
 					(unit 1)
 				)
 			)
@@ -21094,7 +21226,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "6a097f55-bc05-4dac-a095-d425642b2416")
-		(property "Reference" "#PWR063"
+		(property "Reference" "#PWR064"
 			(at 321.31 275.59 0)
 			(hide yes)
 			(show_name no)
@@ -21155,7 +21287,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR063")
+					(reference "#PWR064")
 					(unit 1)
 				)
 			)
@@ -21206,7 +21338,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C26972.pdf"
 			(at 331.47 273.05 0)
 			(hide yes)
 			(show_name no)
@@ -21302,7 +21434,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C307451.pdf"
 			(at 331.47 280.67 0)
 			(hide yes)
 			(show_name no)
@@ -21364,7 +21496,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "acf62f41-c5a1-43a1-9263-5a4022c49bef")
-		(property "Reference" "#PWR064"
+		(property "Reference" "#PWR065"
 			(at 331.47 280.67 0)
 			(hide yes)
 			(show_name no)
@@ -21425,7 +21557,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR064")
+					(reference "#PWR065")
 					(unit 1)
 				)
 			)
@@ -21476,7 +21608,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C70465.pdf"
 			(at 341.63 273.05 0)
 			(hide yes)
 			(show_name no)
@@ -21538,7 +21670,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "686888f5-73c6-4dd5-b6a6-4fe83cb135bb")
-		(property "Reference" "#PWR065"
+		(property "Reference" "#PWR066"
 			(at 341.63 273.05 0)
 			(hide yes)
 			(show_name no)
@@ -21599,7 +21731,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR065")
+					(reference "#PWR066")
 					(unit 1)
 				)
 			)
@@ -21650,7 +21782,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25767.pdf"
 			(at 356.87 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -21746,7 +21878,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C26985.pdf"
 			(at 367.03 270.51 0)
 			(hide yes)
 			(show_name no)
@@ -21808,7 +21940,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "bac3e3c2-4a1d-4d6c-be0a-cd6b1a170e12")
-		(property "Reference" "#PWR066"
+		(property "Reference" "#PWR067"
 			(at 367.03 270.51 0)
 			(hide yes)
 			(show_name no)
@@ -21869,7 +22001,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR066")
+					(reference "#PWR067")
 					(unit 1)
 				)
 			)
@@ -21885,8 +22017,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "da767b78-54cd-4a21-81f0-a8517fec1250")
-		(property "Reference" "C30"
+		(uuid "5e0e1547-afcf-58de-9962-18fe098121cd")
+		(property "Reference" "C38"
 			(at 379.73 260.35 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21897,7 +22029,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "47uF"
+		(property "Value" "1uF"
 			(at 379.73 262.89 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21908,7 +22040,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 377.19 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -21920,7 +22052,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C52923.pdf"
 			(at 377.19 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -21932,7 +22064,7 @@
 				(justify left)
 			)
 		)
-		(property "Description" "47uF 16V X5R"
+		(property "Description" "1uF 25V X5R"
 			(at 377.19 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -21944,7 +22076,7 @@
 				(justify left)
 			)
 		)
-		(property "Voltage" "16V"
+		(property "Voltage" "25V"
 			(at 379.73 265.43 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -21955,7 +22087,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C77101"
+		(property "LCSC" "C52923"
 			(at 377.19 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -21968,15 +22100,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e88bedbd-3d61-4d50-b56c-9c233a843165")
+			(uuid "b8185791-647f-5e8d-8b58-822f81202a58")
 		)
 		(pin "2"
-			(uuid "df6d17da-0399-4713-964f-8c084f7d2a6c")
+			(uuid "deca59a8-19ca-5feb-9879-ea1f781ee5f4")
 		)
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "C30")
+					(reference "C38")
 					(unit 1)
 				)
 			)
@@ -21993,7 +22125,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "347d7c82-11a0-49f2-8f1f-e8122e8d9e92")
-		(property "Reference" "#PWR067"
+		(property "Reference" "#PWR068"
 			(at 377.19 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -22054,7 +22186,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR067")
+					(reference "#PWR068")
 					(unit 1)
 				)
 			)
@@ -22070,8 +22202,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a2493f9a-5c7f-4436-a44f-d871270d149f")
-		(property "Reference" "C31"
+		(uuid "da767b78-54cd-4a21-81f0-a8517fec1250")
+		(property "Reference" "C30"
 			(at 389.89 260.35 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22105,7 +22237,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C77101.pdf"
 			(at 387.35 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -22153,15 +22285,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "c97482e5-b3cc-4023-9ee1-36933ca7b658")
+			(uuid "e88bedbd-3d61-4d50-b56c-9c233a843165")
 		)
 		(pin "2"
-			(uuid "e256d8e4-6727-46e9-9a63-99f5bc99f9e8")
+			(uuid "df6d17da-0399-4713-964f-8c084f7d2a6c")
 		)
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "C31")
+					(reference "C30")
 					(unit 1)
 				)
 			)
@@ -22178,7 +22310,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "307c2607-11b2-4b6a-b4e5-4e00fa568e00")
-		(property "Reference" "#PWR068"
+		(property "Reference" "#PWR069"
 			(at 387.35 262.89 0)
 			(hide yes)
 			(show_name no)
@@ -22239,16 +22371,15 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR068")
+					(reference "#PWR069")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "minipc:CSD25404Q3")
-		(at 422.91 261.62 270)
-		(mirror x)
+		(lib_id "Device:C")
+		(at 397.51 262.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22256,9 +22387,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "638bd087-1e05-494e-829b-8033981e29c7")
-		(property "Reference" "Q5"
-			(at 420.37 254 90)
+		(uuid "a2493f9a-5c7f-4436-a44f-d871270d149f")
+		(property "Reference" "C31"
+			(at 400.05 260.35 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22268,8 +22399,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CSD25404Q3"
-			(at 420.37 251.46 90)
+		(property "Value" "47uF"
+			(at 400.05 262.89 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22279,8 +22410,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET"
-			(at 422.91 261.62 90)
+		(property "Footprint" "Capacitor_SMD:C_1210_3225Metric"
+			(at 397.51 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22291,8 +22422,194 @@
 				(justify left)
 			)
 		)
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C77101.pdf"
+			(at 397.51 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Description" "47uF 16V X5R"
+			(at 397.51 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Voltage" "16V"
+			(at 400.05 265.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "LCSC" "C77101"
+			(at 397.51 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "1"
+			(uuid "c97482e5-b3cc-4023-9ee1-36933ca7b658")
+		)
+		(pin "2"
+			(uuid "e256d8e4-6727-46e9-9a63-99f5bc99f9e8")
+		)
+		(instances
+			(project "minipc-power"
+				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
+					(reference "C31")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 397.51 266.7 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "26cf9c0b-b138-5e1a-8cea-50bacabb01cc")
+		(property "Reference" "#PWR070"
+			(at 397.51 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 397.51 262.89 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 397.51 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Datasheet" ""
-			(at 422.91 261.62 90)
+			(at 397.51 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 397.51 266.7 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e80258ee-b381-598b-8fa8-bce1e29ddc0e")
+		)
+		(instances
+			(project "minipc-power"
+				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
+					(reference "#PWR070")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "minipc:CSD25404Q3")
+		(at 433.07 261.62 270)
+		(mirror x)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "638bd087-1e05-494e-829b-8033981e29c7")
+		(property "Reference" "Q5"
+			(at 430.53 254 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "CSD25404Q3"
+			(at 430.53 251.46 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Package_SON:VSON-8_3.3x3.3mm_P0.65mm_NexFET"
+			(at 433.07 261.62 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd25404q3.pdf"
+			(at 433.07 261.62 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22304,7 +22621,7 @@
 			)
 		)
 		(property "Description" "-20 V P-FET, KiCad NexFET VSON-8 (source pins 5-8 merged into pad 5)"
-			(at 422.91 261.62 90)
+			(at 433.07 261.62 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22316,7 +22633,7 @@
 			)
 		)
 		(property "LCSC" "C2865523"
-			(at 422.91 261.62 90)
+			(at 433.07 261.62 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22353,7 +22670,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 397.51 262.89 0)
+		(at 407.67 262.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22363,7 +22680,7 @@
 		(dnp no)
 		(uuid "dd9958cc-a8b0-4382-b4c6-8c07505bdd1e")
 		(property "Reference" "R22"
-			(at 400.05 261.62 0)
+			(at 410.21 261.62 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22374,7 +22691,7 @@
 			)
 		)
 		(property "Value" "100k"
-			(at 400.05 264.16 0)
+			(at 410.21 264.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22385,7 +22702,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 397.51 262.89 0)
+			(at 407.67 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22396,8 +22713,8 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
-			(at 397.51 262.89 0)
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25741.pdf"
+			(at 407.67 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22409,7 +22726,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 397.51 262.89 0)
+			(at 407.67 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22421,7 +22738,7 @@
 			)
 		)
 		(property "LCSC" "C25741"
-			(at 397.51 262.89 0)
+			(at 407.67 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22449,7 +22766,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 407.67 262.89 0)
+		(at 417.83 262.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22459,7 +22776,7 @@
 		(dnp no)
 		(uuid "499d801c-c176-4834-b1fc-e56c5ec9cc9b")
 		(property "Reference" "C32"
-			(at 410.21 261.62 0)
+			(at 420.37 261.62 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22469,8 +22786,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10nF"
-			(at 410.21 264.16 0)
+		(property "Value" "100nF"
+			(at 420.37 264.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22481,7 +22798,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 407.67 262.89 0)
+			(at 417.83 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22492,8 +22809,8 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
-			(at 407.67 262.89 0)
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C1525.pdf"
+			(at 417.83 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22504,8 +22821,8 @@
 				(justify left)
 			)
 		)
-		(property "Description" "10nF 50V X7R"
-			(at 407.67 262.89 0)
+		(property "Description" "100nF 16V X7R"
+			(at 417.83 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22516,8 +22833,8 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C15195"
-			(at 407.67 262.89 0)
+		(property "LCSC" "C1525"
+			(at 417.83 262.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22545,7 +22862,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 422.91 278.13 0)
+		(at 433.07 278.13 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22555,7 +22872,7 @@
 		(dnp no)
 		(uuid "23dcebed-38c2-4e4a-bfb8-726dd598edb6")
 		(property "Reference" "R23"
-			(at 425.45 276.86 0)
+			(at 435.61 276.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22566,7 +22883,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 425.45 279.4 0)
+			(at 435.61 279.4 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22577,7 +22894,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 422.91 278.13 0)
+			(at 433.07 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22588,8 +22905,8 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
-			(at 422.91 278.13 0)
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25744.pdf"
+			(at 433.07 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22601,7 +22918,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 422.91 278.13 0)
+			(at 433.07 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22613,7 +22930,7 @@
 			)
 		)
 		(property "LCSC" "C25744"
-			(at 422.91 278.13 0)
+			(at 433.07 278.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22641,7 +22958,7 @@
 	)
 	(symbol
 		(lib_id "minipc:2N7002")
-		(at 420.37 289.56 0)
+		(at 430.53 289.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22651,7 +22968,7 @@
 		(dnp no)
 		(uuid "1f8d09c4-83af-482a-87ca-e1faebda3bdb")
 		(property "Reference" "Q6"
-			(at 424.18 285.75 0)
+			(at 434.34 285.75 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22662,7 +22979,7 @@
 			)
 		)
 		(property "Value" "2N7002"
-			(at 424.18 293.37 0)
+			(at 434.34 293.37 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22673,7 +22990,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
-			(at 420.37 289.56 0)
+			(at 430.53 289.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22684,8 +23001,8 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
-			(at 420.37 289.56 0)
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C8545.pdf"
+			(at 430.53 289.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22697,7 +23014,7 @@
 			)
 		)
 		(property "Description" "SOT-23: 1 G, 2 S, 3 D"
-			(at 420.37 289.56 0)
+			(at 430.53 289.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22709,7 +23026,7 @@
 			)
 		)
 		(property "LCSC" "C8545"
-			(at 420.37 289.56 0)
+			(at 430.53 289.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22740,7 +23057,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 422.91 294.64 0)
+		(at 433.07 294.64 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22748,9 +23065,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2bbced30-0708-4be8-8098-ff7b77d35ca5")
-		(property "Reference" "#PWR069"
-			(at 422.91 290.83 0)
+		(uuid "3882d066-c74f-5ceb-ae5e-0ac5aa050a87")
+		(property "Reference" "#PWR071"
+			(at 433.07 290.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22761,7 +23078,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 422.91 290.83 0)
+			(at 433.07 290.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22772,7 +23089,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 422.91 294.64 0)
+			(at 433.07 294.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22783,7 +23100,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 422.91 294.64 0)
+			(at 433.07 294.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22794,7 +23111,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 422.91 294.64 0)
+			(at 433.07 294.64 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22805,12 +23122,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "084f2523-36db-47a2-88e5-ac2bb0e0d1ba")
+			(uuid "10d04ff8-c8ec-5088-bae0-89ea291bb732")
 		)
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR069")
+					(reference "#PWR071")
 					(unit 1)
 				)
 			)
@@ -22818,7 +23135,7 @@
 	)
 	(symbol
 		(lib_id "power:VCC")
-		(at 443.23 254 0)
+		(at 453.39 254 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22826,9 +23143,9 @@
 		(on_board no)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "582c7971-435c-4cde-a68a-837df5620ef1")
-		(property "Reference" "#PWR070"
-			(at 443.23 250.19 0)
+		(uuid "d8e1f35c-2490-539e-b463-de92662a6eaf")
+		(property "Reference" "#PWR072"
+			(at 453.39 250.19 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22839,7 +23156,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 443.23 250.19 0)
+			(at 453.39 250.19 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22849,7 +23166,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 443.23 254 0)
+			(at 453.39 254 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22860,7 +23177,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 443.23 254 0)
+			(at 453.39 254 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22871,7 +23188,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VCC\""
-			(at 443.23 254 0)
+			(at 453.39 254 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22882,12 +23199,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0a8cd515-41c0-4b3e-bb86-90db27547efb")
+			(uuid "f5463699-94da-59dc-9f5f-f4fd8de63348")
 		)
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR070")
+					(reference "#PWR072")
 					(unit 1)
 				)
 			)
@@ -22895,7 +23212,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 450.85 259.08 0)
+		(at 461.01 259.08 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -22905,7 +23222,7 @@
 		(dnp no)
 		(uuid "37fbcbe8-fbdc-4ac6-b431-8980a4631a88")
 		(property "Reference" "J7"
-			(at 452.12 255.27 0)
+			(at 462.28 255.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22916,7 +23233,7 @@
 			)
 		)
 		(property "Value" "+5V OUT"
-			(at 452.12 252.73 0)
+			(at 462.28 252.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22927,7 +23244,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_THTPad_2.5x2.5mm_Drill1.2mm"
-			(at 450.85 259.08 0)
+			(at 461.01 259.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22939,7 +23256,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 450.85 259.08 0)
+			(at 461.01 259.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -22951,7 +23268,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 450.85 259.08 0)
+			(at 461.01 259.08 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -23019,7 +23336,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tps63802.pdf"
 			(at 76.2 365.76 0)
 			(hide yes)
 			(show_name no)
@@ -23105,7 +23422,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "2f4dc9f8-8117-40b5-ab26-eb8e43c2a33d")
-		(property "Reference" "#PWR071"
+		(property "Reference" "#PWR073"
 			(at 40.64 345.44 0)
 			(hide yes)
 			(show_name no)
@@ -23165,7 +23482,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR071")
+					(reference "#PWR073")
 					(unit 1)
 				)
 			)
@@ -23216,7 +23533,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C59461.pdf"
 			(at 50.8 353.06 0)
 			(hide yes)
 			(show_name no)
@@ -23289,7 +23606,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "458727bc-34ce-4001-8719-ee848e60fd27")
-		(property "Reference" "#PWR072"
+		(property "Reference" "#PWR074"
 			(at 50.8 353.06 0)
 			(hide yes)
 			(show_name no)
@@ -23350,7 +23667,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR072")
+					(reference "#PWR074")
 					(unit 1)
 				)
 			)
@@ -23398,7 +23715,7 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C475515.pdf"
 			(at 77.47 341.63 90)
 			(hide yes)
 			(show_name no)
@@ -23491,7 +23808,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C25741.pdf"
 			(at 58.42 370.84 0)
 			(hide yes)
 			(show_name no)
@@ -23553,7 +23870,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "3cc3bc4a-7f9e-47cd-b8f0-5e2f8fe5ba82")
-		(property "Reference" "#PWR073"
+		(property "Reference" "#PWR075"
 			(at 58.42 379.73 0)
 			(hide yes)
 			(show_name no)
@@ -23613,7 +23930,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR073")
+					(reference "#PWR075")
 					(unit 1)
 				)
 			)
@@ -23630,7 +23947,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "509a34f6-fe29-4dcb-9ab2-64e2969e5ff0")
-		(property "Reference" "#PWR074"
+		(property "Reference" "#PWR076"
 			(at 63.5 378.46 0)
 			(hide yes)
 			(show_name no)
@@ -23691,7 +24008,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR074")
+					(reference "#PWR076")
 					(unit 1)
 				)
 			)
@@ -23708,7 +24025,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "a17ede0d-41e5-43bf-a6a6-3cf7b74dc1cf")
-		(property "Reference" "#PWR075"
+		(property "Reference" "#PWR077"
 			(at 78.74 375.92 0)
 			(hide yes)
 			(show_name no)
@@ -23769,7 +24086,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR075")
+					(reference "#PWR077")
 					(unit 1)
 				)
 			)
@@ -23786,7 +24103,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "33260abf-0db5-45d4-b64a-f00724529fc7")
-		(property "Reference" "#PWR076"
+		(property "Reference" "#PWR078"
 			(at 81.28 375.92 0)
 			(hide yes)
 			(show_name no)
@@ -23847,7 +24164,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR076")
+					(reference "#PWR078")
 					(unit 1)
 				)
 			)
@@ -23898,7 +24215,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C64042.pdf"
 			(at 91.44 365.76 0)
 			(hide yes)
 			(show_name no)
@@ -23994,7 +24311,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C144733.pdf"
 			(at 101.6 373.38 0)
 			(hide yes)
 			(show_name no)
@@ -24018,7 +24335,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C4147"
+		(property "LCSC" "C144733"
 			(at 101.6 373.38 0)
 			(hide yes)
 			(show_name no)
@@ -24056,7 +24373,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "282911ae-771e-4e04-be1c-8b29f204d0da")
-		(property "Reference" "#PWR077"
+		(property "Reference" "#PWR079"
 			(at 101.6 373.38 0)
 			(hide yes)
 			(show_name no)
@@ -24117,7 +24434,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR077")
+					(reference "#PWR079")
 					(unit 1)
 				)
 			)
@@ -24168,7 +24485,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.lcsc.com/datasheet/C45783.pdf"
 			(at 111.76 365.76 0)
 			(hide yes)
 			(show_name no)
@@ -24241,7 +24558,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "ce365d8e-4bad-40ff-8fac-1507c0696a8a")
-		(property "Reference" "#PWR078"
+		(property "Reference" "#PWR080"
 			(at 111.76 365.76 0)
 			(hide yes)
 			(show_name no)
@@ -24302,7 +24619,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR078")
+					(reference "#PWR080")
 					(unit 1)
 				)
 			)
@@ -24319,7 +24636,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "0cb49e40-afcb-498f-8500-26c11276f382")
-		(property "Reference" "#PWR079"
+		(property "Reference" "#PWR081"
 			(at 114.3 353.06 0)
 			(hide yes)
 			(show_name no)
@@ -24379,7 +24696,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR079")
+					(reference "#PWR081")
 					(unit 1)
 				)
 			)
@@ -24554,7 +24871,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "681d67ac-5c95-49c1-9396-98810938a0de")
-		(property "Reference" "#PWR080"
+		(property "Reference" "#PWR082"
 			(at 500.38 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -24614,7 +24931,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR080")
+					(reference "#PWR082")
 					(unit 1)
 				)
 			)
@@ -24708,7 +25025,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "8f6a5fae-4a73-4abb-ac48-e10972e72cb6")
-		(property "Reference" "#PWR081"
+		(property "Reference" "#PWR083"
 			(at 510.54 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -24768,7 +25085,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR081")
+					(reference "#PWR083")
 					(unit 1)
 				)
 			)
@@ -24862,7 +25179,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "5fac9aa3-b4f5-4c3d-9614-83c7005e603a")
-		(property "Reference" "#PWR082"
+		(property "Reference" "#PWR084"
 			(at 520.7 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -24922,7 +25239,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR082")
+					(reference "#PWR084")
 					(unit 1)
 				)
 			)
@@ -25016,7 +25333,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "26488841-4c71-4dce-b4ce-b0204fe882a0")
-		(property "Reference" "#PWR083"
+		(property "Reference" "#PWR085"
 			(at 530.86 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -25076,7 +25393,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR083")
+					(reference "#PWR085")
 					(unit 1)
 				)
 			)
@@ -25170,7 +25487,7 @@
 		(in_pos_files yes)
 		(dnp no)
 		(uuid "f6031ab5-17a1-4ea1-9b4e-cc5d096366a7")
-		(property "Reference" "#PWR084"
+		(property "Reference" "#PWR086"
 			(at 541.02 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -25231,7 +25548,7 @@
 		(instances
 			(project "minipc-power"
 				(path "/40df2a88-3eae-4255-a1df-48e0fea9e2d5"
-					(reference "#PWR084")
+					(reference "#PWR086")
 					(unit 1)
 				)
 			)

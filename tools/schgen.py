@@ -253,6 +253,10 @@ class Sch:
         return sch
 
     def write(self, path):
+        blank = [p.ref for p in self.parts if p.in_bom and not p.ref.startswith('#')
+                 and p.fields.get('Datasheet', '').strip() in ('', '~')]
+        if blank:
+            raise SystemExit('BOM parts without a datasheet link: %s' % ', '.join(sorted(blank)))
         self.build(previous=path).save(path)
 
 
