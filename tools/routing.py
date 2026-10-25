@@ -104,6 +104,9 @@ class Router:
         x0, y0, x1, y1 = self.bounds(ref, num)
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         best = None
+        # no via on any other pad, same net included (via_ok's obstacle set skips same-net copper): an unfilled via in
+        # a neighbouring pad wicks solder from that joint
+        others = unary_union([p['geom'] for (rf, nm), lst in self.pads.items() if (rf, nm) != (ref, num) for p in lst])
         r = size / 2 + 0.15
         while r <= max_r and best is None:
             cands = []
@@ -114,7 +117,7 @@ class Router:
                 score = r + (0 if prefer is None else -0.3 * (math.cos(a) * prefer[0] + math.sin(a) * prefer[1]))
                 cands.append((score, q))
             for score, q in sorted(cands):
-                if self.via_ok(q, net, size) and (not link or self.seg_ok((cx, cy), q, net, min(link_w, min(x1 - x0, y1 - y0)),
+                if not others.intersects(Point(q).buffer(size / 2 + 0.05)) and self.via_ok(q, net, size) and (not link or self.seg_ok((cx, cy), q, net, min(link_w, min(x1 - x0, y1 - y0)),
                                                                           self.pad(ref, num)['layers'][:1] or ['F.Cu'])):
                     best = q
                     break

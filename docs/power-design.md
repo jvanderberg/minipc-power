@@ -63,8 +63,8 @@ Order from the battery pads: B- pad -> **Q1 reverse-block** -> CELL- (protector 
 | U3 | HY2113-MB1A (C168772) | 1-cell: VCU 4.280 +/-0.025, VDL 2.80 +/-0.05, VDIP 250 +/-15 mV, VCIP -100 mV, short 0.85 V; TDIP 12 ms, TSIP 300 us |
 | R (VDD) / C (VDD) | **100 R** / 100 nF | HY2113 datasheet external-parts table: R1 100 R min / typ, 200 R max, 'as small as possible' (overcharge accuracy); C1 0.01-1 uF. Was 330 R (outside the range) until the 2026-10-24 review |
 | R (CS) | 2 k | HY2113 connection example |
-| Q1, Q2, Q3 | CSD13202Q2 (C187839, 2,233 stock): 12 V, +/-8 V Vgs, 8.4 / 10.4 mOhm at Vgs 3 V | one part for all three |
-| Discharge trip | 250 mV / (Q2 + Q3) | at 25 C typ: ~15 A; at 3.0 V cell, max Rds, hot (x1.4): ~8 A. Above the ~5.6 A design peak |
+| Q1, Q2, Q3 | **DMN1004UFV** (Diodes, C316138, 317 global stock; PowerDI3333-8 type UX, KiCad Diodes_PowerDI3333-8 matches the datasheet's suggested pads): 12 V, +/-8 V Vgs, 3.2 / 5.1 mOhm at Vgs 2.5 V, 2.8 / 3.8 at 4.5 V, RthJC 3.4 C/W | one part for all three. Replaced CSD13202Q2 (8.4 / 10.4 mOhm at 3 V) on 2026-10-25 for heat: Q1-Q3 at 15 W from an empty cell 1.72 W -> 0.53 W (thermal.md) |
+| Discharge trip | 250 mV +/- 15 / (Q2 + Q3) | ~18 A (3.3 V cell, max Rds, hot x1.4) to ~46 A (full cell, typ, cold). Far above the ~6.6 A peak: in the 10-18 A band an overload is cleared by F1 (and, on the system side, by the BATFET's 6 A latch); the protector covers shorts. Kept MB1A over the 150 mV KB5B (10-28 A, but VCU 4.25 V leaves ~3 mV worst-case margin over the charger's 4.208 V +0.5 %) and the 75 mV GB3A (can trip below the 15 W peak at worst case) |
 | Q1 gate | 10 k from B+ pad, 1 M gate-source | reversed pack: Vgs < 0, body diode reverse-biased, nothing conducts; HY2113 never sees reverse voltage |
 | F1 | Littelfuse 0451010.MRL, 10 A Nano2 2410 (C44479) | backup only if the protector fails short; protector trips first (12 ms) |
 

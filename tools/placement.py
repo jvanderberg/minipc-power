@@ -63,13 +63,14 @@ PLACE = {
     'U6': (30.0, 27.6, 0), 'L4': (34.7, 27.7, 270), 'C33': (30.2, 24.6, 180), 'C34': (30.0, 30.4, 0),
     'R24': (26.4, 28.65, 0), 'R25': (27.9, 27.85, 90), 'R26': (26.4, 29.75, 180),
     # ================= band B: protection (battery pads on the right edge)
-    # FETs alternate 270 / 90 / 270 so facing columns share a net: Q3|Q2 drains (MID), Q2|Q1 sources (CELLN), Q1|J3 drains
-    # (BATN); each gap is a 1.4 mm pour and the gates sit at the gap ends (Q1/Q3 top, Q2 bottom)
+    # DMN1004UFV (PowerDI3333-8, 3.3 mm): Q2 (rot 180) | Q1 (rot 0) in a row, sources facing across the CELLN gap, Q1's
+    # drain 0.6 mm from J3 (BATN); Q3 (rot 90, drain up) under Q2's drain (MID), sources down to GND. Three in a row
+    # do not fit between L4 and J3. U3 between Q3 and H2's keep-out; R10 / C8 / R7 / R9 in the strip under J3
     'J2': (49.6, 21.6), 'J3': (49.6, 27.0),
     'F1': (43.4, 21.6, 180),
-    'Q1': (46.2, 27.0, 270), 'Q2': (43.2, 27.0, 90), 'Q3': (40.2, 27.0, 270),
-    'U3': (44.6, 31.0, 0), 'R7': (49.9, 29.6, 180), 'C8': (47.9, 29.6, 180), 'R8': (41.5, 31.0, 180),
-    'R9': (43.4, 24.1, 0), 'R10': (44.85, 24.6, 270),
+    'Q1': (45.67, 25.95, 0), 'Q2': (41.21, 25.95, 180), 'Q3': (41.0, 30.0, 90),
+    'U3': (44.95, 30.0, 0), 'R8': (44.4, 32.9, 0),
+    'R10': (47.5, 28.8, 270), 'C8': (48.45, 29.8, 90), 'R7': (49.9, 30.0, 180), 'R9': (51.32, 29.35, 90),
     # ================= band C: bottom-edge pads and their parts
     'J9': (4.6, 33.2), 'J10': (8.2, 33.2), 'J11': (11.8, 33.2), 'J12': (15.4, 33.2), 'J13': (19.0, 33.2),
     'J14': (22.6, 33.2), 'J8': (26.8, 33.2), 'J17': (30.8, 33.2), 'J4': (34.4, 33.2), 'J5': (38.0, 33.2),
@@ -87,6 +88,9 @@ MODEL_OVERRIDE = {
     # TPS61088-Q1 (U5): KiCad's RHL footprint model is not installed; LCSC C1850341's model, whose footprint is laid out
     # 90 deg from KiCad's (its pin 1 at (-2.185, 0.75), KiCad's at (-0.75, -2.15)); checked by the pin-1 dot in a 3D render
     'Texas_VQFN-RHL-20': ('${KIPRJMOD}/JLCImport.3dshapes/TPS61088QRHLRQ1.wrl', (0, 0, 0.02), (0, 0, 90)),
+    # DMN1004UFV (Q1-Q3): LCSC C316138's model, laid out 90 deg from KiCad's footprint (its source row at the bottom,
+    # KiCad's on the left); checked by the pin-1 dot against the silkscreen marker in a 3D render
+    'Diodes_PowerDI3333-8': ('${KIPRJMOD}/JLCImport.3dshapes/DMN1004UFV-7.wrl', (0, 0, 0.02), (0, 0, 90)),
 }
 
 # Solder-pad labels: ref -> (text, dx, dy[, rotation deg]) from the pad centre. Square pads = positive / signal, round = GND / negative.

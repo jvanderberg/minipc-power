@@ -1,0 +1,353 @@
+{
+ "_comment": "minipc-power. Currents at the 15 W design budget on a 3.0 V cell (5.6 A from the pack): 12 V boost input 2.2 A, 5 V boost input 2.6 A, 3.3 V buck-boost input 0.8 A. Output runs at each rail's rated current. VBUS at the 2 A input limit.",
+ "ground_nets": [
+  "GND"
+ ],
+ "net_classes": [
+  {
+   "match": "^Net-\\((U4-SW|C4-Pad2|C24-Pad2|U6-L1|U6-L2|U2-BTST|U4-BST|U5-BOOT)\\)$",
+   "class": "switch"
+  },
+  {
+   "match": "^Net-\\((U4-FB|U5-FB|U6-FB|U4-COMP|U5-COMP|C13-Pad1|C28-Pad1|U4-ILIMIT|U5-ILIM|U2-ILIM|U2-ICHG|U4-FREQ/SYNC|U5-FSW|U5-SS|U2-TS|U3-CS|U3-VDD)\\)$",
+   "class": "analog"
+  },
+  {
+   "match": "^Net-\\(J1-CC[12]\\)$",
+   "class": "cc"
+  },
+  {
+   "match": "^/EN$|^Net-\\(J9-Pad1\\)$|PG|Net-\\(C36-Pad1\\)|Net-\\(LED1-K\\)",
+   "class": "slow_ext"
+  },
+  {
+   "match": "^(\\+|VBUS|VSYS|BAT)|3V3|5V|12V|Net-\\((Q4-S|Q5-S|F1-Pad1|J3-Pad1|U3-VSS|Q2-D-Pad1|U2-PMID)\\)",
+   "class": "power"
+  }
+ ],
+ "fast_classes": [
+  "switch",
+  "analog",
+  "cc"
+ ],
+ "diff_pairs": [],
+ "rail_voltages": {
+  "VSYS": 4.35,
+  "BAT": 4.35,
+  "VBUS": 9,
+  "Net-(Q4-S)": 12,
+  "Net-(Q5-S)": 5
+ },
+ "hot_loops": [
+  {
+   "ic": "U2",
+   "in_net": "Net-(U2-PMID)",
+   "gnd_net": "GND",
+   "label": "charger buck input (PMID)"
+  },
+  {
+   "ic": "U2",
+   "in_net": "VSYS",
+   "gnd_net": "GND",
+   "label": "charger SYS output"
+  },
+  {
+   "ic": "U4",
+   "in_net": "Net-(Q4-S)",
+   "gnd_net": "GND",
+   "label": "12 V boost output (VOUT-PGND)"
+  },
+  {
+   "ic": "U4",
+   "in_net": "VSYS",
+   "gnd_net": "GND",
+   "label": "12 V boost VIN"
+  },
+  {
+   "ic": "U5",
+   "in_net": "Net-(Q5-S)",
+   "gnd_net": "GND",
+   "label": "5 V boost output (VOUT-PGND)"
+  },
+  {
+   "ic": "U5",
+   "in_net": "VSYS",
+   "gnd_net": "GND",
+   "label": "5 V boost VIN"
+  },
+  {
+   "ic": "U6",
+   "in_net": "VSYS",
+   "gnd_net": "GND",
+   "label": "3.3 V buck-boost input"
+  },
+  {
+   "ic": "U6",
+   "in_net": "+3V3",
+   "gnd_net": "GND",
+   "label": "3.3 V buck-boost output"
+  }
+ ],
+ "power_runs": [
+  {
+   "name": "bat_pad_fuse",
+   "net": "Net-(F1-Pad1)",
+   "title": "B+ pad J2 to fuse F1, 5.6 A",
+   "source": [
+    "J2:1"
+   ],
+   "sinks": [
+    [
+     "F1:1",
+     5.6
+    ]
+   ]
+  },
+  {
+   "name": "bat_fuse_charger",
+   "net": "BAT",
+   "title": "Fuse F1 to the charger BAT pins (BATFET), 5.6 A",
+   "source": [
+    "F1:2"
+   ],
+   "sinks": [
+    [
+     "U2:13",
+     2.8
+    ],
+    [
+     "U2:14",
+     2.8
+    ]
+   ]
+  },
+  {
+   "name": "vsys",
+   "net": "VSYS",
+   "title": "Charger SYS pins to the three converter inputs, 5.6 A",
+   "source": [
+    "U2:15",
+    "U2:16"
+   ],
+   "sinks": [
+    [
+     "L2:1",
+     2.2
+    ],
+    [
+     "L3:1",
+     2.6
+    ],
+    [
+     "U6:10",
+     0.8
+    ]
+   ]
+  },
+  {
+   "name": "batn_q1",
+   "net": "Net-(Q1-D)",
+   "title": "B- pad J3 to reverse-block FET Q1 drain, 5.6 A",
+   "source": [
+    "J3:1"
+   ],
+   "sinks": [
+    [
+     "Q1:5",
+     5.6
+    ]
+   ],
+   "what": ""
+  },
+  {
+   "name": "celln_q1_q2",
+   "net": "Net-(U3-VSS)",
+   "title": "Q1 source to Q2 source (CELL-), 5.6 A",
+   "source": [
+    "Q1:1"
+   ],
+   "sinks": [
+    [
+     "Q2:1",
+     5.6
+    ]
+   ]
+  },
+  {
+   "name": "mid_q2_q3",
+   "net": "Net-(Q2-D)",
+   "title": "Q2 drain to Q3 drain, 5.6 A",
+   "source": [
+    "Q2:5"
+   ],
+   "sinks": [
+    [
+     "Q3:5",
+     5.6
+    ]
+   ]
+  },
+  {
+   "name": "gnd_return_bat",
+   "net": "GND",
+   "title": "Ground return from the converters to Q3 source (pack negative), 5.6 A",
+   "source": [
+    "Q3:1"
+   ],
+   "sinks": [
+    [
+     "U4:6",
+     -2.2
+    ],
+    [
+     "U5:21",
+     -2.6
+    ],
+    [
+     "U6:8",
+     -0.8
+    ]
+   ]
+  },
+  {
+   "name": "vbus",
+   "net": "VBUS",
+   "title": "USB-C VBUS pins to the charger, 2 A",
+   "source": [
+    "J1:A4",
+    "J1:A9",
+    "J1:B4",
+    "J1:B9"
+   ],
+   "sinks": [
+    [
+     "U2:24",
+     1.9
+    ],
+    [
+     "U2:1",
+     0.1
+    ]
+   ]
+  },
+  {
+   "name": "gnd_return_usb",
+   "net": "GND",
+   "title": "Charger ground to USB-C ground pins, 2 A",
+   "source": [
+    "J1:A1",
+    "J1:A12",
+    "J1:B1",
+    "J1:B12"
+   ],
+   "sinks": [
+    [
+     "U2:25",
+     -2.0
+    ]
+   ]
+  },
+  {
+   "name": "p12v_switch",
+   "net": "Net-(Q4-S)",
+   "title": "TPS61178 VOUT bar to the disconnect FET, 0.5 A",
+   "source": [
+    "U4:8"
+   ],
+   "sinks": [
+    [
+     "Q4:5",
+     0.5
+    ]
+   ]
+  },
+  {
+   "name": "p12v_out",
+   "net": "+12V",
+   "title": "Disconnect FET Q4 drain to the +12V pad, 0.5 A",
+   "source": [
+    "Q4:1",
+    "Q4:2",
+    "Q4:3"
+   ],
+   "sinks": [
+    [
+     "J6:1",
+     0.5
+    ]
+   ]
+  },
+  {
+   "name": "p5v_switch",
+   "net": "Net-(Q5-S)",
+   "title": "TPS61088 VOUT pins to the disconnect FET, 2.5 A",
+   "source": [
+    "U5:14",
+    "U5:15",
+    "U5:16"
+   ],
+   "sinks": [
+    [
+     "Q5:5",
+     2.5
+    ]
+   ]
+  },
+  {
+   "name": "p5v_out",
+   "net": "+5V",
+   "title": "Disconnect FET Q5 drain to the +5V pad, 2.5 A",
+   "source": [
+    "Q5:1",
+    "Q5:2",
+    "Q5:3"
+   ],
+   "sinks": [
+    [
+     "J7:1",
+     2.5
+    ]
+   ]
+  },
+  {
+   "name": "p3v3_out",
+   "net": "+3V3",
+   "title": "TPS63802 VOUT to the +3V3 pad, 1.5 A",
+   "source": [
+    "U6:6"
+   ],
+   "sinks": [
+    [
+     "J8:1",
+     1.5
+    ]
+   ]
+  },
+  {
+   "name": "sw_5v",
+   "net": "Net-(C24-Pad2)",
+   "title": "5 V boost inductor L3 to SW pins at the 4.6 A corner input current",
+   "source": [
+    "L3:2"
+   ],
+   "sinks": [
+    [
+     "U5:4",
+     1.15
+    ],
+    [
+     "U5:5",
+     1.15
+    ],
+    [
+     "U5:6",
+     1.15
+    ],
+    [
+     "U5:7",
+     1.15
+    ]
+   ]
+  }
+ ]
+}

@@ -32,7 +32,7 @@ def stitch_pads(r):
         r.via_near(ref, num)
 
 
-def thermal_vias(r, net, pts, size=0.6, drill=0.3):
+def thermal_vias(r, net, pts, size=0.6, drill=0.3, margin=0.15):
     """Vias joining a net's F.Cu pour to its B.Cu copper at the given points, each kept off every pad (no unfilled
     via-in-pad: it wicks solder from the joint) and clearance-checked like any other via."""
     from shapely.geometry import Point
@@ -40,7 +40,7 @@ def thermal_vias(r, net, pts, size=0.6, drill=0.3):
     pads = unary_union([p['geom'] for lst in r.pads.values() for p in lst])
     n = 0
     for q in pts:
-        if not pads.intersects(Point(q).buffer(size / 2 + 0.15)) and r.via(q, net, size, drill):
+        if not pads.intersects(Point(q).buffer(size / 2 + margin)) and r.via(q, net, size, drill):
             n += 1
     r.log.append('thermal_vias %s: %d of %d' % (net, n, len(pts)))
     return n
@@ -188,53 +188,74 @@ def charger(r):
 
 
 def protection(r):
-    """J2 BAT+ -> F1 -> BAT; J3 BAT- -> Q1 (reverse block) -> CELLN -> Q2 (DSG) -> MID -> Q3 (CHG) -> GND.
-    ~5.6 A worst case (15 W out at 3.0 V): every link in the chain is a pour across a facing-column gap."""
+    """J2 BAT+ -> F1 -> BAT; J3 BAT- -> Q1 (reverse block) -> CELLN -> Q2 (DSG) -> MID -> Q3 (CHG) -> GND, ~7 A at 15 W
+    from an empty cell. DMN1004UFV (PowerDI3333-8): Q2 | Q1 in a row (sources face across the CELLN gap, Q1's drain faces
+    J3), Q3 under Q2's drain (MID). Each pour has same-net copper on B.Cu, joined by vias in the gaps between the pads
+    (docs/thermal.md). The gate and sense lines that cannot cross on F.Cu take short B.Cu lanes the islands leave free:
+    OD at x 142.7 (from a via above Q2's gate, through a notch in BAT_BOTTOM), CS at x 142.75, Q1's gate at y 128.8."""
     batp, bat = r.net('F1', '1'), r.net('F1', '2')
+    mid, celln, batn = r.net('Q2', '5'), r.net('Q1', '1'), r.net('J3', '1')
+    q1g, q2g, q3g, cs, vdd = r.net('Q1', '4'), r.net('Q2', '4'), r.net('Q3', '4'), r.net('U3', '2'), r.net('U3', '5')
     r.zone(batp, 'F.Cu', [(144.5, 119.5), (151.5, 119.5), (151.5, 123.6), (144.5, 123.6)], prio=10, name='BATP')
-    r.zone(bat, 'F.Cu', [(139.5, 119.5), (143.3, 119.5), (143.3, 124.9), (139.5, 124.9)], prio=10, name='BAT_FUSE')
-    r.via_field(bat, 140.2, 123.8, 141.8, 124.6, pitch=0.8)
-    # BAT on B.Cu from the fuse to the charger (20 mm x 3.6 mm, ~3 mOhm)
-    r.zone(bat, 'B.Cu', [(120.7, 121.0), (148.2, 121.0), (148.2, 124.6), (120.7, 124.6)], prio=10, name='BAT_BOTTOM')
-    mid, celln, batn = r.net('Q2', '1'), r.net('Q1', '4'), r.net('J3', '1')
-    r.zone(mid, 'F.Cu', [(140.0, 125.5), (143.4, 125.5), (143.4, 129.35), (140.0, 129.35)], prio=11, name='MID')
-    r.zone(celln, 'F.Cu', [(143.6, 124.8), (145.2, 124.8), (145.2, 125.6), (145.85, 125.6), (145.85, 128.6), (147.75, 128.6),
-                           (147.75, 130.4), (144.2, 130.4), (144.2, 128.6), (143.6, 128.6)], prio=11, name='CELLN')
-    r.zone(batn, 'F.Cu', [(145.95, 125.4), (151.5, 125.4), (151.5, 128.3), (145.95, 128.3)], prio=10, name='BATN')
-    # heat (docs/thermal.md s3): the three FETs carry the full battery current (~0.57 W each at 15 W from an empty cell)
-    # on small pours of their own nets, which cannot be stitched to the GND plane. Same-net copper on B.Cu under each,
-    # joined by vias in the gaps between the pads, doubles their spreading area. Edges clear the Q3 gate track (x 138.2);
-    # the R7 BAT feed runs along the right edge (below) so it does not cut these islands.
-    r.rect(mid, 'B.Cu', 139.6, 125.3, 143.4, 129.3, prio=11, name='MID_B')
-    r.zone(celln, 'B.Cu', [(143.75, 125.3), (145.85, 125.3), (145.85, 128.45), (147.6, 128.45), (147.6, 130.2),
-                           (143.75, 130.2)], prio=11, name='CELLN_B')
-    r.rect(batn, 'B.Cu', 146.1, 125.3, 150.95, 128.25, prio=11, name='BATN_B')
-    thermal_vias(r, mid, [(141.7, 126.0), (141.7, 126.8), (141.7, 127.6), (140.6, 128.95), (141.4, 128.95),
-                          (142.2, 128.95), (143.0, 128.95)])
-    thermal_vias(r, celln, [(144.7, 126.0), (144.7, 126.8), (144.7, 127.6), (144.7, 128.4), (144.75, 129.05),
-                            (145.55, 129.05), (146.35, 129.05), (147.15, 129.05)])
-    thermal_vias(r, batn, [(147.65, 125.95), (147.65, 126.75), (147.65, 127.55)])
-    # Q3 source -> GND
-    for y in (126.9, 127.75, 128.6):
-        r.via((138.95, y), 'GND')
-    # gates: Q1 from BAT via R9 (R10 to CELLN), Q2 / Q3 from the HY2113
-    q1g = r.P('Q1', '3')
-    r.track('F.Cu', 0.25, ('R9', '2'), ('R10', '1'), (q1g[0], r.P('R10', '1')[1]), ('Q1', '3'))
-    q2g = r.P('Q2', '3')
-    r.track('F.Cu', 0.2, ('Q2', '3'), (q2g[0], 129.4), ('U3', '1'))
-    q3g = r.net('Q3', '3')
-    r.track('F.Cu', 0.2, ('Q3', '3'), (138.2, 125.7))
-    r.via((138.2, 125.7), q3g, 0.45, 0.2)
-    r.track('B.Cu', 0.2, (138.2, 125.7), (138.2, 131.3), (141.4, 131.3), (142.2, 132.1), (142.2, 132.5), net=q3g)
-    r.via((142.2, 132.5), q3g, 0.45, 0.2)
-    r.track('F.Cu', 0.2, (142.2, 132.5), (142.75, 131.95), ('U3', '3'))
-    r.track('F.Cu', 0.2, ('U3', '2'), ('R8', '1'))                                    # CS
-    c81 = r.P('C8', '1')
-    r.track('F.Cu', 0.25, ('U3', '5'), (c81[0], r.P('U3', '5')[1]), ('C8', '1'), ('R7', '2'))   # VDD
-    r71 = r.P('R7', '1')
-    r.track('F.Cu', 0.3, ('R7', '1'), (r71[0], r71[1] + 1.0))
-    r.via((r71[0], r71[1] + 1.0), bat)
-    r.track('B.Cu', 0.3, (r71[0], r71[1] + 1.0), (151.35, r71[1] + 1.0), (151.35, 123.9), (148.0, 123.9), net=bat)
+    r.zone(bat, 'F.Cu', [(139.5, 119.5), (143.3, 119.5), (143.3, 124.05), (142.25, 124.05), (142.25, 124.5),
+                         (139.5, 124.5)], prio=10, name='BAT_FUSE')
+    r.via_field(bat, 140.2, 123.5, 141.6, 124.2, pitch=0.7)
+    # BAT on B.Cu from the fuse to the charger (20 mm x 3.6 mm, ~3 mOhm); notch for Q2's gate via
+    r.zone(bat, 'B.Cu', [(120.7, 121.0), (148.2, 121.0), (148.2, 124.6), (143.3, 124.6), (143.3, 124.05), (142.0, 124.05),
+                         (142.0, 124.6), (120.7, 124.6)], prio=10, name='BAT_BOTTOM')
+    # chain pours (F.Cu) and their B.Cu islands
+    r.zone(mid, 'F.Cu', [(138.6, 124.75), (141.85, 124.75), (141.85, 127.6), (142.25, 127.6), (142.25, 130.75),
+                         (138.6, 130.75)], prio=11, name='MID')
+    r.zone(celln, 'F.Cu', [(142.36, 125.39), (143.62, 125.39), (143.62, 124.765), (144.52, 124.765), (144.52, 126.51),
+                           (143.26, 126.51), (143.26, 127.135), (142.36, 127.135)], prio=11, name='CELLN')
+    r.zone(batn, 'F.Cu', [(145.27, 124.2), (151.5, 124.2), (151.5, 128.25), (148.6, 128.25), (148.6, 127.35),
+                          (145.27, 127.35)], prio=10, name='BATN')
+    r.rect(mid, 'B.Cu', 138.6, 124.85, 142.35, 130.75, prio=11, name='MID_B')
+    r.rect(celln, 'B.Cu', 143.1, 124.85, 145.8, 128.75, prio=11, name='CELLN_B')
+    r.zone(batn, 'B.Cu', [(146.0, 124.85), (151.05, 124.85), (151.05, 128.4), (148.6, 128.4), (148.6, 127.35),
+                          (146.0, 127.35)], prio=11, name='BATN_B')
+    thermal_vias(r, mid, [(138.9, 125.2), (138.9, 126.0), (138.9, 126.8), (139.9, 127.64), (140.6, 127.64),
+                          (141.3, 127.64), (139.35, 128.8), (139.35, 129.6), (139.35, 130.4)], 0.45, 0.2)
+    thermal_vias(r, celln, [(143.44, 126.0)], 0.45, 0.2, margin=0.05)      # in the 0.76 mm gap between the source pads
+    thermal_vias(r, batn, [(147.975, 125.2), (147.975, 125.9), (147.975, 126.6)], 0.45, 0.2)
+    # Q3 sources -> GND
+    for x in (140.0, 140.8, 141.6):
+        r.via((x, 132.65), 'GND')
+    # OD: U3 pin 1 -> Q2 gate (top of Q2's source column) on B.Cu
+    r.track('F.Cu', 0.2, ('Q2', '4'), (142.7, 124.5))
+    r.via((142.7, 124.5), q2g, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (142.7, 124.5), (142.7, 128.6), net=q2g)
+    r.via((142.7, 128.6), q2g, 0.45, 0.2)
+    r.track('F.Cu', 0.2, (142.7, 128.6), ('U3', '1'))
+    # OC: U3 pin 3 -> Q3 gate
+    r.track('F.Cu', 0.2, ('U3', '3'), (r.P('U3', '3')[0] - 0.6, 131.3), (r.P('Q3', '4')[0], 131.3), ('Q3', '4'))
+    # CS: U3 pin 2 -> R8 (2 k) -> GND, a B.Cu hop past the OC line
+    r.track('F.Cu', 0.2, ('U3', '2'), (142.75, 130.0))
+    r.via((142.75, 130.0), cs, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (142.75, 130.0), (142.75, 132.4), net=cs)
+    r.via((142.75, 132.4), cs, 0.45, 0.2)
+    r.track('F.Cu', 0.2, (142.75, 132.4), (143.6, 132.9), ('R8', '1'))
+    # VSS: CELLN_B -> U3 pin 6, then R10 and C8 along y 129.25
+    r.via((145.55, 128.45), celln, 0.45, 0.2)
+    r.track('F.Cu', 0.25, (145.55, 128.45), ('U3', '6'))
+    x10 = r.P('R10', '2')[0]
+    r.track('F.Cu', 0.25, ('U3', '6'), (x10, r.P('U3', '6')[1]), ('R10', '2'))
+    r.track('F.Cu', 0.25, (x10, r.P('U3', '6')[1]), (r.P('C8', '2')[0], r.P('U3', '6')[1]), ('C8', '2'))
+    # VDD: U3 pin 5 -> C8 -> R7
+    r.track('F.Cu', 0.25, ('U3', '5'), (r.P('C8', '1')[0], r.P('U3', '5')[1]), ('C8', '1'), ('R7', '2'))
+    # Q1 gate: under Q1's drain to R10, then B.Cu under J3 to R9
+    q14 = r.P('Q1', '4')
+    r.track('F.Cu', 0.25, ('Q1', '4'), (q14[0], 127.75), (148.1, 127.75), net=q1g)
+    r.track('F.Cu', 0.25, (x10, 127.75), ('R10', '1'))
+    r.via((148.1, 127.8), q1g, 0.45, 0.2)
+    r.track('B.Cu', 0.2, (148.1, 127.8), (148.1, 128.8), (150.3, 128.8), net=q1g)
+    r.via((150.3, 128.75), q1g, 0.45, 0.2)
+    r.track('F.Cu', 0.2, (150.3, 128.75), ('R9', '2'))
+    # BAT to R7 / R9 (VDD filter, Q1 gate pull-up) from BAT_BOTTOM, along the right edge on B.Cu
+    r.track('F.Cu', 0.3, ('R7', '1'), ('R9', '1'))
+    r.track('F.Cu', 0.3, ('R7', '1'), (150.6, 130.8))
+    r.via((150.6, 130.8), bat, 0.45, 0.2)
+    r.track('B.Cu', 0.3, (150.6, 130.8), (151.45, 130.8), (151.45, 123.9), (148.0, 123.9), net=bat)
 
 
 def boost12(r):

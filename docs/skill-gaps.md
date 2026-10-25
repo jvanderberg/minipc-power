@@ -378,6 +378,38 @@ logged.
     writer is on an uncommitted local branch. Publish it, and pin the kicad-skills revision a project builds with
     (e.g. a `KICAD_SKILLS_REV` in `tools/kskills.py` checked at build time).
 
+## Found during the datasheet, heat and protection rework (2026-10-25, kicad-skills main 8dcd3da)
+
+46. **high - Datasheet links were dropped by every stage.** All 87 BOM parts had empty Datasheet fields in the schematic
+    and on the board although JLCImport writes an LCSC link into every symbol it imports: the redrawn symbols started
+    from `datasheet=''`, passives kept KiCad's "~", schgen ignored the library value and board_setup never copied the
+    netlist's `<datasheet>` element. Fixed here (symbols.DATASHEETS, LCSC link per part, board_setup copies it, generators
+    refuse a blank) and in kicad-skills (R22, `partfields.py`).
+
+47. **high - Heat was never budgeted.** The review skill had no thermal model ("temperature rise needs judgment") and a
+    one-line checklist item with no required output, so it was skipped. The battery path (protection FETs, BATFET, fuse)
+    turned out to be 3-4 times the converter losses at the 15 W corner. See thermal.md; kicad-skills branch `thermal`
+    adds the heat table and solver (R23).
+
+48. **high - Stock was checked in the wrong region.** `jlcimport-cli search` without `--region` uses the CLI's default
+    (here `cn`): the first FET chosen for the heat fix (SiSS80DN, C3289423) showed 12,000 in stock, the user approved it,
+    and the block was re-laid out around it before `bom_check.py` (`--region global`) reported 0 for JLCPCB assembly.
+    Availability belongs to (part, assembler, region, quantity, date) and has to be checked at selection time.
+
+49. **medium - A part swap changed a derived value and an approved decision.** The HY2113 senses over-current across
+    Q2 + Q3, so the trip current depends on the FET's RDS(on): the protector variant had to be re-chosen for each FET,
+    and the substitution was started without asking. Derived values need a "depends on" note so a swap re-derives them,
+    and a change to an approved part or threshold goes back to the owner.
+
+50. **low - `power.py` crashes on a renamed net.** After the part swap KiCad renamed `Net-(J3-Pad1)` to `Net-(Q1-D)`;
+    the run failed with a numpy NaN error instead of "run batn_q1: net not on the board".
+
+51. **low - `bom_check.py`'s summary swaps two counts** ("0 extended, 38 without a datasheet link" meant the reverse).
+
+52. **low - via_near put vias inside a neighbouring same-net pad** (Q3's source pads): via_ok's obstacle set skips
+    same-net copper, so an unfilled via landed in the next pad. Fixed in tools/routing.py (no via on any pad but the
+    one it stitches).
+
 ## Tool notes
 
 Changes or workarounds to existing tools (skills' scripts, jlcimport). None of the skills' scripts have been modified

@@ -17,7 +17,7 @@ DATASHEETS = {
     'CH224Q': 'https://www.lcsc.com/datasheet/C46061833.pdf', 'BQ25606': _TI % 'bq25606',
     'HY2113': 'https://www.lcsc.com/datasheet/C168772.pdf', 'TPS61178': _TI % 'tps61178',
     'TPS61088-Q1': _TI % 'tps61088-q1', 'TPS63802': _TI % 'tps63802',
-    'CSD13202Q2': _TI % 'csd13202q2', 'CSD25404Q3': _TI % 'csd25404q3',
+    'DMN1004UFV': 'https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf', 'CSD25404Q3': _TI % 'csd25404q3',
     '2N7002': 'https://www.lcsc.com/datasheet/C8545.pdf',
 }
 
@@ -145,8 +145,8 @@ def library():
     return lib
 
 
-SYMBOLS['CSD13202Q2'] = fet(DEVICE.get('Q_NMOS'), 'CSD13202Q2', D=['1', '2', '5', '6', '8'], G=['3'], S=['4', '7'],
-                            desc='12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)')
+SYMBOLS['DMN1004UFV'] = fet(DEVICE.get('Q_NMOS'), 'DMN1004UFV', D=['5'], G=['4'], S=['1', '2', '3'],
+                            desc='12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)')
 SYMBOLS['CSD25404Q3'] = fet(DEVICE.get('Q_PMOS'), 'CSD25404Q3', D=['1', '2', '3'], G=['4'], S=['5'],
                             desc='-20 V P-FET, KiCad NexFET VSON-8 (source pins 5-8 merged into pad 5)')
 SYMBOLS['2N7002'] = fet(DEVICE.get('Q_NMOS'), '2N7002', D=['3'], G=['1'], S=['2'], desc='SOT-23: 1 G, 2 S, 3 D')

@@ -2034,7 +2034,7 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "CSD13202Q2"
+	(symbol "DMN1004UFV"
 		(pin_numbers
 			(hide yes)
 		)
@@ -2058,7 +2058,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CSD13202Q2"
+		(property "Value" "DMN1004UFV"
 			(at 5.08 -1.27 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2080,7 +2080,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2091,7 +2091,7 @@
 				)
 			)
 		)
-		(property "Description" "12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)"
+		(property "Description" "12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2113,7 +2113,7 @@
 				)
 			)
 		)
-		(symbol "CSD13202Q2_0_1"
+		(symbol "DMN1004UFV_0_1"
 			(polyline
 				(pts
 					(xy 0.254 1.905) (xy 0.254 -1.905)
@@ -2280,48 +2280,10 @@
 				)
 			)
 		)
-		(symbol "CSD13202Q2_1_1"
+		(symbol "DMN1004UFV_1_1"
 			(pin passive line
 				(at 2.54 5.08 270)
 				(length 2.54)
-				(name "D"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 2.54 5.08 270)
-				(length 2.54)
-				(hide yes)
-				(name "D"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "2"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 2.54 5.08 270)
-				(length 2.54)
-				(hide yes)
 				(name "D"
 					(effects
 						(font
@@ -2330,44 +2292,6 @@
 					)
 				)
 				(number "5"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 2.54 5.08 270)
-				(length 2.54)
-				(hide yes)
-				(name "D"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "6"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 2.54 5.08 270)
-				(length 2.54)
-				(hide yes)
-				(name "D"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "8"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2385,7 +2309,7 @@
 						)
 					)
 				)
-				(number "3"
+				(number "4"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2403,7 +2327,7 @@
 						)
 					)
 				)
-				(number "4"
+				(number "1"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -2422,7 +2346,26 @@
 						)
 					)
 				)
-				(number "7"
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(hide yes)
+				(name "S"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
 					(effects
 						(font
 							(size 1.27 1.27)

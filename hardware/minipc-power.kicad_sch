@@ -3052,405 +3052,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "minipc:CSD13202Q2"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "Q"
-				(at 5.08 1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Value" "CSD13202Q2"
-				(at 5.08 -1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 5.08 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "NMOS N-MOS"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "CSD13202Q2_0_1"
-				(polyline
-					(pts
-						(xy 0.254 1.905) (xy 0.254 -1.905)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.254 0) (xy -2.54 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.762 2.286) (xy 0.762 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.762 0.508) (xy 0.762 -0.508)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.762 -1.27) (xy 0.762 -2.286)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(circle
-					(center 1.651 0)
-					(radius 2.794)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 2.54) (xy 2.54 1.778)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 2.54 1.778)
-					(radius 0.254)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(circle
-					(center 2.54 -1.778)
-					(radius 0.254)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.921 0.381) (xy 3.683 0.381)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "CSD13202Q2_1_1"
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(hide yes)
-					(name "D"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin input line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "G"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "S"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(hide yes)
-					(name "S"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "minipc:CSD25404Q3"
 			(pin_numbers
 				(hide yes)
@@ -3783,6 +3384,348 @@
 						)
 					)
 					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "minipc:DMN1004UFV"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "Q"
+				(at 5.08 1.27 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "DMN1004UFV"
+				(at 5.08 -1.27 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "NMOS N-MOS"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "DMN1004UFV_0_1"
+				(polyline
+					(pts
+						(xy 0.254 1.905) (xy 0.254 -1.905)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 0) (xy -2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 2.286) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 0.508) (xy 0.762 -0.508)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.27) (xy 0.762 -2.286)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy 2.54 1.778)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.921 0.381) (xy 3.683 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "DMN1004UFV_1_1"
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "G"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5464,7 +5407,7 @@
 		)
 		(uuid "f54739dd-6f91-4363-92cf-fff7acf03ef5")
 	)
-	(text "Q1: a reversed pack turns it off and its body diode\nblocks, so U3 never sees reverse voltage.\nTrip: 250 mV / (Q2+Q3) = ~8 A hot ... ~15 A cold."
+	(text "Q1: a reversed pack turns it off and its body diode\nblocks, so U3 never sees reverse voltage.\nTrip: 250 mV / (Q2+Q3) = ~17 A hot ... ~45 A cold."
 		(exclude_from_sim no)
 		(at 345.44 167.64 0)
 		(effects
@@ -5473,7 +5416,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "6c7aa86b-9359-4e40-8783-ff3ab4ee15dc")
+		(uuid "21249c4b-eb5b-5f3e-9706-76fb0510b9e5")
 	)
 	(text "Solder pads, enable switch, battery sense"
 		(exclude_from_sim no)
@@ -12153,7 +12096,7 @@
 		)
 	)
 	(symbol
-		(lib_id "minipc:CSD13202Q2")
+		(lib_id "minipc:DMN1004UFV")
 		(at 365.76 137.16 90)
 		(unit 1)
 		(body_style 1)
@@ -12174,7 +12117,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CSD13202Q2"
+		(property "Value" "DMN1004UFV"
 			(at 370.84 127 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12185,7 +12128,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SON:Texas_DQK"
+		(property "Footprint" "Package_SON:Diodes_PowerDI3333-8"
 			(at 365.76 137.16 90)
 			(hide yes)
 			(show_name no)
@@ -12197,7 +12140,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf"
 			(at 365.76 137.16 90)
 			(hide yes)
 			(show_name no)
@@ -12209,7 +12152,7 @@
 				(justify left)
 			)
 		)
-		(property "Description" "12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)"
+		(property "Description" "12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)"
 			(at 365.76 137.16 90)
 			(hide yes)
 			(show_name no)
@@ -12221,7 +12164,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C187839"
+		(property "LCSC" "C316138"
 			(at 365.76 137.16 90)
 			(hide yes)
 			(show_name no)
@@ -12232,6 +12175,12 @@
 				)
 				(justify left)
 			)
+		)
+		(pin "5"
+			(uuid "aa413f77-7a00-4184-b339-3189b9bc8945")
+		)
+		(pin "4"
+			(uuid "c34cb9dd-df0f-44df-b2ed-a6704b52f4c0")
 		)
 		(pin "1"
 			(uuid "2355137a-7331-44f6-b774-75f69bfca1ac")
@@ -12239,23 +12188,8 @@
 		(pin "2"
 			(uuid "58b23189-b324-45d2-a872-d12bb9a7ab89")
 		)
-		(pin "5"
-			(uuid "aa413f77-7a00-4184-b339-3189b9bc8945")
-		)
-		(pin "6"
-			(uuid "f1631bec-14d3-43b8-b11f-2f779bcca7ca")
-		)
-		(pin "8"
-			(uuid "614fd830-15d2-4025-abe2-340960425c01")
-		)
 		(pin "3"
 			(uuid "9a9d0f1d-fbbf-46c4-8226-8b376e50d476")
-		)
-		(pin "4"
-			(uuid "c34cb9dd-df0f-44df-b2ed-a6704b52f4c0")
-		)
-		(pin "7"
-			(uuid "bb09e8eb-13ef-481c-8a7b-a835be73c821")
 		)
 		(instances
 			(project "minipc-power"
@@ -12267,7 +12201,7 @@
 		)
 	)
 	(symbol
-		(lib_id "minipc:CSD13202Q2")
+		(lib_id "minipc:DMN1004UFV")
 		(at 396.24 132.08 270)
 		(unit 1)
 		(body_style 1)
@@ -12288,7 +12222,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CSD13202Q2"
+		(property "Value" "DMN1004UFV"
 			(at 391.16 144.78 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12299,7 +12233,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SON:Texas_DQK"
+		(property "Footprint" "Package_SON:Diodes_PowerDI3333-8"
 			(at 396.24 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12311,7 +12245,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf"
 			(at 396.24 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12323,7 +12257,7 @@
 				(justify left)
 			)
 		)
-		(property "Description" "12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)"
+		(property "Description" "12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)"
 			(at 396.24 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12335,7 +12269,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C187839"
+		(property "LCSC" "C316138"
 			(at 396.24 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12346,6 +12280,12 @@
 				)
 				(justify left)
 			)
+		)
+		(pin "5"
+			(uuid "afd49d8c-ca47-4b24-b31d-00146f7bbeb9")
+		)
+		(pin "4"
+			(uuid "367ffb7a-3847-4ec1-adf3-c6a3bcc826a2")
 		)
 		(pin "1"
 			(uuid "467d84b3-50f5-4740-9301-f2c95f069a66")
@@ -12353,23 +12293,8 @@
 		(pin "2"
 			(uuid "0952e904-fcc8-4ff8-8566-b4b4ab85a0ea")
 		)
-		(pin "5"
-			(uuid "afd49d8c-ca47-4b24-b31d-00146f7bbeb9")
-		)
-		(pin "6"
-			(uuid "00b5ac4a-c796-4880-95b6-bc0275c665ed")
-		)
-		(pin "8"
-			(uuid "912c05eb-8fdb-4d59-9bc8-3b85e819e39f")
-		)
 		(pin "3"
 			(uuid "d9bae73e-d4d4-43aa-b7b2-861ff149cffe")
-		)
-		(pin "4"
-			(uuid "367ffb7a-3847-4ec1-adf3-c6a3bcc826a2")
-		)
-		(pin "7"
-			(uuid "71bbcd19-5eef-4e88-962c-6b3a72f0a617")
 		)
 		(instances
 			(project "minipc-power"
@@ -12381,7 +12306,7 @@
 		)
 	)
 	(symbol
-		(lib_id "minipc:CSD13202Q2")
+		(lib_id "minipc:DMN1004UFV")
 		(at 416.56 132.08 90)
 		(mirror x)
 		(unit 1)
@@ -12403,7 +12328,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "CSD13202Q2"
+		(property "Value" "DMN1004UFV"
 			(at 420.37 129.54 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12414,7 +12339,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_SON:Texas_DQK"
+		(property "Footprint" "Package_SON:Diodes_PowerDI3333-8"
 			(at 416.56 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12426,7 +12351,7 @@
 				(justify left)
 			)
 		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/csd13202q2.pdf"
+		(property "Datasheet" "https://www.diodes.com/assets/Datasheets/DMN1004UFV.pdf"
 			(at 416.56 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12438,7 +12363,7 @@
 				(justify left)
 			)
 		)
-		(property "Description" "12 V N-FET, TI DQK (KiCad Package_SON:Texas_DQK pads)"
+		(property "Description" "12 V N-FET, 2.5 V rated, Diodes PowerDI3333-8 type UX (KiCad Diodes_PowerDI3333-8 pads)"
 			(at 416.56 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12450,7 +12375,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C187839"
+		(property "LCSC" "C316138"
 			(at 416.56 132.08 90)
 			(hide yes)
 			(show_name no)
@@ -12461,6 +12386,12 @@
 				)
 				(justify left)
 			)
+		)
+		(pin "5"
+			(uuid "35f27fac-9459-41d8-98e4-34fcb85f01b4")
+		)
+		(pin "4"
+			(uuid "93814d3b-e95c-4d31-a670-5996de187bba")
 		)
 		(pin "1"
 			(uuid "0f9df9e8-a4b3-4d73-9fb4-57fb3b0fd135")
@@ -12468,23 +12399,8 @@
 		(pin "2"
 			(uuid "f1eda4aa-7e2b-44fa-91a2-092ee7d59473")
 		)
-		(pin "5"
-			(uuid "35f27fac-9459-41d8-98e4-34fcb85f01b4")
-		)
-		(pin "6"
-			(uuid "3e813bf3-4190-4ae6-9f91-393ef086e71e")
-		)
-		(pin "8"
-			(uuid "6afdfb5d-e820-4fbd-8999-b2c3a3871b61")
-		)
 		(pin "3"
 			(uuid "0db884d1-d18a-48d3-a796-9675f43884dd")
-		)
-		(pin "4"
-			(uuid "93814d3b-e95c-4d31-a670-5996de187bba")
-		)
-		(pin "7"
-			(uuid "45bb0beb-1f23-4c2e-bbae-4369ea911148")
 		)
 		(instances
 			(project "minipc-power"

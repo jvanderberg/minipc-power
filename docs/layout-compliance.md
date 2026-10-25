@@ -29,7 +29,8 @@ it was clean while two of the charger rules below were broken (skill-gaps.md, ga
 
 | Rule | Status |
 |---|---|
-| High-current path wide and short | ok: FETs alternate orientation so each link is a 1.4 mm pour gap (MID, CELLN, BATN). BAT goes through the fuse vias to the B.Cu pour |
+| High-current path wide and short | ok (re-laid 2026-10-25 for DMN1004UFV, 3.3 mm parts): Q2 \| Q1 in a row with their source columns 0.76 mm apart (CELLN), Q1's drain 0.8 mm from J3 (BATN), Q3 under Q2's drain (MID); same-net islands on B.Cu joined by vias. Chain copper (power.py): J3-Q1 0.3, CELLN 1.1, MID 0.3, ground return 0.9 mOhm. CELLN is the narrowest link (source columns overlap 1.1 mm: the gate pins sit at opposite ends), ~0.05 W at 7 A. BAT goes through the fuse vias to the B.Cu pour |
+| Gate and sense lines | OD (to Q2's gate) and CS take short B.Cu lanes the islands leave free; Q1's gate runs under Q1's drain to R10, then on B.Cu under J3 to R9 |
 | VDD RC filter at the IC | ok: R7/C8 next to U3 VDD/VSS |
 | CS resistor at the CS pin | ok: R8 |
 
