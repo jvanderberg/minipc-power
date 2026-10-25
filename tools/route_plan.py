@@ -29,7 +29,8 @@ def stitch_pads(r):
         p = lst[0]
         if p['th'] or p['net'] not in ('GND', vsys) or ref.startswith(('U', 'J', 'H')) or (ref, num) in AGND:
             continue
-        r.via_near(ref, num)
+        if r.via_near(ref, num) is None:          # no room for a 0.6/0.3 that keeps a mask web: try a 0.45/0.2
+            r.via_near(ref, num, size=0.45, drill=0.2)
 
 
 def thermal_vias(r, net, pts, size=0.6, drill=0.3, margin=0.15):

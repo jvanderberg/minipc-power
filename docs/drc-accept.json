@@ -1,0 +1,1 @@
+[{"type": "silk_edge_clearance", "items": ["Segment of J1 "], "reason": "USB-C receptacle J1 overhangs the board edge by design; its own silkscreen outline crosses Edge.Cuts (same exemption as tools/build_board.sh)"}]
